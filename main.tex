@@ -48,7 +48,7 @@
 
 \documentclass[sigconf]{acmart}
 \usepackage[linesnumbered,ruled,vlined]{algorithm2e}
-
+\usepackage{subfigure}
 \usepackage{graphicx}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
@@ -437,6 +437,75 @@ We provide theoretical justifications for using secondary methods for determinin
 \label{metrics}
 \label{methods}
 \section{Results}
+
+\subsection{Accuracy}
+
+\begin{figure*}
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_accuracy.pdf}
+	\end{subfigure}%
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_accuracy.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_accuracy.pdf}
+	\end{subfigure}
+	\caption{ Caption...}.
+	\label{fig:accuracy}
+\end{figure*}
+
+\subsection{Training Time}
+
+\begin{figure*}
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_train_time.pdf}
+	\end{subfigure}%
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_train_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_train_time.pdf}
+	\end{subfigure}
+	\caption{ Caption...}.
+	\label{fig:accuracy}
+\end{figure*}
+
+\subsection{Prediction Time}
+
+
+\begin{figure*}
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_predict_time.pdf}
+	\end{subfigure}%
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_predict_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}
+		\centering
+		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_predict_time.pdf}
+	\end{subfigure}
+	\caption{ Caption...}.
+	\label{fig:accuracy}
+\end{figure*}
+
+\subsection{Symmetry}
+
+
+
 \label{results}
 \section{Considerations}
 \label{considerations}
