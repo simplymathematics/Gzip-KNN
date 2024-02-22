@@ -559,6 +559,8 @@ Figure~\ref{fig:prediction_time} shows the prediction time of different compress
 
 \subsubsection{Symmetry}
 
+Figure~\ref{fig:symmetry} shows the 
+
 \begin{figure*}
     \begin{subfigure}
         \centering
@@ -570,6 +572,19 @@ Figure~\ref{fig:prediction_time} shows the prediction time of different compress
     \end{subfigure}
     \caption{Accuracy across several compression methods and distance metrics with and without assuming symmetric distances.}
     \label{fig:symmetry}
+\end{figure*}
+
+\begin{figure*}
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor_train_time.pdf}
+    \end{subfigure}
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor_train_time.pdf}
+    \end{subfigure}
+    \caption{Prediction time across several compression methods and distance metrics with and without assuming symmetric distances.}
+    \label{fig:symmetry_time}
 \end{figure*}
 
 \subsection{KDD-NSL}
