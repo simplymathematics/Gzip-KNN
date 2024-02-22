@@ -305,7 +305,7 @@ The algorithm for k-nearest neighbors is reproduced in Alg.~\ref{alg:knn}.
     \textrm{Indicies} \leftarrow \{ 0, 1, ..., k \}
     \]
     \[
-    \textrm{Class~Labels} \leftarrow \{y_i | i \in \textrm{Indices} \}
+    \textrm{y_{test}} \leftarrow \{y_i | i \in \textrm{Indices} \}
     \]
     \[
     \hat{y}_{\text{test}} = \arg\max_y \sum_{i=1}^{k} \mathbb{I}(y_i = y)
