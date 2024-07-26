@@ -51,6 +51,7 @@
 \usepackage{subfigure}
 \usepackage{graphicx}
 \usepackage{algpseudocode}
+\usepackage{subcaption}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -482,6 +483,27 @@ We provide theoretical justifications for using secondary methods for determinin
 \section{Results}
 \label{results}
 
+\begin{figure*}[t]
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=\textwidth]{figs/combined/models_vs_accuracy.pdf}
+        \caption{Accuracy across models and datasets. The colour conveys the number of samples provided during training.}
+        \label{acc_summary}
+    \end{subfigure}
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=\textwidth]{figs/combined/models_vs_train_time.pdf}
+        \caption{Training Time across models and datasets. The colour conveys the number of samples provided during training.}
+        \label{train_time_summary}
+    \end{subfigure}
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=\textwidth]{figs/combined/models_vs_train_time.pdf}
+        \caption{Prediction Time across models and datasets. The colour conveys the number of samples provided during training.}
+        \label{pred_time_summary}
+    \end{subfigure}
+    \label{fig:sample_summary}
+\end{figure*}
 
 
 \section{Considerations}
