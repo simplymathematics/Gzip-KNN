@@ -47,9 +47,10 @@
 %%
 
 \documentclass[sigconf]{acmart}
-\usepackage[linesnumbered,ruled,vlined]{algorithm2e}
+\usepackage{algorithm}
 \usepackage{subfigure}
 \usepackage{graphicx}
+\usepackage{algpseudocode}
 %%
 %% \BibTeX command to typeset BibTeX logo in the docs
 \AtBeginDocument{%
@@ -166,7 +167,7 @@
 
 \begin{abstract}
   Machine learning have proven remarkable performance across a wide variety of domains, but nevertheless fail to adversaries during model training or deployment. 
-  Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API. 
+  Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API.  
   However, the use of compression algorithms in conjunction with clustering algorithms has proven remarkably successful at text classification, excelling in few-show circumstances and across a wide-variety of datasets. This makes it ideal for a private anomaly detection algorithm. In this paper, we show how a client-side approach to anomaly detection is safer by design.
   In addition, we demonstrate the efficacy of this technique in the domain of computer security---using datasets spanning computer processes, Twitter bots, intrusion attacks, denial of service attacks, and log file outlier detection.
   We offer advice for improving the model latency and evaluate NCD in the wider context of kernel metrics to show its broad efficacy.
@@ -215,54 +216,41 @@ Distance refers to any norm or pseudo-norm for measuring the proximity of one sa
 We will define the failure rate
 \paragraph{Survival Time}
 
-\section{GZIP-KNN}
-In this section, we reproduce the GZIP-KNN algorithm proposed by Jiang et al. to inform a run-time analysis of the algorithm and offer insights towards our  improvements that are outlined in Sec~\ref{improvements}. Broadly, this method uses a widely-researched clustering model, $k$-Nearest Neighbors, in conjunction with a  distance metric called \textit{normalized compression distance} (NCD). 
+\section{Background}
 
-
-\subsection{GZIP}
-    The \texttt{gzip} package is an open-source and widely available software tool for compressing files \cite{gzip} that uses the DEFLATE compression algorithm \cite{deflate}. It uses a sliding window dictionary and Huffman coding \cite{} to compress data into an output buffer by reading the symbols one at a time. Then, it iterates through the data. If the current symbol is in the sliding window dictionary, then it will add it to the output buffer. Otherwise, it finds the longest matching sequence of symbols in the window, encodes them using Huffman coding, and removes the matches symbols from the output buffer, before adding the new key to the sliding window dictionary. The full algorithm can be found in the original paper, here\cite{deflate}.
-% \begin{algorithm}
-%   \KwData{Input data stream $input\_data$}
-%   \KwResult{Compressed data stream $compressed\_data$}
-  
-%   Initialize empty output buffer $output\_buffer$\;
-%   Initialize empty sliding window dictionary\;
-%   Initialize empty look-ahead buffer\;
-  
-%   \While{there are more input symbols}{
-%     Read next symbol $symbol$ from input\_data\;
-    
-%     \If{$symbol$ is in the sliding window dictionary}{
-%       Add $symbol$ to the look-ahead buffer\;
-%     }
-%     \Else{
-%       Find the longest match $match$ of the look-ahead buffer in the sliding window dictionary\;
-%       Emit code for $match$ (length and distance) to $output\_buffer$\;
-%       Remove matched symbols from the look-ahead buffer\;
-%       Add $symbol$ to the look-ahead buffer\;
-%       Add the new match to the sliding window dictionary\;
-%     }
-    
-%     \If{output\_buffer is full}{
-%       Write contents of output\_buffer to compressed\_data\;
-%       Empty output\_buffer\;
-%     }
-%   }
-  
-%   \If{look-ahead buffer is not empty}{
-%     Emit remaining symbols in the look-ahead buffer to $output\_buffer$\;
-%   }
-  
-%   Write any remaining contents of output\_buffer to compressed\_data\;
-  
-%   \caption{DEFLATE Compression Algorithm}
-%   \label{alg:deflate}
-% \end{algorithm}
-
+In the sections below, we outline the definition of a metric space and the connection to normalized compression distance, briefly k-Nearest Neighbor (kNN) classifiers, and give a high-level overview of the gzip compression algorithm.
 
 \subsection{Measures of Distance}
 There are many different distance measures. Jiang et. al. examined only the noise-compression distance (see Sec.~\ref{ncd}), but this method is identical to other kernel methods \cite{} that use measures of distance to cluster samples into classes. For numeric data, we can use normal scikit-learn implementations of pairwise distances \footnote{
 https://scikit-learn.org/stable/modules/classes.html\#module-sklearn.metrics.pairwise or https://scikit-learn.org/stable/modules/generated/} or just kernel metrics\footnote{sklearn.metrics.pairwise.kernel\_metrics.html\#sklearn.metrics.pairwise.kernel\_metrics}--- both of which are highly parallelizable for single- or multi-core jobs. For strings, several measures of distance are routine and available via the \texttt{levenshtein} package \cite{levenshtein}. Our choice of string metrics is outlined in Sec.~\ref{string_metrics}.
+
+% \subsubsection{Definition of metric space}
+% \begin{enumerate}
+%     \item \textit{Non-negativity:} 
+%     \[
+%     d(x, y) \geq 0
+%     \]
+%     The distance between any two points is always non-negative.
+    
+%     \item \textit{Identity of indiscernibles:} 
+%     \[
+%     d(x, y) = 0 \iff x = y
+%     \]
+%     The distance between two points is zero if and only if the points are identical.
+    
+%     \item \textit{Symmetry:} 
+%     \[
+%     d(x, y) = d(y, x)
+%     \]
+%     The distance between \( x \) and \( y \) is the same as the distance between \( y \) and \( x \).
+    
+%     \item \textbf{Triangle inequality:} 
+%     \[
+%     d(x, z) \leq d(x, y) + d(y, z)
+%     \]
+%     The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \).
+% \end{enumerate}
+
 
 \subsubsection{Normalized Compression Distance}
 \label{ncd}
@@ -272,48 +260,54 @@ https://scikit-learn.org/stable/modules/classes.html\#module-sklearn.metrics.pai
 where $\mathcal{C}(z)$ is the length  of the compressed form of the data $z$ using a compression algorithm (\textit{e.g.} DEFLATE), and $xy$ denotes the concatenation of strings $x$ and $y$. It has been used for classification tasks many times \cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}.
 \subsubsection{Other measures of string distance}
 \label{string_metrics}
-
+In addition to the NCD metric defined above, we examined several other measures of string similarity, widely used in natural language processing (NLP) and these are briefly outline below.
 % String Distances
 \begin{itemize}
-    \item \textbf{Levenshtein:} the "edit distance" or minimum number of single-character edits to transform one string into another.
-    \item \textbf{Ratio:} is one minus Levenshtein distance divided by the total length of the strings.
-    \item \textbf{SeqRatio:} identical to "Ratio", but calculated on sequences of strings by taking the single input string and splitting it into a list around whitespace characters.
-    \item \textbf{Hamming:} is the number of character positions where two strings differ, but is only defined for strings of equal length, leading to sparse distance matricies.
-    \item \textbf{Jaro:} is a measure of similarity between two strings, taking into account the number of identical characters as well as the number of transposed characters.
-    \item \textbf{Jaro-Winkler:} extends the above by incorporating a scaling factor to give weight to sub-strings that occur more frequently. 
+    \item \textit{Levenshtein:} the "edit distance" or minimum number of single-character edits to transform one string into another.
+    \item \textit{Ratio:} is one minus Levenshtein distance divided by the total length of the strings.
+    \item \textit{SeqRatio:} identical to "Ratio", but calculated on sequences of strings by taking the single input string and splitting it into a list around white-space characters.
+    \item \textit{Hamming:} is the number of character positions where two strings differ, but is only defined for strings of equal length, leading to sparse distance matricies.
+    \item \textit{Jaro:} is a measure of similarity between two strings, taking into account the number of identical characters as well as the number of transposed characters.
+    \item \textit{Jaro-Winkler:} extends the above by incorporating a scaling factor to give weight to sub-strings that occur more frequently. 
 \end{itemize}
 
+\subsection{Kernelization}
+In kernel methods, the kernel function, $k(x_i,x_j)$, takes inputs $x_i, x_j$ and maps them to a value in $\mathbb{R}^\kappa$ where $\kappa$ is the number of output dimensions (\textit{i.e.} classes). This is generally applied to transform the feature space in such a way as to be linearly separable to solve nonlinear problems in the original input space. A number near 0 for samples $x_i, x_j$ indicates similarity for both kernel methods and distance measures. This connection is deeper than that as the radial basis function kernel function can be derived from the Euclidean notion of distance ~\cite{}. Valid kernel-functions are positive semi-definite, which requires a symmetry about the major diagonal axis. While this assumption holds for many of the distance measures, this is not necessarily true for NCD, which could vary slightly depending on which sample is first in the concatenation step ($xy$). However, we propose a solution
 
-% \clearpage  TODO: Remove this. Hack to make it show up
 \subsection{KNN}
 The algorithm for k-nearest neighbors is reproduced in Alg.~\ref{alg:knn}.
 
 \begin{algorithm}
-    \KwData{Training set $X = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$; test instance $x_{\text{test}}$, }
-    \KwIn{Number of nearest neighbors for estimator, $k$; Norm, pseudo-norm, or distance metric $\mathcal{D}$, a sorting algorithm, $\textrm{Sort}()$}
-    \KwResult{Predicted class label for $x_{\text{test}}$, $y_{test}$}
+    \begin{algorithmic}[1]
+    \Require{Training set $X = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$; test instance $x_{\text{test}}$, }
+    \Require{Number of nearest neighbors for estimator, $k$; Norm, pseudo-norm, or distance metric $\mathcal{D}$, a sorting algorithm, $\textrm{Sort}()$}
     
-    \ForEach{instance $(x_i, y_i) \in X$}{
+    
+    \For{instance $(x_i, y_i) \in X$}{
         \[
         d_i = \mathcal{D}(x_{\text{test}}, x_i)
         \]
     }
-    \[
-    X \leftarrow \textrm{Sort}(X, \mathcal{D}(x_{test}, X)
-    \]
-    \[
-    \textrm{Indicies} \leftarrow \{ 0, 1, ..., k \}
-    \]
-    \[
-    \textrm{y_{test}} \leftarrow \{y_i | i \in \textrm{Indices} \}
-    \]
-    \[
-    \hat{y}_{\text{test}} = \arg\max_y \sum_{i=1}^{k} \mathbb{I}(y_i = y)
-    \]
+    \State $ X \leftarrow \textrm{Sort}(X, \mathcal{D}(x_{test}, X)
+    $
+    \State $y_{test} \leftarrow \{y_i | i \in \textrm{Indices}\}$
+    \State $\hat{y}_{\text{test}} = \arg\max_y \sum_{i=1}^{k} \mathbb{I}(y_i = y)$
     where $\mathbb{I}(y_i = y)$ is an indicator function, equal to 1 if $y_i = y$ and 0 otherwise.
+    \State \Return Predicted class label for $x_{\text{test}}$, $y_{test}$
+    \EndFor
     \caption{GZIP-KNN Classifier}
     \label{alg:knn}
+    \end{algorithmic}
 \end{algorithm}
+
+
+\subsection{GZIP-KNN}
+In this section, we reproduce the GZIP-KNN algorithm proposed by Jiang et al. to inform a run-time analysis of the algorithm and offer insights towards our  improvements that are outlined in Sec~\ref{improvements}. Broadly, this method uses a widely-researched clustering model, $k$-Nearest Neighbors, in conjunction with a  distance metric called \textit{normalized compression distance} (NCD). 
+
+
+\subsection{GZIP}
+    The \texttt{gzip} package is an open-source and widely available software tool for compressing files \cite{gzip} that uses the DEFLATE compression algorithm \cite{deflate}. It uses a sliding window dictionary and Huffman coding \cite{} to compress data into an output buffer by reading the symbols one at a time. Then, it iterates through the data. If the current symbol is in the sliding window dictionary, then it will add it to the output buffer. Otherwise, it finds the longest matching sequence of symbols in the window, encodes them using Huffman coding, and removes the matches symbols from the output buffer, before adding the new key to the sliding window dictionary. The full algorithm can be found in the original paper, here\cite{deflate}.
+
 
 \section{Security and Privacy}
 \label{security}
@@ -323,7 +317,7 @@ In this section, we outline the security and privacy risks associated with deplo
 A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and black-box categories \cite{meyers}. Whitebox attacks like the fast gradient method \cite{fgm} or \cite{deepfool} require access to the model directly while other attacks can succeed with only normal . However, it has been shown that this finding prototypical meta samples from the training set is trivial \cite{}. Likewise, we can then use this class membership data to reverse engineer the model weights \cite{} and loss gradients for a set of (potentially adversarial) examples \cite{}. Even if our attacker only has access to a typical application programming interface (API), the HopSkipJump attack \cite{hopskipjump} has been shown to minimize the number of queries needed to subvert detection at run-time. To illustrate these risks, we have included Fig.~\ref{fig:threat_model}
 \begin{figure*}[h!]
     \centering
-    \includegraphics[width=.8\textwidth]{images/attack_diagram.pdf}
+    \includegraphics[width=.6\textwidth]{images/attack_diagram.pdf}
     \caption{This diagram depicts the various threat models against a typical machine learning model.}
     \label{fig:threat_model}
 \end{figure*}
@@ -414,7 +408,7 @@ In other situations, it is necessary to minimize the number of samples used for 
 
 
 \begin{algorithm}
-  \caption{Find M-Best Indices}
+  \caption{Find M-Best Indices (Condensing)}
   \SetAlgoNlRelativeSize{0}
   \SetAlgoNlRelativeSize{-1}
   \SetAlgoNlRelativeSize{-2}
@@ -493,21 +487,21 @@ We provide theoretical justifications for using secondary methods for determinin
 Figure~\ref{fig:accuracy} shows the accuracy of different compressors, metics, and sample selection methods.
 
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/truthseeker/compressor_vs_accuracy.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_accuracy.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_accuracy.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_accuracy.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_accuracy.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_accuracy.pdf}
 	\end{subfigure}
-	\caption{Accuracy across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}
+	\caption{Accuracy across different different string kernel metrics (left), and sampling methods (right).}
 	\label{fig:accuracy}
 \end{figure*}
 
@@ -516,21 +510,21 @@ Figure~\ref{fig:accuracy} shows the accuracy of different compressors, metics, a
 Figure~\ref{fig:training_time} depicts the training time across all the tested compressors, distance metrics, and sample selection methods.
 
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/truthseeker/compressor_vs_train_time.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_train_time.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_train_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_train_time.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_train_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_train_time.pdf}
 	\end{subfigure}
-	\caption{Training time across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}
+	\caption{Training time across different different string kernel metrics (left), and sampling methods (right).}
 	\label{fig:training_time}
 \end{figure*}
 
@@ -538,21 +532,21 @@ Figure~\ref{fig:training_time} depicts the training time across all the tested c
 
 Figure~\ref{fig:prediction_time} shows the prediction time of different compressors, metics, and sample selection methods.
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/truthseeker/compressor_vs_predict_time.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/compressor_vs_predict_time.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/metric_vs_predict_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_predict_time.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/truthseeker/method_vs_predict_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/truthseeker/metric_vs_predict_time.pdf}
 	\end{subfigure}
-	\caption{Prediction time across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}.
+	\caption{Prediction time across different different string kernel metrics (left), and sampling methods (right).}.
 	\label{fig:prediction_time}
  
 \end{figure*}
@@ -562,30 +556,22 @@ Figure~\ref{fig:prediction_time} shows the prediction time of different compress
 Figure~\ref{fig:symmetry} shows the 
 
 \begin{figure*}
-    \begin{subfigure}
-        \centering
-        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor.pdf}
-    \end{subfigure}
+    % \begin{subfigure}
+    %     \centering
+    %     \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor.pdf}
+    % \end{subfigure}
     \begin{subfigure}
         \centering
         \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_metric.pdf}
     \end{subfigure}
-    \caption{Accuracy across several compression methods and distance metrics with and without assuming symmetric distances.}
+    \begin{subfigure}
+        \centering
+        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_metric_train_time.pdf}
+    \end{subfigure}
+    \caption{Accuracy across (left) and prediction time (right) across several compression methods and distance metrics with and without assuming symmetric distances.}
     \label{fig:symmetry}
 \end{figure*}
 
-\begin{figure*}
-    \begin{subfigure}
-        \centering
-        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor_train_time.pdf}
-    \end{subfigure}
-    \begin{subfigure}
-        \centering
-        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor_train_time.pdf}
-    \end{subfigure}
-    \caption{Prediction time across several compression methods and distance metrics with and without assuming symmetric distances.}
-    \label{fig:symmetry_time}
-\end{figure*}
 
 \subsection{KDD-NSL}
 
@@ -593,21 +579,21 @@ Figure~\ref{fig:symmetry} shows the
 Figure~\ref{fig:accuracy} shows the accuracy of different compressors, metics, and sample selection methods.
 
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/kdd_nsl/compressor_vs_accuracy.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/compressor_vs_accuracy.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/metric_vs_accuracy.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_accuracy.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/method_vs_accuracy.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_accuracy.pdf}
 	\end{subfigure}
-	\caption{Accuracy across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}
+	\caption{Accuracy across different different string kernel metrics (left), and sampling methods (right).}
 	\label{fig:accuracy_kdd}
 \end{figure*}
 
@@ -616,21 +602,21 @@ Figure~\ref{fig:accuracy} shows the accuracy of different compressors, metics, a
 Figure~\ref{fig:training_time} depicts the training time across all the tested compressors, distance metrics, and sample selection methods.
 
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/kdd_nsl/compressor_vs_train_time.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/compressor_vs_train_time.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/metric_vs_train_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_train_time.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/method_vs_train_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_train_time.pdf}
 	\end{subfigure}
-	\caption{Training time across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}
+	\caption{Training time across different different string kernel metrics (left), and sampling methods (right).}
 	\label{fig:training_time_kdd}
 \end{figure*}
 
@@ -638,21 +624,21 @@ Figure~\ref{fig:training_time} depicts the training time across all the tested c
 
 Figure~\ref{fig:prediction_time} shows the prediction time of different compressors, metics, and sample selection methods.
 \begin{figure*}
+	% \begin{subfigure}
+	% 	\centering
+	% 	\includegraphics[width=.46\textwidth]{figs/kdd_nsl/compressor_vs_predict_time.pdf}
+	% \end{subfigure}%
+	% ~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/compressor_vs_predict_time.pdf}
-	\end{subfigure}%
-	~
-	\begin{subfigure}
-		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/metric_vs_predict_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_predict_time.pdf}
 	\end{subfigure}
 	~
 	\begin{subfigure}
 		\centering
-		\includegraphics[width=.32\textwidth]{figs/kdd_nsl/method_vs_predict_time.pdf}
+		\includegraphics[width=.46\textwidth]{figs/kdd_nsl/metric_vs_predict_time.pdf}
 	\end{subfigure}
-	\caption{Prediction time across different different compression algorithms (left), distance metrics (center), and sampling methods (right).}.
+	\caption{Prediction time across different different string kernel metrics (left), and sampling methods (right).}.
 	\label{fig:prediction_time_kdd}
 \end{figure*}
 
@@ -660,16 +646,20 @@ Figure~\ref{fig:prediction_time} shows the prediction time of different compress
 
 
 \begin{figure*}
+    % \begin{subfigure}
+    %     \centering
+    %     \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_compressor.pdf}
+    % \end{subfigure}
     \begin{subfigure}
         \centering
-        \includegraphics[width=.36\textwidth]{figs/kdd_nsl/symmetric_vs_compressor.pdf}
+        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_metric.pdf}
     \end{subfigure}
     \begin{subfigure}
         \centering
-        \includegraphics[width=.36\textwidth]{figs/kdd_nsl/symmetric_vs_metric.pdf}
+        \includegraphics[width=.36\textwidth]{figs/truthseeker/symmetric_vs_metric_train_time.pdf}
     \end{subfigure}
-    \caption{Accuracy across several compression methods and distance metrics with and without assuming symmetric distances.}
-    \label{fig:symmetry_kdd}
+    \caption{Accuracy across (left) and prediction time (right) across several compression methods and distance metrics with and without assuming symmetric distances.}
+    \label{fig:symmetry}
 \end{figure*}
 
 \label{results}
