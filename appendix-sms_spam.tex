@@ -1,0 +1,80 @@
+\subsection{SMS Spam}
+This subsection reveals more granular data about the SMS Spam dataset.
+
+\subsubsection{Accuracy}
+Figure~\ref{fig:sms_spam_accuracy} shows the accuracy of different compressors, metrics, and sample selection methods.
+
+\begin{figure}[h!][h]
+	\centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/string_metric_vs_accuracy.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/compressor_metric_vs_accuracy.pdf}
+	\end{subfigure}
+	\caption{Accuracy across different different string kernel metrics (left), and compression methods (right).}
+	\label{fig:sms_spam_accuracy}
+\end{figure}
+
+\subsubsection{Training Time}
+
+Figure~\ref{fig:sms_spam_training_time} depicts the training time across all the tested compressors, distance metrics, and sample selection methods.
+
+\begin{figure}[h!]
+    \centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/string_metric_vs_train_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/compressor_metric_vs_train_time.pdf}
+	\end{subfigure}
+	\caption{Training time across different different string  metrics (left), and compression methods (right).}
+	\label{fig:sms_spam_training_time}
+\end{figure}
+
+\subsubsection{Prediction Time}
+
+Figure~\ref{fig:sms_spam_prediction_time} shows the prediction time of different compressors, metics, and sample selection methods.
+\begin{figure}[h!]
+	\centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/string_metric_vs_predict_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/sms_spam/compressor_metric_vs_predict_time.pdf}
+	\end{subfigure}
+	\caption{Prediction time across different different string metrics (left), and compression methods (right).}.
+	\label{fig:sms_spam_prediction_time}
+ 
+\end{figure}
+
+\subsubsection{Symmetry}
+
+Figure~\ref{fig:sms_spam_symmetry} shows the 
+
+\begin{figure}[h!]
+    \centering
+    \captionsetup[subfigure]{skip=0pt}
+    \begin{subfigure}[t]{.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/sms_spam/symmetric_vs_metric.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/sms_spam/symmetric_vs_metric_train_time.pdf}
+    \end{subfigure}
+    \caption{Accuracy across (left) and prediction time (right) across several compression methods and distance metrics with and without assuming symmetric distances.}
+    \label{fig:sms_spam_symmetry}
+\end{figure}
