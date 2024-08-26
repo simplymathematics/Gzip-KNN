@@ -1,0 +1,80 @@
+\subsection{KDD NSL}
+This subsection reveals more granular data about the KDD NSL dataset.
+
+\subsubsection{Accuracy}
+Figure~\ref{fig:kdd_nsl_accuracy} shows the accuracy of different compressors, metrics, and sample selection methods.
+
+\begin{figure}[h!][h]
+	\centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/string_metric_vs_accuracy.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/compressor_metric_vs_accuracy.pdf}
+	\end{subfigure}
+	\caption{Accuracy across different different string kernel metrics (left), and compression methods (right).}
+	\label{fig:kdd_nsl_accuracy}
+\end{figure}
+
+\subsubsection{Training Time}
+
+Figure~\ref{fig:kdd_nsl_training_time} depicts the training time across all the tested compressors, distance metrics, and sample selection methods.
+
+\begin{figure}[h!]
+    \centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/string_metric_vs_train_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/compressor_metric_vs_train_time.pdf}
+	\end{subfigure}
+	\caption{Training time across different different string  metrics (left), and compression methods (right).}
+	\label{fig:kdd_nsl_training_time}
+\end{figure}
+
+\subsubsection{Prediction Time}
+
+Figure~\ref{fig:kdd_nsl_prediction_time} shows the prediction time of different compressors, metics, and sample selection methods.
+\begin{figure}[h!]
+	\centering
+    \captionsetup[subfigure]{skip=0pt}
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/string_metric_vs_predict_time.pdf}
+	\end{subfigure}
+	~
+	\begin{subfigure}[t]{.44\textwidth}
+		\centering
+		\includegraphics[width=\textwidth]{figs/kdd_nsl/compressor_metric_vs_predict_time.pdf}
+	\end{subfigure}
+	\caption{Prediction time across different different string metrics (left), and compression methods (right).}.
+	\label{fig:kdd_nsl_prediction_time}
+ 
+\end{figure}
+
+\subsubsection{Symmetry}
+
+Figure~\ref{fig:kdd_nsl_symmetry} shows the 
+
+\begin{figure}[h!]
+    \centering
+    \captionsetup[subfigure]{skip=0pt}
+    \begin{subfigure}[t]{.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/kdd_nsl/symmetric_vs_metric.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{.44\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{figs/kdd_nsl/symmetric_vs_metric_train_time.pdf}
+    \end{subfigure}
+    \caption{Accuracy across (left) and prediction time (right) across several compression methods and distance metrics with and without assuming symmetric distances.}
+    \label{fig:kdd_nsl_symmetry}
+\end{figure}
