@@ -487,23 +487,24 @@ We provide theoretical justifications for using secondary methods for determinin
 
 \begin{figure*}[t]
     \centering
-    \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_accuracy.pdf}
-    \caption{Accuracy across models and datasets.}
-    \label{fig:symm_acc}
-    \caption{Kernelized classifier accuracy across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:assumed_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
-    \label{fig:symm_summary}
-\end{figure*}
-\begin{figure*}
-\centering
+    \begin{subfigure}[t]{\textwidth}
+        \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_accuracy.pdf}
+        \caption{Accuracy across models and datasets.}
+        \label{fig:symm_acc}
+    \end{subfigure}
+    \begin{subfigure}[t]{\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_train_time.pdf}
-        \caption{Kernelized classifier training times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:assumed_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
+        \caption{Training Times across models and datasets.}
         \label{fig:sym_train_time}
-\end{figure*}
-\begin{figure*}[t]
-    \centering
-    \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_predict_time.pdf}
+    \end{subfigure}
+    \begin{subfigure}[t]{\textwidth}
+        \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_predict_time.pdf}
+        \caption{Prediction Times across models and datasets.}
+        \label{fig:sym_pred_time}
+    \end{subfigure}
     \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:assumed_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
-    \label{fig:symm_pred_time}
+    \label{fig:symm_summary}
 \end{figure*}
 
 
