@@ -28,7 +28,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{Compression Distance for Anomaly Detection}
+\title{A Tiny, Human-Interpretable, Client-Side, Classifier}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -162,14 +162,14 @@ In addition to the NCD metric defined above, we examined several other measures 
 
 \subsubsection{Metric Spaces}
 
-A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a true distance metric if and only if the following are true~\cite{metrics}. For the sake of the reader, each identity is given a label (denoted in the parentheses). 
+A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a proper distance metric if and only if the following are true~\cite{metrics}. For the sake of the reader, each identity is given a label (denoted in the parentheses):
 
 \label{metric_spaces}
 \begin{itemize}
     \item $d(x, y) = 0 \iff x = y$ (zero identity)
     \item $d(x, y) \geq 0$ (non-negativity)
     \item $d(x, y) = d(y, x)$ (symmetry)
-    \item $d(x, z) \leq d(x, y) + d(y, z)$ (triangle inequality)
+    \item $d(x, z) \leq d(x, y) + d(y, z)$ (triangle inequality).
 \end{itemize}
 
 % \subsubsection{Mercer's Theorem}
@@ -178,11 +178,15 @@ A metric space is defined as some measure of distance between the constituent co
 
 
 \subsection{NCD is a pseudo-metric}
+\label{pseudometric}
+While NCD is often discussed as a measure of distance, it doesn't always follow the formalized constraints of proper metrics and is, therefore, a \textit{pseudo-metric}. Below, we examine the edge cases that violate the normal assumptions of distance.
+
 \paragraph{Non-negativity} 
 \[
 d(x, y) \geq 0
 \]
-The distance between any two points is always non-negative. This is true for all of the compressors operating under normal circumstances. However, if one of the input strings $x,y$ is shorter than the minimum header length and is can be found verbatim in the second string, then this value can be negative. Using our python implementation and the strings $x=, y=$, we found a value of \cm{TODO: grab from the log file when I'm back in Europe since ssh'ing is hard from Japan}. However, this identity holds for all of the string (pseudo) metrics since their domain is $[0,1]$~\cite{metrics,levenshtein}. 
+The distance between any two points is always non-negative. This is true for all of the compressors operating under normal circumstances. However, if one of the input strings $x,y$ is shorter than the minimum header length and is can be found verbatim in the second string, then this value can be negative. Using our python implementation and the strings $x=AAAA, y=A$, we found a value of $NCD(x,y) = -.04$, which we (largely) solve with Algorithm~\ref{alg:enforced_symmetry}).
+However, this identity holds for all of the string (pseudo) metrics since their domain is $[0,1]$~\cite{metrics,levenshtein} by their respective definitions. 
 
 
 \paragraph{Zero Identity} 
@@ -200,22 +204,24 @@ Substituting this into the definition of NCD yields
 $$
 NCD(x,y) = \frac{\mathcal{C}(y) + \ell - \mathcal{C}(y)}{\mathcal{C}(y)} = \frac{\ell}{C(y)}.
 $$
-Therefore it is clear that this is not zero, but some constant. We propose a solution to this problem in Algorithm~\ref{alg:enforced_symmetry}. However, one other issue remains. If $y$ is a string contained verbatim in $x$ then the NCD is zero, violating the identity. However, by sorting the strings at run-time by length (making the longer one $x$), it is possible to circumvent this since this behaviour is asymmetrical. 
-
-% It's not clear if this \textit{should} be resolved since the marginal new information in a repeated string is, in fact, 0.  
+Therefore it is clear that this is not zero, but some constant. We propose a solution to this problem in Algorithm~\ref{alg:enforced_symmetry} by simply returning 0 if $x=y$. However, one other issue remains. 
+When, one string has a Huffman-coding dictionary that is a subset of the other string, it is possible to have an NCD of 0 even when $x \neq y$. One example is $x=CCCC$, $y=CCC$ where $NCD(xy)=0$ in violation of the right hand side of this identity. 
+It's not immediately clear how this problem \textit{should} be handled (or even if this failed identity induces a problem) since it's not clear that there is marginal useful information between the strings $x,y$. 
+We examine the effect of this in Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc} and discuss them in Section~\ref{considerations}.
 
 
 \paragraph{Symmetry} 
 \[
 d(x, y) = d(y, x)
 \]
-The distance between \( x \) and \( y \) is the same as the distance between \( y \) and \( x \). While this is true for the string metrics, this is not necessarily the case for the compressor based NCD measures, we show, empirically, that we can enforce this using Algorithm~\ref{alg:assumed_symmetry}. The pros and cons of this are discussed in ~\ref{results}.
+The distance between \( x \) and \( y \) is the same as the distance between \( y \) and \( x \). While this is true for the string metrics, this is not necessarily the case for the compressor based NCD measures, we show, empirically, that we can enforce this using Algorithm~\ref{alg:enforced_symmetry}. The pros and cons of this are discussed in ~\ref{results}.
 
 \paragraph{Triangle inequality} 
 \[
 d(x, z) \leq d(x, y) + d(y, z)
 \]
-The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \). While this is true for most randomly generated strings, it's not hard to generate a counter example. For example, if $x = "aaa", y = "a", z = "bbb"$ then the the values are \cm{TODO} and the identity is violated.
+The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \). While this is true for most randomly generated strings, it's not hard to generate a counter example. For example, if $ x = "ACAC", y = "AAC", z = "ABAABC" $ then the the values are $ NCD(y,z) \approx .23, NCD(y,x) + NCD(x,z) \approx .19 $ and the identity is violated.
+
 % Many of the string metrics do not follow this rule and I can probably think of specific compression examples where this would break down. In general, however, this should hold true for these compressors because they are sub-additive~\cite{}, which means: 
 % $$
 % \mathcal{C}(xy) \leq \mathcal{C}(x) + \mathcal{C}(y)
@@ -242,15 +248,17 @@ The distance between \( x \) and \( z \) is less than or equal to the sum of the
 % In kernel methods, the kernel function, $k(x_i,x_j)$, takes inputs $x_i, x_j$ and maps them to a value in $\mathbb{R}^\kappa$ where $\kappa$ is the number of output dimensions (\textit{i.e.} classes). This is generally applied to transform the feature space in such a way as to be linearly separable to solve nonlinear problems in the original input space. A number near 0 for samples $x_i, x_j$ indicates similarity for both kernel methods and distance measures. Valid kernel-functions are positive semi-definite, which requires a symmetry about the major diagonal axis and all eigenvalues to be non-negative. While this assumption holds for many of the distance measures, this is not necessarily true for NCD, which could vary slightly depending on which sample is first in the concatenation step ($xy$). However, we propose a solution to this issue in Algorithms~\ref{alg:assumed_symmetry} and ~\ref{alg:enforced_symmetry} and examine the efficacy of either method below.
 
 \subsection{KNN}
-The algorithm for k-nearest neighbours is reproduced in Algorithm~\ref{alg:knn}.
+\label{runtime}
+The algorithm for k-nearest neighbours is reproduced in Algorithm~\ref{alg:knn}. As we can clearly see, this scales with the size of the training set $m$ as well as the test set, $n$, giving a run-time of $\mathcal{O}(mn)$, making it unsuitable for real-time classification when there are many training samples. If we would like to add weights to the samples (as in a weighted KNN) or use another algorithm like logistic regression or support vector classifiers SVCs), then these can be trained on a distance matrix composed of $d(x_i, x_j) \forall i,j \in x_{\text{train}}$, yielding a run-time of $\mathcal{O}(m^2)$ for training and $\mathcal{O}(mn)$ for inference. Strategies for overcoming this limitation are discussed and evaluated below (see: Sections~\ref{condensing_methods} ~\ref{condensing}, and Figure~\ref{fig:condense_summary}). 
 
 \begin{algorithm}
-    \caption{GZIP-KNN Classifier}
+    \caption{``Vanilla'' GZIP-KNN Classifier}
     \label{alg:knn}
+    \label{alg:vanilla}
     \begin{algorithmic}
-    \Require{Training set $X = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$; test instance $x_{\text{test}}$, }
+    \Require{Training set $x_{\text{train}} = \{(x_1, y_1), (x_2, y_2), \ldots, (x_n, y_n)\}$; test instance $x_{\text{test}}$, }
     \Require{Number of nearest neighbours for estimator, $k$; Norm, pseudo-norm, or distance metric $\mathcal{D}$, a sorting algorithm, $\textrm{Sort}()$}
-    \For{instance $(x_i, y_i) \in X$}{
+    \For{instance $(x_i, y_i) \in x_{\text{train}}$}{
         \[
         d_i = \mathcal{D}(x_{\text{test}}, x_i)
         \]
@@ -261,22 +269,22 @@ The algorithm for k-nearest neighbours is reproduced in Algorithm~\ref{alg:knn}.
     \State $\hat{y}_{\text{test}} = \arg\max_y \sum_{i=1}^{k} \mathbb{I}(y_i = y)$
     where $\mathbb{I}(y_i = y)$ is an indicator function, equal to 1 if $y_i = y$ and 0 otherwise.
     \State \Return Predicted class label for $x_{\text{test}}$, $y_{test}$
+    
     \end{algorithmic}
+    
 \end{algorithm}
 
 
 \subsection{NCD-KNN}
-\label
+\label{ncd-knn}
 
-\cm{
-TODO: Mention original 2001 paper and the error term and how it was lost in subsequent papers. Mention the problems with negative distances and short strings. Mention the problem of subsets. 
-}
-To use NCD as a measure of distance, one must choose a compression algorithm. In the original paper~\cite{}, 
+A recent popular introduced NCD as a ``parameter-free'' measure of distance for the KNN classifier~\cite{jiang2022less}, though NCD as a measure of distance dates back two decades~\cite{ncd}. 
+To use NCD as a measure of distance, one must choose a compression algorithm. This has been explored, in part, before ~\cite{ncd_pitfalls}, but we expand their analysis to newer compression algorithms and offer additional run-time improvements.
 In addition to GZIP, we tested LZMA, BZ2, and ZSTD. A summary of the tested compressors can be seen in Table~\ref{tab:compression_algorithms}.
 
 \begin{table*}[h]
     \centering
-    \caption{Comparison of Compression Algorithms for NCD-KNN}
+    \caption{Comparison of Compression Algorithms for NCD-KNN. \cm{TODO: Add citations}}
     \begin{tabular}{|c|c|c|c|c|l|}
         \hline
         \textbf{Algorithm} & \textbf{Compression Ratio} & \textbf{Compression Speed} & \textbf{Memory Usage} & \textbf{Complexity} & \textbf{Description} \\ \hline
@@ -285,7 +293,6 @@ In addition to GZIP, we tested LZMA, BZ2, and ZSTD. A summary of the tested comp
         BZ2   & High     & Moderate & Moderate & Moderate & Burrows-Wheeler and Huffman coding. \\ \hline
         ZSTD  & Very High & Very Fast & Low & Moderate & LZ77 algorithm with high-speed entropy coding. \\ \hline
     \end{tabular}
-    \caption{}
     \label{tab:compression_algorithms}
 \end{table*}
 
@@ -342,22 +349,27 @@ In some situations, it might be necessary to find anomalies in real-time, which 
 
 \subsubsection{Calculating the Gram matrix}
 \label{symmetry}
-While many of the above distance metrics are symmetric, this is not-necessarily the case with NCD. However, if we assume this is true most of the time, we can reduce the computational cost of training and/or prediction. Below, we have tested two separate modifications of the ``vanilla'' NCD algorithm. The first modification involves assumed symmetry. By sorting the values $x,y$ first by length then alphabetically, we ensure that $d(x,y)$
+While many of the above distance metrics are symmetric, this is not-necessarily the case with NCD. 
+However, if we assume this is true most of the time, we can reduce the computational cost of training. Below, we have tested two separate modifications of the ``vanilla'' NCD algorithm. 
+The first modification involves assumed symmetry. 
+By sorting the values $x,y$ first by length then alphabetically (Algorithm~\ref{alg:enforced_symmetry}), we ensure that $d(x,y) > 0$ in at least some cases where the $ C(xy) < \min\{C(x),C(y)\}$. However, there are some cases that are not covered, particularly.
 
- Section~\ref{results} shows how this often improves the accuracy of a model and reduces the number of calculations required to find the distance matrix.
+Section~\ref{results} shows how this often improves the accuracy of a model and reduces the number of calculations required to find the distance matrix.
 
 \begin{algorithm}
     \begin{algorithmic}
         \Require $X_1$, $X_2$, indexed by $i,j$ respectively
         \Ensure $ \| X_1 \| = \| X_2 \| $
         \State $K_{i,j} \gets 0$ for all $i, j$
+        \If{x< y}
+        \State{$x,y \gets y,x$}
         \ForAll{pairs of indices $(i, j) \in \mathcal{D}(X_1, X_2)$ such that $i < j + 1$}
             \State $\mathcal{D}_{ij} \gets \mathcal{D}(X_{1_i}, X_{2_j})$
             \State $S_{ij} \gets \mathcal{D}_{ij}$
             \State $S_{ji} \gets \mathcal{D}_{ij}$
         \State \textbf{Output:} Symmetric distance matrix $S$
     \end{algorithmic}
-    \caption{Compute the \textit{Assumed} Symmetric Distance Matrix}
+    \caption{Compute the \textit{Assumed} Symmetric Distance Matrix. \cm{This differs from the below in that symmetry is assumed to be true rather than enforced.}}
     \label{alg:assumed_symmetry}
 \end{algorithm}
 
@@ -374,7 +386,7 @@ While many of the above distance metrics are symmetric, this is not-necessarily 
             \State $S_{ji} \gets \mathcal{D}_{ij}$
         \State \textbf{Output:} Symmetric distance matrix $S$
     \end{algorithmic}
-    \caption{Compute the \textit{Modified} Symmetric Distance Matrix. \cm{The Modified algorithm does two things, return 0 if x = y and sorts the strings so that ncd(x,y) is symmetric with the longer one going first. This solves the negativity problem. TODO: Fix latex}}
+    \caption{Compute the \textit{Enforced} Symmetric Distance Matrix. \cm{The Modified algorithm does two things, return 0 if x = y and sorts the strings so that ncd(x,y) is symmetric with the longer one going first. This solves the negativity problem. TODO: Fix latex}}
     \label{alg:enforced_symmetry}
 \end{algorithm}
 
@@ -395,14 +407,8 @@ While many of the above distance metrics are symmetric, this is not-necessarily 
 
 \subsubsection{Reducing the Search Space}
 \label{condensing_methods}
-In other situations, it is necessary to minimize the number of samples used for evaluation because the size of the user's database is too large to evaluated in a reasonable amount of time. We can use a variety of heuristics to reduce the size of our search space~\cite{amal2011survey}. 
-\begin{itemize}
-    \item \textit{Sum:} After calculating the distance matrix, we sort the distance matrix by the sum of a row and find the $m$ most central samples per class.
-    \item \textit{Medoid: }
-    \item \textit{Random : } After calculating the distance matrix, we select $m$ random indices per class.
-    \item \textit{KNN: } After calculating the distance matrix, we use the KNN algorithm to find the $m$-closest neighbors for each class in the training data.
-    \item \textit{SVC: } After calculating the distance matrix, we use a support vector classifier (SVC) to find the indices that define the support-vectors (e.g. the samples that define the class boundaries), then we sort by distance as in \textit{Sum} to find the $m$-most central support vectors to use during the prediction step.
-\end{itemize}
+In other situations, it is necessary to minimise the number of samples used for evaluation because the size of the user's database is too large to evaluated in a reasonable amount of time. We can use a variety of heuristics to reduce the size of our training set~\cite{amal2011survey} as an attempt to overcome the run-time constraints described in Section~\ref{ncd-knn}.
+
 
 
 \begin{algorithm}
@@ -457,22 +463,24 @@ Broadly, this section is divided into two sets of experiments. First, we tuned e
 \subsection{Datasets}
 \label{datasets}
 We examine several to show that this method works well for a variety of anomaly-detection tasks. The `normal' data were under-sampled so that there was an equal number of normal and anomalous samples. For several of the datasets, anomalies were rare. 
-To overcome the limitation of getting a precise measure of accuracy on a small number of samples, Monte Carlo sampling was employed by testing each configuration across many random permutations of the data. 
-This is known to be asymptotically equivalent to cross-fold validation~\cite{} which is not remotely precise enough when we have only a small number of anomalous data points. 
+To overcome the limitation of getting a precise measure of accuracy on a small number of samples, Monte Carlo sampling was employed by testing each configuration across 10 random permutations of the data. 
+This is known to be asymptotically equivalent to cross-fold validation~\cite{shan2022monte} which is not remotely precise enough when we have only a small number of anomalous data points. 
 Additionally, the test and train sets were sampled in such a way that each configuration was guaranteed to have a uniform distribution of the classes in both sets. To examine the efficacy of this method on numeric, string, and heterogeneous datasets, several standard datasets were examined. 
-The oldest one is KDD-NSL which is a log of system process data for both regular users (labelled 0 or benign) and malicious users (labelled 1 or adversarial). The DDoS IoT dataset ~\cite{} was also included. 
+The oldest one is KDD-NSL which is a log of system process data for both regular users (labelled 0 or benign) and malicious users (labelled 1 or adversarial)~\cite{kddnsl}. The DDoS IoT dataset ~\cite{ddos} was also included. 
 To prepare this dataset, we combined all classes of attacks with the non-malicious user data, collapsing all attacks into the adversarial (1) label. In addition, the timestamp data was removed to prevent data leakage  (since the malicious and benign data were collected sequentially). 
-Then, in an effort to examine the efficacy of this on text alone, the Truthseeker ~\cite{} was used. While this is normally distributed with metadata, this work only included the ``tweet" and the label provided by the researchers who distribute the data (again, a 0 or 1 corresponding to a regular or malicious user respectively). 
+Then, in an effort to examine the efficacy of this on text alone, the Truthseeker ~\cite{truthseeker} was used. While this is normally distributed with metadata, this work only included the ``tweet" and the label provided by the researchers who distribute the data (again, a 0 or 1 corresponding to a regular or malicious user respectively). 
 To examine more heterogeneous data, the SMS Spam dataset was chosen. 
 This combines a short text message with numeric and protocol data to again distinguish between regular SMS messages (labelled with a 0) and spam ones (labelled with a 1). 
 
 \subsection{Models}
 
-After generating 1000 train/test set pairs for each dataset, the distance matrices were calculated and provided to typical \texttt{scikit-learn} classifiers. For each compression algorithm or string metric, both the symmetric (as per  Alg. \ref{alg:assumed_symmetry}) and asymmetric matrices were found and tested. Since these models have several parameters, some of which are drawn from continuous spaces, we used a Tree Parzen Estimator to tune each model for each distance metric. The test hyper-parameters are listed below.
+After generating 1000 train/test set pairs for each dataset, the distance matrices were calculated and provided to typical \texttt{scikit-learn} classifiers. For each compression algorithm or string metric, both the symmetric (as per  Alg. \ref{alg:assumed_symmetry}) and asymmetric matrices were found and tested. Since these models have several parameters, some of which are drawn from continuous spaces, we used a Tree Parzen Estimator~\cite{tpe} to tune each model for each distance metric. For each hyper-parameter configuration trials were conducted across 
+
+The test hyper-parameters are listed below.
 
 \label{models}
 \subsubsection{$k$-KNN}
-To use KNN, one must specify a number of nearest neighbors to use for class prediction (see: Algorithm~\ref{alg:knn}). This number was selected from $\{1,3,5,7,11\}$, as choosing small, odd numbers to make ties impossible for binary classifiers. In addition, we tested whether or not to weight the samples uniformly or by distance. 
+To use KNN, one must specify a number of nearest neighbours to use for class prediction (see: Algorithm~\ref{alg:knn}). This number was selected from $\{1,3,5,7,11\}$, as choosing small, odd numbers to make ties impossible for binary classifiers. In addition, we tested whether or not to weight the samples uniformly or by distance. 
 
 \subsubsection{$k$-SVC}
 Ths \texttt{scikit-learn} SVC implementation provides several kernel methods for transforming the input into a separable feature space. 
@@ -484,33 +492,42 @@ The "balanced" and null class weight parameters that control the relative import
 The \texttt{scikit-learn} provides several parameters for the humble logistic function. Both an $\ell_1$ and $\ell_2$ penalty term were tested as well as a configuration without a penalty. That penalty was sampled from the range $[10^{-3}, 10^3]$. In addition, logistic models with and without intercept parameters were tested. Using the \texttt{saga} solver, we tested stopping criteria tolerances $\in [10^{-4}, 10^{-2}]$
 As with the SVC above, the "balanced" and null class weight parameters that control the relative importance of a sample were also tested.
 
-\subsection{Compressors} In addition to \texttt{gzip}, we tried numerous different compression algorithms. We used the \texttt{gzip}, \texttt{lzma}, \texttt{bz2}, and \texttt{zst} python modules with default arguments. A comparison of these algorithms can be seen in Table~\ref{tab:compression_algorithms}.
+\subsection{Compressors}
+\label{compressors}
+In addition to \texttt{gzip}, we tried numerous different compression algorithms. We used the \texttt{gzip}, \texttt{lzma}, \texttt{bz2}, and \texttt{zst} python modules with default arguments. A comparison of these algorithms can be seen in Table~\ref{tab:compression_algorithms}.
 
 \subsection{Condensing}
 \label{condensing}
-We provide theoretical justifications for using secondary methods for determining ideal training set in Section~\ref{improvements}. For the sake of completeness, we tested the mean, medoid, random, KNN, and SVC methods outlined above as well as selecting the $m$-most important samples for each with $m \in$ [10,20,50,100,200,500,1000]. The methods are outlined in full in Sec.~\ref{condensing_methods}. For the KNN and medoid 
+We provide theoretical justifications for using secondary methods for determining ideal training set in Section~\ref{improvements}. The mean, medoid, random, \textit{KNN}, and \textit{SVC} methods were used to select the $m$-most important samples for each with $m \in$ [10,20,50,100,200,500,900]. The methods are outlined in full in Sec.~\ref{condensing_methods}. For the KNN and medoid, we used \texttt{imblearn}, a \texttt{scikit-learn} compatible package for using various condensing methods. The \texttt{scikit-learn} implementation was used for \textit{SVC}. For \textit{random} and \textit{sum}, \texttt{numpy} implementations were used.
 
+\begin{itemize}
+    \item \textit{Sum:} After calculating the distance matrix, we sort the distance matrix by the sum of a row and find the $m$ most central samples per class.
+    \item \textit{Medoid: }
+    \item \textit{Random : } After calculating the distance matrix, we select $m$ random indices per class.
+    \item \textit{KNN: } After calculating the distance matrix, we use the KNN algorithm to find the $m$-closest neighbors for each class in the training data.
+    \item \textit{SVC: } After calculating the distance matrix, we use a support vector classifier (SVC) to find the indices that define the support-vectors (e.g. the samples that define the class boundaries), then we sort by distance as in \textit{Sum} to find the $m$-most central support vectors to use during the prediction step.
+\end{itemize}
 
 \section{Results}
 \label{results}
 
 
 % \subsection{Kernelized Classifier Performance}
-% \begin{figure*}[t]
+% \begin{figure*}[htb]
 %     \centering
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \centering
 %         \includegraphics[width=\textwidth]{figs/combined/models_vs_accuracy.pdf}
 %         \caption{Accuracy across models and datasets.}
 %         \label{fig:acc_summary}
 %     \end{subfigure}
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \centering
 %         \includegraphics[width=\textwidth]{figs/combined/models_vs_train_time.pdf}
 %         \caption{Training Time across models and datasets.}
 %         \label{fig:train_time_summary}
 %     \end{subfigure}
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \centering
 %         \includegraphics[width=\textwidth]{figs/combined/models_vs_predict_time.pdf}
 %         \caption{Prediction Time across models and datasets.}
@@ -527,20 +544,20 @@ We provide theoretical justifications for using secondary methods for determinin
 
 
 
-% \begin{figure*}[t]
+% \begin{figure*}[htb]
 %     \centering
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_accuracy.pdf}
 %         \caption{Accuracy across models and datasets.}
 %         \label{fig:symm_acc}
 %     \end{subfigure}
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \centering
 %         \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_train_time.pdf}
 %         \caption{Training Times across models and datasets.}
 %         \label{fig:sym_train_time}
 %     \end{subfigure}
-%     \begin{subfigure}[t]{\textwidth}
+%     \begin{subfigure}[htb]{\textwidth}
 %         \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_predict_time.pdf}
 %         \caption{Prediction Times across models and datasets.}
 %         \label{fig:sym_pred_time}
@@ -552,19 +569,19 @@ We provide theoretical justifications for using secondary methods for determinin
 % \lipsum[1]~\ref{fig:symm_summary}
 
 \subsection{Comparison of Different String Metrics}
-\begin{figure*}[t]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=.45\textwidth]{figs/combined/string_metric_vs_accuracy.pdf}
         \includegraphics[width=.45\textwidth]{figs/combined/compressor_metric_vs_accuracy.pdf}
     \end{subfigure}
     
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=.45\textwidth]{figs/combined/string_metric_vs_train_time.pdf}
         \includegraphics[width=.45\textwidth]{figs/combined/compressor_metric_vs_train_time.pdf}
     \end{subfigure}
    
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=.45\textwidth]{figs/combined/string_metric_vs_predict_time.pdf}
         \includegraphics[width=.45\textwidth]{figs/combined/compressor_metric_vs_predict_time.pdf}
     \end{subfigure}
@@ -572,59 +589,95 @@ We provide theoretical justifications for using secondary methods for determinin
     \caption{Kernelized classifier accuracy (top), training times (middle), and inference times (bottom) across many datasets (style), and models. The left column depicts the results from the tested string metrics (see: Section~\ref{string_metrics}) and the right side depicts the results from the modified NCD algorithm using various compressors (see: Section~\ref{compressors})}
     \label{fig:models_summary}
 \end{figure*}
-\lipsum[1]~\ref{fig:models_summary}
+
+Figure~\ref{fig:models_summary} shows the performance of the various classifiers (knn, logistic, SVC) across each of the datasets using various string metrics (left column) and compressors (right column) to calculate NCD. We see that run-times are largely comparable between NCD and various string metrics for both training ($t_t$) and inference ($t_i$). 
+However, NCD provides consistently more accurate results with a small number of samples, apart from Levenshtein distance which works quite well with 10s of samples. 
+Please note that the training step is only necessary for certain configurations of the KNN algorithm and that the vanilla version proposed by Jiang et. al.~\cite{jiang2022less} can skip this step entirely. However, Figure~\ref{fig:mod_acc} shows that kernelized SVCc and Logistic Regressors can offer improved accuracy over this "untrained" version.
+However, As we increase the number of samples, Jaro, Waro-Winkler, and seqratio become more useful for the SMS dataset, but remain unremarkable for the other datasets. Overall, NCD offers superior performance over the tested string metrics since it performs consistently well across all of the datasets. 
 
 
 \subsection{Effect of Modified NCD Algorithm}
 
-\begin{figure*}[t]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}[t]{\textwidth}
+    \includegraphics[width=\textwidth]{images/ncd.pdf}
+    \caption{Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:knn}), assumed-symmetry(Algorithm~\ref{alg:assumed_symmetry}), and enforced-symmetry (Algorithm~\ref{alg:enforced_symmetry}) algorithms and the \texttt{gzip} compression library on 100 thousand random strings. \textit{Sig Figs} refers to the number of significant figures. \textit{Max String Size} and \textit{Max Alphabet Size} refer to the number of characters and the number of unique characters respectively. Unless otherwise specified by the x-axis in an individual plot, \textit{Max String Size}, \textit{Max Alphabet Size}, and \textit{Significant Figures} were all 10. }
+    \label{fig:mod_assumptions}
+
+\end{figure*}
+
+\begin{figure*}[htb]
+    \centering
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_accuracy.pdf}
         \caption{Accuracy across models and datasets.}
         \label{fig:mod_acc}
     \end{subfigure}
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_train_time.pdf}
         \caption{Training Times across models and datasets.}
         \label{fig:mod_train_time}
     \end{subfigure}
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_predict_time.pdf}
         \caption{Prediction Times across models and datasets.}
         \label{fig:mod_pred_time}
     \end{subfigure}
-    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:assumed_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
+    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:enforced_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
     \label{fig:mod_summary}
 \end{figure*}
 
-\lipsum[1]~\ref{fig:mod_summary}
+Figure~\ref{fig:mod_summary} depicts the accuracy (top), training time per sample (middle), and inference time per sample (bottom) for each the vanilla (denoted in orange) and the modified algorithm (see: Algorithm~\ref{alg:enforced_symmetry}, denoted in blue). As we can see, the accuracy of the modified algorithm is fairly consistent with the unmodified version. While there is a measured difference in the mean between the k-SVC on the DDoS dataset and k-KNN on the SMS Spam dataset, the extrema are the same and this difference in mean is likely due to inconsistent performance of the hyper-parameter optimisation algorithm rather than a true difference in performance~\cite{tpe}. In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. However, we see that the modified version of the algorithm is much faster per sample when constructing the Gram matrix ($t_t$) by reducing the number of distance computations by a factor of 2. This comes at the marginal cost of a few hundred milliseconds for each prediction, however, but this could easily be mitigated by skipping the algorithmic modifications during the prediction step and handle the problem of negative distances at run-time, depending on the particular application. Overall, it is clear that this modified version of NCD offers significant run-time improvements while costing nothing in terms of accuracy. 
+Additionally, by running the vanilla version during prediction and using the modified version if and only if the Gram matrix is calculated, these downsides can be avoided entirely. 
+However, that may produce Gram matrices that are incompatible with other tooling or models (see: Figure~\ref{fig:mod_assumptions}, middle row), most of these are mitigated with the proposed modifications (see: Figure~\ref{fig:mod_assumptions}, bottom row). 
+However, two classes of counterexamples remain. 
+The first occurs with very short strings
+$NCD("ABB", BBBB) =0$ because the marginal length associated with the repeated ``BB'' token happens to be the exact length as the marginal length associated with the token ``A''. 
+This second occurs for the triangle inequality. 
+Letting $x =AACAABC, y = AA,
+z=AAA$, we find that $NCD(x,y) \approx .26$ while $NCD(x,z) + NCD(z,y) \approx .23$, but it's not clear that this is a problem in the theory. Including the string ``AAA'' provides additional context that ``AA'' may have a distinct meaning apart from ``A'' repeated twice which is why the distance of the sum \textit{is} less than the distance between $x$ and $z$. Additionally, it doesn't seem to be a problem in practice. As the max string size or the maximum alphabet size is increased, these problems quickly disappear(see: Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc}).
+
+
+
 
 \subsection{Database Condensing Methods}
 
-\begin{figure*}[t]
+\begin{figure*}[htb]
     \centering
-    \begin{subfigure}[t]{\textwidth}
+    \includegraphics[width=\textwidth]{figs/combined/condensing_ratio_vs_accuracy.pdf}
+    \caption{Accuracy across models (rows) and datasets (columns) where the hue represents the condensing ratio. }
+    \label{fig:condense_acc_ratios}
+\end{figure*}
+
+\begin{figure*}[htb]
+    \begin{subfigure}[htb]{\textwidth}
+        \centering
         \includegraphics[width=\textwidth]{figs/combined/condensing_methods_vs_accuracy.pdf}
-        \caption{Accuracy across models and datasets.}
+        \caption{Training Times across models and datasets.}
         \label{fig:condense_acc}
     \end{subfigure}
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \centering
         \includegraphics[width=\textwidth]{figs/combined/condensing_methods_vs_train_time.pdf}
         \caption{Training Times across models and datasets.}
-        \label{fig:sym_train_time}
+        \label{fig:condense_train_time}
     \end{subfigure}
-    \begin{subfigure}[t]{\textwidth}
+    \begin{subfigure}[htb]{\textwidth}
         \includegraphics[width=\textwidth]{figs/combined/condensing_methods_vs_predict_time.pdf}
         \caption{Prediction Times across models and datasets.}
-        \label{fig:sym_pred_time}
+        \label{fig:condense_pred_time}
     \end{subfigure}
-    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:assumed_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
+    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:enforced_symmetry}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
     \label{fig:condense_summary}
 \end{figure*}
-\lipsum[1]~\ref{fig:condense_summary}
+
+Figure~\ref{fig:condense_acc_ratios} depicts the accuracy across all models, datasets, and condensing ratios while Figure~\ref{fig:condense_summary} depicts the run-time requirements of various condensing methods. 
+For each test, 1000 training samples were used to calculate the Gram matrix. 
+Then, 400 test samples were used to calculate the accuracy across 10 random splits of the data. 
+For each condensing ratio (e.g. percentage of training samples used during prediction), 128 trials were conducted to tune the hyper-parameters of each of the tested models using a variety of methods (see: Section~\ref{condensing_methods} and Figure~\ref{fig:condense_summary}). 
+) However, the run-time improvements are obvious since the distributions of training times and inference times ($t_t, t_t$ respectively) is effectively the same in both Figures~\ref{fig:condense_summary} and \ref{fig:mod_summary}. That is the condensing methods themselves are fast enough to more than overcome their run-time downsides. However, while it is clear from the former that NCD is quite capable of performing very well on even a small number of samples since the distribution in accuracy does not seem to rely on the compression ratio (see: Figure~\ref{fig:condense_acc_ratios}) and that none of the tested condensing methods consistently outperforms random chance (see: Figure~\ref{fig:condense_acc} meaning this stage is probably unnecessary in practice and that any random subset of samples will be ``good enough''. 
+
 % \begin{figure*}
 %      \centering
 %     \includegraphics[width=\textwidth]{figs/combined/condensing_methods_vs_predict_time.pdf}
@@ -634,10 +687,21 @@ We provide theoretical justifications for using secondary methods for determinin
 
 
 \section{Considerations}
-\lipsum[1]
 \label{considerations}
+While the proposed algorithm (see:~\ref{alg:enforced_symmetry}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see: Section~\ref{condensing}) do not improve upon models trained on samples selected by random chance (see:~\ref{fig:condense_acc}). However, the resulting lack of negative distances allows NCD to be used as part of a kernelized classifier (see: Figures~\ref{fig:condense_acc}~and~~\ref{fig:condense_acc_ratios} to great effect. 
+By assuming and enforcing symmetry using the method outlined in Algorithm~\ref{alg:enforced_symmetry}, the training step can be significantly improved.
+However, the vanilla NCD-KNN proposed by Jiang et. al.~\cite{jiang2022less} remains an effective choice if the training step is deemed too expensive for the chosen applications.
+Here, the authors would like to note the borderline performance of all metrics on the Truthseeker dataset--- both NCD and more traditional distance measures. However, this is on par with the performance from the original authors~\cite{truthseeker}. To the best knowledge of the authors, most content on the platform formerly known as Twitter is simply indistinguishable from bot-generated spam--- using any known distance metric.
+
+
 \section{Conclusion}
-\lipsum[1]{3}
+It is clear from Figure~\ref{fig:mod_summary} that our algorithm is superior to the method proposed by Jiang et. al. when applied used a distance measure for kernelized classifiers. By preemptively handling cases that would result in negative values for distance (thus violating the Non-negativity identity) and sorting the inputs, this modified NCD is guaranteed to behave more like a true metric. 
+This allows the model builder to use standard tooling (e.g.~\texttt{scikit-learn},~\texttt{imblearn}) to build classifiers that perform well on an exceedingly small number of samples. The end result is a real-time, client-side classification algorithm that doesn't rely on federation, centralization, or the large scale processing of millions of data points across a global user-base. 
+This categorically circumvents poisoning attacks~\cite{biggio_poisoning_2013} since each labelled database is unique to each user. 
+Furthermore, this reduces the attack surface of attacks like model inference attacks, database exfiltration attacks, and evasion attacks since a malicious user would need to target the personalised classifier of each user~\cite{biggio_evasion_2013,deepfool,chakraborty_adversarial_2018}. 
+While it is known that some attacks are quite transferable~\cite{wang2021enhancing}, this reduces the common attack surface to \textit{only} the samples that are universal across the user base and a new model can be generated trivially by refreshing the page or appending the offending sample to the labelled (training) dataset. 
+
+
 \label{conclusion}
 
 
