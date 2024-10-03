@@ -162,7 +162,7 @@ In addition to the NCD metric defined above, we examined several other measures 
 
 \subsubsection{Metric Spaces}
 
-A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a proper distance metric if and only if the following are true~\cite{metrics}. For the sake of the reader, each identity is given a label (denoted in the parentheses):
+A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a proper distance metric if and only if the following 4 identities are true~\cite{metrics}, each of which is given a label (denoted in the parentheses):
 
 \label{metric_spaces}
 \begin{itemize}
@@ -249,7 +249,7 @@ The distance between \( x \) and \( z \) is less than or equal to the sum of the
 
 \subsection{KNN}
 \label{runtime}
-The algorithm for k-nearest neighbours is reproduced in Algorithm~\ref{alg:knn}. As we can clearly see, this scales with the size of the training set $m$ as well as the test set, $n$, giving a run-time of $\mathcal{O}(mn)$, making it unsuitable for real-time classification when there are many training samples. If we would like to add weights to the samples (as in a weighted KNN) or use another algorithm like logistic regression or support vector classifiers SVCs), then these can be trained on a distance matrix composed of $d(x_i, x_j) \forall i,j \in x_{\text{train}}$, yielding a run-time of $\mathcal{O}(m^2)$ for training and $\mathcal{O}(mn)$ for inference. Strategies for overcoming this limitation are discussed and evaluated below (see: Sections~\ref{condensing_methods} ~\ref{condensing}, and Figure~\ref{fig:condense_summary}). 
+The algorithm for k-nearest neighbours is reproduced in Algorithm~\ref{alg:knn}. As we can clearly see, this scales with the size of the training set $m$ as well as the test set, $n$, giving a run-time of $\mathcal{O}(mn)$, making it unsuitable for real-time classification when there are many training samples. If we would like to add weights to the samples (as in a weighted KNN) or use another algorithm like logistic regression or support vector classifiers SVCs), then these can be trained on a distance matrix composed of $d(x_i, x_j) \forall i,j \in x_{\text{train}}$, yielding a run-time of $\mathcal{O}(m^2)$ for training and $\mathcal{O}(mn)$ for inference. Strategies for overcoming this limitation are discussed and evaluated below (see: Sections~\ref{condensing_methods}~and~\ref{condensing}, and Figure~\ref{fig:condense_summary}). 
 
 \begin{algorithm}
     \caption{``Vanilla'' GZIP-KNN Classifier}
