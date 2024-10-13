@@ -172,7 +172,7 @@ Vector spaces, by definition are, at least, positive semi-definite such that for
 \end{equation}
 
 \subsubsection{Mercer's Theorem and Kernelisation}
-
+\cm{This is here because I'm still running the rbf(ncd(x,y))}
 Whereas distance functions are used to measure the similarity between different examples $x,y$, a \textit{kernel-function}, $K$, is a measure of similarity. That is, when $d(x_1,x_2) = 0, x = y$ , but when $K(x_1,x_2) = 0, x~\perp~y$. The opposite then follows when $d(x_1,x_2)=1$ or $K(x_1,x_2)=1$. Mercer's theorem says that for any symmetric, continuous function, $K$,
 $$
 K : [a, b] \times [a, b] \rightarrow \mathbb{R}~\forall~x_1,x_2 \in [a,b].
@@ -187,7 +187,7 @@ $$
 K(x_1, x_2) = \langle \phi(x_1), \phi(x_2) \rangle \nu
 $$
 where $\nu$ is the feature vector space and $\phi(\cdot)$ is a function that extracts features from $x_1,x_2$.
-To understand the importance of this, however, we must first discuss Gram matrices.
+
 
 \subsection{Calculating the Gram matrix}
 \label{gram_matrix}
@@ -229,7 +229,6 @@ One approach is to find the most important training samples and discard the rest
 There are many known techniques for this, some of which are outlined in Section~\ref{condensing_methods}.
 
 
-\cm{Edited to here as of 7 October}
 \subsection{KNN}
 \label{runtime}
 The algorithm for KNN is reproduced in Algorithm~\ref{alg:knn}. As we can clearly see, this scales with the size of the training set $m = || X_{\text{train}} || $ as well as the test set, $n = || X_{\text{test}} ||$, giving a run-time of $\mathcal{O}(mn)$.
@@ -321,9 +320,13 @@ $$
 NCD(x,y) = \frac{\mathcal{C}(y) + \ell - \mathcal{C}(y)}{\mathcal{C}(y)} = \frac{\ell}{C(y)}.
 $$
 Therefore it is clear that this is not zero, but some constant. 
-We propose a solution to this problem in Algorithm~\ref{alg:modified} by simply returning 0 if $x=y$. However, one other issue remains. 
-When, one string has a Huffman-coding dictionary that is a subset of the other string, it is possible to have an NCD of 0 even when $x \neq y$. One example is $x=AAAA$, $y=AAA$ where $NCD(xy)=0$ in violation of the right hand side of this identity. 
+We propose a solution to this problem in Algorithm~\ref{alg:modified} by simply returning 0 if $x=y$. However, other issues remain. 
+
+\subsubsection{PewPew Problem}
+Since the first two authors consistently fail to occupy the same continent, communication is often conducted asynchronously. 
+Over the years that has led to a habit of sending the message ``pew'' to gauge the availability of the other author, with the other author responding ``pewpew'', which led to the realisation that when $x = "pewpew"$ and $y="pewpewpewpew"$, a strange phenomenon occurs-- NCD$(x,y) = 0$ even when $x \neq y$. 
 It's not immediately clear how this problem \textit{should} be handled (or even if this failed identity induces a problem) since it's not clear that there is \textit{actually} marginal useful information between the strings $x,y$. 
+However, this problem seems to only arise with very short strings that utilize very few characters (see: Figure~\ref{fig:mod_assumptions}).
 We examine the effect of this in Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc} and discuss them in Section~\ref{considerations}.
 
 \subsection{Symmetry} 
@@ -339,7 +342,9 @@ The pros and cons of this are discussed in ~\ref{results}.
 \[
 d(x, z) \leq d(x, y) + d(y, z)
 \]
-The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \). While this is true for most randomly generated strings, it's not hard to generate a counter example. For example, if $ x = "ACAC", y = "AAC", z = "ABAABC" $ then the the values are $ NCD(y,z) \approx .23, NCD(y,x) + NCD(x,z) \approx .19 $ and the identity is violated.
+The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \). While this is true for most randomly generated strings, it's not hard to generate a counter example. 
+For example, if $ x = "ACAC", y = "AAC", z = "ABAABC" $ then the the values are $ NCD(y,z) \approx .23, NCD(y,x) + NCD(x,z) \approx .19 $ and the identity is violated. 
+Again, this seems to be more likely with very small strings or objects that have very small dictionaries (see: Figure~\ref{fig:mod_assumptions}).
 
 
 
@@ -358,7 +363,18 @@ However, as we show in the results, even small training sets are remarkably usef
 
 
 
-\subsection{Symmetry}
+\subsubsection{Pre-computing the Compression vector}
+For the sake of reproducibility, the authors would like to note that for each sample in $X_1, X_2$, both $C(X_1)$ and $C(X_2)$ are required for each sample, but only need to be computed once. To reduce the run-time, $C(X_{\text{train}})$ and $C(X_{\text{test}})$ are computed during the respective `train' and `test' steps, before the calculation of the Gram matrix.
+
+
+\subsection{Modified NCD Algorithm}
+
+While NCD is often treated as a pseudo-metric, some implementations ~\cite{jiang2022less} do not take advantage of the assumed symmetry and calculate each pairwise entry of the Gram matrix. 
+However, if symmetry is assumed, it can be used to reduce the run-time requirements from $\mathcal{O}(mn)$ to $\mathcal{O}(\frac{mn}{2})$.
+This process is outlined in Algorithm~\ref{alg:assumed_symmetry}.
+However, as noted above, symmetry is not guaranteed. 
+Instead, symmetry can be enforced, as in Algorithm~\ref{alg:modified}. 
+Furthermore, the special case of $x=y$ can be checked and handled properly (so that $NCD(x,y) - 0$.
 
 \begin{algorithm}
     \begin{algorithmic}
@@ -374,10 +390,6 @@ However, as we show in the results, even small training sets are remarkably usef
     \caption{Symmetric Gram matrix shortcut for training}
     \label{alg:symmetric}
 \end{algorithm}
-
-\subsection{Pew Pew Problem}
-Since the first two authors consistently fail to occupy the same continent, communication is often conducted asynchronously. 
-Over the years that has led to a habit of sending the message ``pew'' to gauge the availability of the other author, with the other author responding ``pewpew'', which led to the realisation that when $x = "pewpew"$ and $y="pewpewpewpew"$, a strange phenomenon occurs.
 
 
 \begin{algorithm}
@@ -404,8 +416,6 @@ Over the years that has led to a habit of sending the message ``pew'' to gauge t
 
 
 
-\subsubsection{Pre-computing the Compression vector}
-For the sake of reproducibility, the authors would like to note that for each sample in $X_1, X_2$, both $C(X_1)$ and $C(X_2)$ are required for each sample, but only need to be computed once. To reduce the run-time, $C(X_{\text{train}})$ and $C(X_{\text{test}})$ are computed during the respective `train' and `test' steps, before the calculation of the Gram matrix.
 
 
 
@@ -435,29 +445,6 @@ For each method and relevance criteria listed above, the optional condensing ste
     \State \Return top $m$ indices in $I$
   \end{algorithmic}
 \end{algorithm}
-
-
-% \subsubsection{Iterative Methods}
-% We can now treat this as an iterative problem and do a continuous hyperparameter search.
-
-
-% \begin{algorithm}
-%   \caption{Model Training}
-%   \label{alg:condensing}
-%   \begin{algorithmic}
-%     \Require System state $S$, Number of iterations $N$, Number of best indices $m$, $x_{test}, y_{test}, X_{train}, y_{train}$
-%     \State \textbf{Output:} Final system state $S$
-%     \State Initialize system: $S \gets$ baseline state
-%     \For{$i = 1$ to $N$}
-%       \State Sample points: $P \gets \text{samplePoints}(S)$
-%       \State Find m-best indices: $I \gets \text{findMBestIndices}(P, m)$
-%     \State \Return $m$-best indices, $I$
-%   \end{algorithmic}
-% \end{algorithm}
-
-
-
-
 
 
 \section{Methods}
@@ -515,7 +502,7 @@ As with the SVC above, the "balanced" and null class weight parameters that cont
 
 \subsection{Compressors}
 \label{compressors}
-In addition to \texttt{gzip}, we tried numerous different compression algorithms. We used the \texttt{gzip}, \texttt{lzma}, \texttt{bz2}, and \texttt{zst} python modules with default arguments. A comparison of these algorithms can be seen in Table~\ref{tab:compression_algorithms}.
+In addition to \texttt{gzip}, we tried numerous different compression algorithms. We used the \texttt{gzip}, \texttt{lzma}, \texttt{bz2}, \texttt{zst}, and \texttt{brotli} python modules with default arguments. A comparison of these algorithms can be seen in Table~\ref{tab:compression_algorithms}.
 
 \subsection{Condensing}
 \label{condensing}
@@ -524,7 +511,7 @@ We provide theoretical justifications for using secondary methods for determinin
 
 \section{Results}
 \label{results}
-
+In the section below, several datasets, models, and measures of examined for efficacy in both accuracy and run-time requirements to verify the effiacy of Algorithm~\ref{alg:modified} and demonstrate the superiority of NCD over all over known string metrics.
 
 \subsection{Comparison of Different String Metrics}
 \begin{figure*}[htb]
@@ -590,7 +577,12 @@ However, As we increase the number of samples, Jaro, Waro-Winkler, and seqratio 
     \label{fig:mod_summary}
 \end{figure*}
 
-Figure~\ref{fig:mod_summary} depicts the accuracy (top), training time per sample (middle), and inference time per sample (bottom) for each the vanilla (denoted in orange) and the modified algorithm (see: Algorithm~\ref{alg:modified}, denoted in blue). As we can see, the accuracy of the modified algorithm is fairly consistent with the unmodified version. While there is a measured difference in the mean between the NCD-SVC on the DDoS dataset and NCD-KNN on the SMS Spam dataset, the extrema are the same and this difference in mean is likely due to inconsistent performance of the hyper-parameter optimisation algorithm rather than a true difference in performance~\cite{tpe}. In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. However, we see that the modified version of the algorithm is much faster per sample when constructing the Gram matrix ($t_t$) by reducing the number of distance computations by a factor of 2. This comes at the marginal cost of a few hundred milliseconds for each prediction, however, but this could easily be mitigated by skipping the algorithmic modifications during the prediction step and handle the problem of negative distances at run-time, depending on the particular application. Overall, it is clear that this modified version of NCD offers significant run-time improvements while costing nothing in terms of accuracy. 
+Figure~\ref{fig:mod_summary} depicts the accuracy (top), training time per sample (middle), and inference time per sample (bottom) for each the vanilla (denoted in orange) and the modified algorithm (see: Algorithm~\ref{alg:modified}, denoted in blue). 
+The accuracy of the modified algorithm is fairly consistent with the unmodified version. 
+While there is a measured difference in the mean between the NCD-SVC on the DDoS dataset and NCD-KNN on the SMS Spam dataset, the extrema are the same and this difference in median (horizontal black line in the middle section) suggests that the modified NCD-SVC model is more sensitive to hyper-parameter tuning. 
+In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. However, we see that the modified version of the algorithm is much faster per sample when constructing the Gram matrix ($t_t$) by reducing the number of distance computations by a factor of 2. 
+This comes at the marginal cost of a few hundred milliseconds for each prediction, however, but this could easily be mitigated by skipping the algorithmic modifications during the prediction step and handle the problem of negative distances at run-time, depending on the particular application. 
+Overall, it is clear that this modified version of NCD offers significant run-time improvements while costing nothing in terms of accuracy. 
 Additionally, by running the vanilla version during prediction and using the modified version if and only if the Gram matrix is calculated, these downsides can be avoided entirely. 
 However, that may produce Gram matrices that are incompatible with other tooling or models (see: Figure~\ref{fig:mod_assumptions}, middle row), most of these are mitigated with the proposed modifications (see: Figure~\ref{fig:mod_assumptions}, bottom row). 
 However, two classes of counterexamples remain. 
@@ -598,7 +590,8 @@ The first occurs with very short strings
 $NCD("ABB", BBBB) =0$ because the marginal length associated with the repeated ``BB'' token happens to be the exact length as the marginal length associated with the token ``A''. 
 This second occurs for the triangle inequality. 
 Letting $x =AACAABC, y = AA,
-z=AAA$, we find that $NCD(x,y) \approx .26$ while $NCD(x,z) + NCD(z,y) \approx .23$, but it's not clear that this is a problem in the theory. Including the string ``AAA'' provides additional context that ``AA'' may have a distinct meaning apart from ``A'' repeated twice which is why the distance of the sum \textit{is} less than the distance between $x$ and $z$. Additionally, it doesn't seem to be a problem in practice. As the max string size or the maximum alphabet size is increased, these problems quickly disappear(see: Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc}).
+z=AAA$, we find that $NCD(x,y) \approx .26$ while $NCD(x,z) + NCD(z,y) \approx .23$, but it's not clear that this is a problem in the theory. Including the string ``AAA'' provides additional context that ``AA'' may have a distinct meaning apart from ``A'' repeated twice which is why the distance of the sum \textit{is} less than the distance between $x$ and $z$. Additionally, it doesn't seem to be a problem in practice. 
+As the max string size or the maximum alphabet size is increased, these problems quickly disappear(see: Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc}).
 
 
 
@@ -639,14 +632,7 @@ Figure~\ref{fig:condense_acc_ratios} depicts the accuracy across all models, dat
 For each condensing ratio (e.g. percentage of training samples used during prediction), 128 trials were conducted to tune the hyper-parameters of each of the tested models using a variety of methods (see: Section~\ref{condensing_methods} and Figure~\ref{fig:condense_summary}). 
 ) However, the run-time improvements are obvious since the distributions of training times and inference times ($t_t, t_t$ respectively) is effectively the same in both Figures~\ref{fig:condense_summary} and \ref{fig:mod_summary}. That is the condensing methods themselves are fast enough to more than overcome their run-time downsides. However, while it is clear from the former that NCD is quite capable of performing very well on even a small number of samples since the distribution in accuracy does not seem to rely on the compression ratio (see: Figure~\ref{fig:condense_acc_ratios}) and that none of the tested condensing methods consistently outperforms random chance (see: Figure~\ref{fig:condense_acc} meaning this stage is probably unnecessary in practice and that any random subset of samples will be ``good enough''. 
 
-% \begin{figure*}
-%      \centering
-%     \includegraphics[width=\textwidth]{figs/combined/condensing_methods_vs_predict_time.pdf}
-%     \caption{Kernelized classifier inference times across many datasets, models, while examining the effect of different condensing techniques (see Algorithm~\ref{alg:condensing}). Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
-%     \label{fig:cond_pred_time}
-% \end{figure*}
-
-
+\vspace{-1em}
 \section{Considerations}
 \label{considerations}
 While the proposed algorithm (see:~\ref{alg:modified}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see: Section~\ref{condensing}) do not improve upon models trained on samples selected by random chance (see:~\ref{fig:condense_acc}). However, the resulting lack of negative distances allows NCD to be used as part of a kernelized classifier (see: Figures~\ref{fig:condense_acc}~and~~\ref{fig:condense_acc_ratios} to great effect. 
@@ -669,16 +655,5 @@ While it is known that some attacks are quite transferable~\cite{wang2021enhanci
 \bibliographystyle{ieeetr}
 \newpage
 \bibliography{bibliography}
-
-% \clearpage
-% \appendix
-% \onecolumn
-% \input{appendix-ddos}
-% \clearpage
-% \input{appendix-sms_spam}
-% \clearpage
-% \input{appendix-kdd_nsl}
-% \clearpage
-% \input{appendix-truthseeker}
 
 \end{document}
