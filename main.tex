@@ -60,51 +60,63 @@
 \maketitle
 
 \begin{abstract}
-  Machine learning have proven remarkable performance across a wide variety of domains, but nevertheless fail to adversaries during model training or deployment. 
-  Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API.  
-  However, the use of compression algorithms in conjunction with clustering algorithms has proven remarkably successful at text classification, excelling in few-show circumstances and across a wide-variety of datasets. This makes it ideal for a private anomaly detection algorithm. In this paper, we show how a client-side approach to anomaly detection is safer by design.
-  In addition, we demonstrate the efficacy of this technique in the domain of computer security --- using datasets spanning computer processes, Twitter bots, intrusion attacks, denial of service attacks, and log file outlier detection.
-  We offer advice for improving the model latency and evaluate NCD in the wider context of kernel metrics to show its broad efficacy.
+    Machine learning have proven remarkable performance across a wide variety of domains, but can nevertheless fail to adversaries during model training or deployment.
+    Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API.
+    However, the use of compression algorithms in conjunction with clustering algorithms has proven remarkably successful at text classification, excelling in few-show circumstances and across a wide-variety of datasets. This makes it ideal for a private anomaly detection algorithm.
+    In this paper, we show how a client-side approach to anomaly detection is safer by design.
+    In addition, we demonstrate the efficacy of this technique in the domain of computer security---using datasets spanning computer processes, Twitter bots, intrusion attacks, and denial of service attacks.
+    We offer advice for improving the model latency and evaluate this compression-based distance measure in the wider context of kernel metrics to show its broad efficacy.
 \end{abstract}
+
+
+
+
 
 \section{Introduction}
 
-Despite their efficacy across many domains, modern machine learning methods often use very large models that require large numbers of samples to train~\cite{desislavov2021compute}. 
-The exchange of this data often creates privacy and security risks~\cite{chakraborty_adversarial_2018,meyers}. For example, several attacks against ML systems have been proposed, targeting the model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, or deployment~\cite{distributed_attacks,santos2021universal}. 
+Despite their efficacy across many domains, modern machine learning methods often use very large models that require large numbers of samples to train~\cite{desislavov2021compute}.
+The exchange of this data often creates privacy and security risks~\cite{chakraborty_adversarial_2018,meyers}. For example, several attacks against ML systems have been proposed, targeting the model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, or deployment~\cite{distributed_attacks,santos2021universal}.
 Even when access to a model is limited only to the classification labels, it is possible to subvert the model~\cite{hopskipjump}, reverse engineer the decision boundary~\cite{deepfool}, determine the model weights~\cite{jagielski2020high} or infer the class-membership of new samples~\cite{bentley2020quantifying}. 
-This raises profound questions for safety critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}. 
-One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data --- by keeping it encrypted locally and providing no access in either direction to the internet. 
-However, this lack of data sharing means that this hypothetical method must work well when trained on a small number of samples to minimise the run-time costs and maximise the efficacy for individual users. 
-Recently, Jiang et al.~\cite{jiang2022less} proposed a parameter-free text classification algorithm (NCD-KNN) that exploits the distance measure \textit{normalized compression distance} (NCD) to classify objects using the NCD-nearest neighbours (KNN) algorithm.
+This raises profound questions for safety critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}.
+One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data---by keeping it encrypted locally and providing no access in either direction to the internet.
+However, this lack of data sharing means that this hypothetical method must work well when trained on a small number of samples to minimise the run-time costs and maximise the efficacy for individual users.
+
+Recently, Jiang \textit{et al.}~\cite{jiang2022less} proposed a parameter-free text classification algorithm (NCD-KNN) that exploits the distance measure \textit{normalized compression distance} (NCD) to classify objects using the k-nearest neighbours (KNN) algorithm.
 This method has shown very strong performance against several benchmark datasets, but the choice of KNN over other simple models is seemingly unexplored and unjustified.
 Therefore, we expand this concept of using NCD as a measure of distance to classifiers and compare their efficacy on anomalous datasets.
-In this study, we explore the underlying theory of kernel methods, offer run-time improvements over Jiang's method~\cite{jiang2022less} and demonstrate the efficacy of our run-time optimised method on a variety of datasets.  
+In this study, we explore the underlying theory of kernel methods, offer run-time improvements over Jiang's method~\cite{jiang2022less} and demonstrate the efficacy of our run-time optimised method on a variety of datasets.
+
 
 
 \subsection{Threat Model}
 \label{threat}
-A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and blacNCD-box categories~\cite{meyers}. Whitebox attacks like the fast gradient method~\cite{fgm} or~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal . However, it has been shown that this finding prototypical meta samples from the training set is trivial~\cite{chakraborty_adversarial_2018}. Likewise, we can then use this class membership data to reverse engineer the model weights~\cite{} and loss gradients for a set of (potentially adversarial) examples~\cite{}. Even if our attacker only has access to a typical application programming interface (API), there are effective adversaries~\cite{hopskipjump}. In short, the model-as-a-service paradigm is inherently fragile to attackers and dangerous for user privacy. Instead of relying on a model trained on massive amounts of user data, as is typical in deep neural networks and other ``big data" approaches, we can categorically sidestep these attacks with a model that runs entirely client-side. By avoiding the typical model-as-a-shared service approach, the attack surface is reduced to only adversaries that have access to data that users generally consider private (e.g. the contents of a message). That is, the attack surface is reduced to that of any other cookie or browser-based secret~\cite{} and cab be unique to each user, session, or device.
+
+A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and blacNCD-box categories~\cite{meyers}. Whitebox attacks like the fast gradient method~\cite{fgm} or~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal . However, it has been shown that finding prototypical meta samples from the training set is trivial~\cite{chakraborty_adversarial_2018}. Likewise, we can then use this class membership data to reverse engineer the model weights~\cite{} and loss gradients for a set of (potentially adversarial) examples~\cite{}. Even if the attacker only has access to a typical application programming interface (API), there are effective adversaries~\cite{hopskipjump}. In short, the model-as-a-service paradigm is inherently fragile to attackers and dangerous for user privacy. Instead of relying on a model trained on massive amounts of user data, as is typical in deep neural networks and other ``big data'' approaches, we can categorically sidestep these attacks with a model that runs entirely client-side. By avoiding the typical model-as-a-shared service approach, the attack surface is reduced to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message). That is, the attack surface is reduced to that of any other cookie or browser-based secret~\cite{} and cab be unique to each user, session, or device.
+
+
 
 \subsection{Motivations} 
+
 We have several motivations for this work. 
 First, \textit{normalized compression distance} (NCD) has been demonstrated to be a \textit{universal} measure of similarity between two objects~\cite{ncd}.
-Secondly, Jiang's analysis relies on many thousands of samples and it's unclear how well it performs in the few-shot circumstances or in the case of extremely imbalanced data. 
+Secondly, Jiang's analysis relies on many thousands of samples and it's unclear how well it performs in the few-shot circumstances or in the case of extremely imbalanced data.
 While follow-up research examined topics like image classification~\cite{opitz2023gzip}, chemical classification~\cite{weinreich2023parameter}, and text classification~\cite{nishida2011tweet}, it has not been explored in the context of anomaly detection to the best of our knowledge.
 Thirdly, we can expand 
-Furthermore, if we can minimise the run-time storage and computation requirements, then we can fulfill our goal of deploying this method entirely client-side.
+Furthermore, if we can minimise the run-time storage and computation requirements, then we can fulfil our goal of deploying this method entirely client-side.
 In the simplest case, that might mean marking an email as spam~\cite{} or examining the nearest neighbours in a browser~\cite{}. Rather than writing another paper about large language models~\cite{} or deep convolutional networks~\cite{} in 2024, the goal of this work is to convince at least one reader that they probably don't need one.
- 
+
+
 
 \subsection{Contributions}
 In this study, we:
 
 \begin{itemize}
-    \item explore the theory behind normalized compression distance as a pseudo-metric,
-    \item demonstrate how private model deployment is safer by design(Sec.~\ref{threat}),
-    \item offer run-time improvements over the NCD-KNN classifier (Sec.~\ref{improvements}),
-    \item provide a \texttt{javascript} as well as a \texttt{scikit-learn} implementation,
-    \item demonstrate the efficacy of the NCD-KNN classifier across several anomaly detection datasets,
-    \item and demonstrate the efficacy of the run-time optimisations.
+    \item Explored the theory behind normalized compression distance as a pseudo-metric.
+    \item Demonstrate how private model deployment is safer by design (Sec.~\ref{threat}).
+    \item Offer run-time improvements over the NCD-KNN classifier (Sec.~\ref{improvements}).
+    \item Provide a \texttt{javascript} as well as a \texttt{scikit-learn} implementation.
+    \item Demonstrate the efficacy of the NCD-KNN classifier across several anomaly detection datasets.
+    \item Demonstrate the efficacy of the run-time optimisations.
 \end{itemize}
 
 
@@ -115,25 +127,29 @@ In this study, we:
 
 In the sections below, we outline the definition of a metric space and the connection to normalized compression distance, briefly k-Nearest Neighbor (KNN) classifiers, and give a high-level overview of the gzip compression algorithm.
 
+
+
 \subsection{Measures of Distance}
-There are many different distance measures. Jiang et al. examined only the noise-compression distance (see Sec.~\ref{ncd}), but this method is identical to other classifiers~\cite{vapnik1994measuring} that use measures of distance to cluster samples into classes. For strings, several measures of distance are routine and available via the \texttt{levenshtein} package~\cite{levenshtein}. The set of evaluated string metrics is outlined in Sec.~\ref{string_metrics}.
 
-
+There are many different distance measures. Jiang \textit{et al.} examined only the noise-compression distance (see Section~\ref{ncd}), but this method is identical to other classifiers~\cite{vapnik1994measuring} that use measures of distance to cluster samples into classes. For strings, several measures of distance are routine and available via the \texttt{levenshtein} package~\cite{levenshtein}. The set of evaluated string metrics is outlined in Sec.~\ref{string_metrics}.
 
 
 
 \subsubsection{Normalized Compression Distance}
 \label{ncd}
+
 The normalized compression distance (NCD) is defined as:
 \begin{equation}
     \text{NCD}(x, y) = \frac{\mathcal{C}(xy) - \min[\mathcal{C}(x), \mathcal{C}(y)]}{\max[\mathcal{C}(x), \mathcal{C}(y)]} + \varepsilon,
 \end{equation}
-where $\mathcal{C}(z)$ is the length (in bits) of the compressed form of the data $z$ using a compression algorithm (\textit{e.g.} DEFLATE), $xy$ denotes the concatenation of strings $x$ and $y$, and $\varepsilon$ is an error term~\cite{ncd}. It is generally assumed to to be small relative to the rest of the terms and the original authors denote that it can yield values larger than one~\cite{ncd}. To the best of knowledge of the authors, nobody has addressed the problem of negative values for NCD\@.
-Nevertheless, it has been used for classification tasks many times~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less} where the error term is simply assumed to be irrelevant. 
+where $\mathcal{C}(z)$ is the length (in bits) of the compressed form of the data $z$ using a compression algorithm (\textit{e.g.} DEFLATE), $xy$ denotes the concatenation of strings $x$ and $y$, and $\varepsilon$ is an error term~\cite{ncd}. It is generally assumed to to be small relative to the rest of the terms and the original authors denote that it can yield values larger than one~\cite{ncd}. To the best of our knowledge, nobody has addressed the problem of negative values for NCD\@.
+Nevertheless, it has been used for classification tasks many times~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less} where the error term is simply assumed to be irrelevant.
 We discuss novel mitigation techniques in Section~\ref{pseudometric} and the effect of these mitigation techniques is examined in Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc}.
+
 
 \subsubsection{Other measures of string distance}
 \label{string_metrics}
+
 In addition to the NCD metric defined above, we examined several other measures of string similarity, widely used in natural language processing (NLP) and these are briefly outline below. 
 % String Distances
 \begin{itemize}
@@ -165,7 +181,7 @@ $$
 $$
 
 for a vector space, $V$, and the field of real numbers, $\mathbb{R}$. 
-Vector spaces, by definition are, at least, positive semi-definite such that for any (real-valued)vector, $X$, 
+Vector spaces, by definition are, at least, positive semi-definite such that for any (real-valued) vector, $X$, 
 \begin{equation}
 \langle X, X \rangle \geq 0
 \label{eq:psd}
@@ -325,7 +341,7 @@ We propose a solution to this problem in Algorithm~\ref{alg:modified} by simply 
 Since the first two authors consistently fail to occupy the same continent, communication is often conducted asynchronously. 
 Over the years that has led to a habit of sending the message ``pew'' to gauge the availability of the other author, with the other author responding ``pewpew'', which led to the realisation that when $x = "pewpew"$ and $y="pewpewpewpew"$, a strange phenomenon occurs-- NCD$(x,y) = 0$ even when $x \neq y$. 
 It's not immediately clear how this problem \textit{should} be handled (or even if this failed identity induces a problem) since it's not clear that there is \textit{actually} marginal useful information between the strings $x,y$. 
-However, this problem seems to only arise with very short strings that utilize very few characters (see: Figure~\ref{fig:mod_assumptions}).
+However, this problem seems to only arise with very short strings that utilise very few characters (see: Figure~\ref{fig:mod_assumptions}).
 We examine the effect of this in Figures~\ref{fig:mod_assumptions}~and~\ref{fig:mod_acc} and discuss them in Section~\ref{considerations}.
 
 \subsection{Symmetry} 
@@ -447,7 +463,7 @@ For each method and relevance criteria listed above, the optional condensing ste
 
 
 \section{Methods}
-Broadly, this section is divided into two sets of experiments. First, we tuned each model to each dataset while examining the effect of sample size and the effect of modified algorithm (see:~\ref{symmetry}). Then, after confirming the $\mathcal{O}(nm)$ runtime for number of testing, training samples $n,m$, we examine the effect of various training set condensing methods to reduce the run-time. 
+Broadly, this section is divided into two sets of experiments. First, we tuned each model to each dataset while examining the effect of sample size and the effect of modified algorithm (see Algorithm~\ref{alg:assumed_symmetry}). Then, after confirming the $\mathcal{O}(nm)$ runtime for number of testing, training samples $n,m$, we examine the effect of various training set condensing methods to reduce the run-time. 
 
 
 % Next steps:
@@ -633,13 +649,12 @@ For each condensing ratio (e.g. percentage of training samples used during predi
 However, the run-time improvements are obvious since the distributions of training times and inference times ($t_t, t_t$ respectively) is effectively the same in both Figures~\ref{fig:condense_summary} and \ref{fig:mod_summary}. That is the condensing methods themselves are fast enough to more than overcome their run-time downsides. 
 While it is clear from the former that NCD is quite capable of performing very well on even a small number of samples since the distribution in accuracy does not seem to rely on the compression ratio (see: Figure~\ref{fig:condense_acc_ratios}) and that none of the tested condensing methods consistently outperforms random chance (see: Figure~\ref{fig:condense_acc} meaning this stage is probably unnecessary in practice and that any random subset of samples will be ``good enough''. 
 
-\vspace{-1em}
 \section{Considerations}
 \label{considerations}
-While the proposed algorithm (see:~\ref{alg:modified}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see: Section~\ref{condensing}) do not improve upon models trained on samples selected by random chance (see:~\ref{fig:condense_acc}). However, the resulting lack of negative distances allows NCD to be used as part of a kernelized classifier (see: Figures~\ref{fig:condense_acc}~and~~\ref{fig:condense_acc_ratios} to great effect. 
+While the proposed algorithm (see \ref{alg:modified}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see: Section~\ref{condensing}) do not improve upon models trained on samples selected by random chance (see \ref{fig:condense_acc}). However, the resulting lack of negative distances allows NCD to be used as part of a kernelized classifier (see Figures~\ref{fig:condense_acc}~and~\ref{fig:condense_acc_ratios} to great effect. 
 By assuming and enforcing symmetry using the method outlined in Algorithm~\ref{alg:modified}, the training step can be significantly improved.
 However, the vanilla NCD-KNN proposed by Jiang et. al.~\cite{jiang2022less} remains an effective choice if the training step is deemed too expensive for the chosen applications.
-Here, the authors would like to note the borderline performance of all metrics on the Truthseeker dataset--- both NCD and more traditional distance measures. However, this is on par with the performance from the original authors~\cite{truthseeker}. To the best knowledge of the authors, most content on the platform formerly known as Twitter is simply indistinguishable from bot-generated spam--- using any known distance metric.
+Here, the authors would like to note the borderline performance of all metrics on the Truthseeker dataset---both NCD and more traditional distance measures. However, this is on par with the performance from the original authors~\cite{truthseeker}. To the best knowledge of the authors, most content on the platform formerly known as Twitter is simply indistinguishable from bot-generated spam---using any known distance metric.
 
 
 \section{Conclusion}
@@ -656,5 +671,7 @@ While it is known that some attacks are quite transferable~\cite{wang2021enhanci
 \bibliographystyle{ieeetr}
 \newpage
 \bibliography{bibliography}
+
+\input{table}
 
 \end{document}
