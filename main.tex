@@ -204,7 +204,7 @@ That is to say, the run time scales with the magnitude ($ || \cdot || $) of sets
         \State \Return Gram matrix $D$ with dimensions $i,j$.
     \end{algorithmic}
     \caption{Compute the ``Vanilla'' Gram matrix}
-    \label{alg:gram}
+    \label{alg:vanilla}
 \end{algorithm}
 
 % However, using the \textit{kernel trick}, we can change this distance matrix into a kernel matrix \cite{}.
@@ -241,7 +241,6 @@ Furthermore, if we would like to add weights to the samples (as in a weighted KN
 \begin{algorithmic}
     \caption{``Vanilla'' KNN Classifier}
     \label{alg:knn}
-    \label{alg:vanilla}
     \Require{
         \\training data, $x_i \in X_{\text{train}}$;
         \\training labels, $y_i \in Y_{\text{train}}$;
@@ -375,7 +374,7 @@ This process is outlined in Algorithm~\ref{alg:assumed_symmetry}.
 However, as noted above, symmetry is not guaranteed. 
 Instead, symmetry can be enforced, as in Algorithm~\ref{alg:modified}. 
 Furthermore, the special case of $x=y$ can be checked and handled properly (so that $NCD(x,y) - 0$.
-
+Both of these modifications distinguish the ``modified'' and ``vanilla'' (Algorithm~\ref{alg:vanilla}) algorithms.
 \begin{algorithm}
     \begin{algorithmic}
         \Require datasets $X_1$, $X_2$ and some distance function $d(x_1,x_2)$.
@@ -531,7 +530,7 @@ In the section below, several datasets, models, and measures of examined for eff
         \includegraphics[width=.45\textwidth]{figs/combined/compressor_metric_vs_predict_time.pdf}
     \end{subfigure}
     
-    \caption{Kernelized classifier accuracy (top), training times (middle), and inference times (bottom) across many datasets (style), and models. The left column depicts the results from the tested string metrics (see: Section~\ref{string_metrics}) and the right side depicts the results from the modified NCD algorithm using various compressors (see: Section~\ref{compressors})}
+    \caption{String-metric based classifier accuracy (top), training times (middle), and inference times (bottom) across many datasets (style), and models. The left column depicts the results from the tested string metrics (see: Section~\ref{string_metrics}) and the right side depicts the results from the modified NCD algorithm using various compressors (see: Section~\ref{compressors})}
     \label{fig:models_summary}
 \end{figure*}
 
@@ -547,7 +546,7 @@ However, As we increase the number of samples, Jaro, Waro-Winkler, and seqratio 
     \centering
     \includegraphics[width=\textwidth]{images/results.pdf}
     \caption{
-    Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), and modified (Algorithm~\ref{alg:modified} middle and bottom rows) algorithms on 100 thousand random strings without checking for the special case of $x=y$ (middle row) and using an if statement to check that special case (bottom row). 
+    Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), assumed symmetry (Algorithm~\ref{alg:assumed_symmetry}, middle row), and modified (Algorithm~\ref{alg:modified}, bottom rows) algorithms on 100 thousand random strings without checking for the special case of $x=y$ (middle row) and using an if statement to check that special case (bottom row). 
     \textit{Sig Figs} refers to the number of significant figures. \textit{Max String Size} and \textit{Max Alphabet Size} refer to the number of characters and the number of unique characters respectively. 
     Unless otherwise specified by the x-axis in an individual plot, \textit{Max String Size}, \textit{Max Alphabet Size}, and \textit{Sig Figs} were all 144 characters (the character limit of a ``tweet''), 52 letters (upper and lower case English letters), and 10 significant figures. Each colour corresponds to a different identity as defined in Section~\ref{metric_spaces} and each line marker corresponds to a different compression algorithm as outlined in Table~\ref{tab:compression_algorithms}.
     }
@@ -558,29 +557,29 @@ However, As we increase the number of samples, Jaro, Waro-Winkler, and seqratio 
 \begin{figure*}[htb]
     \centering
     \begin{subfigure}[htb]{\textwidth}
-        \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_accuracy.pdf}
+        \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_accuracy.pdf}
         \caption{Accuracy across models and datasets.}
         \label{fig:mod_acc}
     \end{subfigure}
     \begin{subfigure}[htb]{\textwidth}
         \centering
-        \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_train_time.pdf}
+        \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_train_time.pdf}
         \caption{Training Times across models and datasets.}
         \label{fig:mod_train_time}
     \end{subfigure}
     \begin{subfigure}[htb]{\textwidth}
-        \includegraphics[width=\textwidth]{figs/combined/modified_models_vs_predict_time.pdf}
+        \includegraphics[width=\textwidth]{figs/combined/symmetric_models_vs_predict_time.pdf}
         \caption{Prediction Times across models and datasets.}
         \label{fig:mod_pred_time}
     \end{subfigure}
-    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:modified}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
+    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect outlined in Algorithm~\ref{alg:modified}. Each column corresponds to a different dataset and each row corresponds to a different performance metric (accuracy, training time per sample, and inference time per sample), the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether the modified NCD function  was used (orange, Algorithm~\ref{alg:modified}) or not (blue, Algorithm~\ref{alg:vanilla}).}
     \label{fig:mod_summary}
 \end{figure*}
 
 Figure~\ref{fig:mod_summary} depicts the accuracy (top), training time per sample (middle), and inference time per sample (bottom) for each the vanilla (denoted in orange) and the modified algorithm (see: Algorithm~\ref{alg:modified}, denoted in blue). 
 The accuracy of the modified algorithm is fairly consistent with the unmodified version. 
-While there is a measured difference in the mean between the NCD-SVC on the DDoS dataset and NCD-KNN on the SMS Spam dataset, the extrema are the same and this difference in median (horizontal black line in the middle section) suggests that the modified NCD-SVC model is more sensitive to hyper-parameter tuning. 
-In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. However, we see that the modified version of the algorithm is much faster per sample when constructing the Gram matrix ($t_t$) by reducing the number of distance computations by a factor of 2. 
+In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. 
+However, the modified version of the algorithm is clearly much faster per sample when constructing the Gram matrix ($t_t$) by reducing the number of distance computations by a factor of 2. 
 This comes at the marginal cost of a few hundred milliseconds for each prediction, however, but this could easily be mitigated by skipping the algorithmic modifications during the prediction step and handle the problem of negative distances at run-time, depending on the particular application. 
 Overall, it is clear that this modified version of NCD offers significant run-time improvements while costing nothing in terms of accuracy. 
 Additionally, by running the vanilla version during prediction and using the modified version if and only if the Gram matrix is calculated, these downsides can be avoided entirely. 
@@ -601,7 +600,7 @@ As the max string size or the maximum alphabet size is increased, these problems
 \begin{figure*}[htb]
     \centering
     \includegraphics[width=\textwidth]{figs/combined/condensing_ratio_vs_accuracy.pdf}
-    \caption{Accuracy across models (rows) and datasets (columns) where the hue represents the condensing ratio (percentage of samples in training database used for prediction). }
+    \caption{Accuracy across models (rows) and datasets (columns) where the hue represents the condensing ratio (percentage of samples in training database used for prediction) for each condensing method (x-axis). }
     \label{fig:condense_acc_ratios}
 \end{figure*}
 
@@ -623,14 +622,16 @@ As the max string size or the maximum alphabet size is increased, these problems
         \caption{Prediction Times across models and datasets.}
         \label{fig:condense_pred_time}
     \end{subfigure}
-    \caption{Kernelized classifier inference times across many datasets, and models while examining the effect of the symmetric assumption outlined in Algorithm~\ref{alg:modified}. Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. The x-axis in each plot corresponds to a classifier type and the colour conveys whether symmetry was assumed (orange) or not (blue).}
+    \caption{NCD classifier accuracy, inference time per sample ($t_i$), and training time per sample($t_i$). 
+    Each column corresponds to a different dataset and each row corresponds to a different performance metric, the value of which is on the y-axis. 
+    The x-axis in each plot corresponds to a classifier type and one one colour is assigned to each condensing method.}
     \label{fig:condense_summary}
 \end{figure*}
 
 Figure~\ref{fig:condense_acc_ratios} depicts the accuracy across all models, datasets, and condensing ratios while Figure~\ref{fig:condense_summary} depicts the run-time requirements of various condensing methods. 
-
 For each condensing ratio (e.g. percentage of training samples used during prediction), 128 trials were conducted to tune the hyper-parameters of each of the tested models using a variety of methods (see: Section~\ref{condensing_methods} and Figure~\ref{fig:condense_summary}). 
-) However, the run-time improvements are obvious since the distributions of training times and inference times ($t_t, t_t$ respectively) is effectively the same in both Figures~\ref{fig:condense_summary} and \ref{fig:mod_summary}. That is the condensing methods themselves are fast enough to more than overcome their run-time downsides. However, while it is clear from the former that NCD is quite capable of performing very well on even a small number of samples since the distribution in accuracy does not seem to rely on the compression ratio (see: Figure~\ref{fig:condense_acc_ratios}) and that none of the tested condensing methods consistently outperforms random chance (see: Figure~\ref{fig:condense_acc} meaning this stage is probably unnecessary in practice and that any random subset of samples will be ``good enough''. 
+However, the run-time improvements are obvious since the distributions of training times and inference times ($t_t, t_t$ respectively) is effectively the same in both Figures~\ref{fig:condense_summary} and \ref{fig:mod_summary}. That is the condensing methods themselves are fast enough to more than overcome their run-time downsides. 
+While it is clear from the former that NCD is quite capable of performing very well on even a small number of samples since the distribution in accuracy does not seem to rely on the compression ratio (see: Figure~\ref{fig:condense_acc_ratios}) and that none of the tested condensing methods consistently outperforms random chance (see: Figure~\ref{fig:condense_acc} meaning this stage is probably unnecessary in practice and that any random subset of samples will be ``good enough''. 
 
 \vspace{-1em}
 \section{Considerations}
