@@ -62,16 +62,17 @@
 \begin{abstract}
 % Machine learning has proven remarkable performance across a wide variety of domains, but can nevertheless fail to adversaries during model training or deployment.
 \cm{
-In an increasingly digital and connected world, user privacy and platform security are often orthogonal -- or even competing -- goals.
-Balancing the privacy concerns of users with the security concerns of platform operators is of increasing importance to regulators and client-side neural network models (trained on user data in the cloud) have been proposed as a solution.
-The problem with this approach is that neural networks have incredibly complex architectures with long run-times, require special hardware, are built using massive datasets, have opaque decision making processes, are trivial to circumvent, and can be used by an adversary to generate the malicious content that the model was designed to detect.
-An alternative approach that uses compression algorithms to measure the distance between two objects has proven remarkably successful at classification tasks across a wide-variety of datasets---using only a small number of samples. 
-Furthermore, the resulting model lends itself to a direct interpretation as similar inputs will be close to each other in the feature space.
-The increased interpretability and small training set requirements make this method ideal for a private text classification system. 
+In recent years, developments in machine learning have highlighted a conflict between platforms and their users in terms of privacy. 
+The importance of user privacy and the struggle for power over their data has been intensified as regulators and platform operators attempt to police their platforms while respecting the privacy of users. 
+Client-side data storage, management, and analysis has become the favoured approach to large scale machine learning. 
+Whether client-side or in the cloud, these state of the art methods require vast amounts of labelled user data, making them unsuitable for models that only have access to a single user's data. 
+Also, state of the art methods are computationally expensive, which degrades user experience on compute limited hardware and reduces battery life. 
+Older machine learning methods often require fewer samples to be effective, but generally have a reduced ability to model complex decision boundaries. 
+An alternative approach that uses compression algorithms to measure the distance between two objects in conjunction with classical machine learning methods has proven remarkably successful at classification tasks across a wide-variety of datasets—using only a small number of samples. 
+In this work, we present techniques for improving the run-time characteristics of this compression-based metric and frame this distance measure in the wider context of kernel metrics to allow the modelling of complex decision boundaries using only a small number of samples. 
+We show that this compression metric outperforms all tested string metrics--without incurring additional computational cost. 
+The end results is a simple, client-side, spam detection model that competes with state of the art models while requiring only a fraction of the power and data and compute requirements, and nevertheless competes with the state of the art models.
 }
-In this paper, we present a client-side approach to malicious user detection that is as accurate as neural networks without revealing users' private data to the platform operator. 
-In addition, we demonstrate the efficacy of this technique in the domain of computer security by testing many datasets like system-level computer process data, Twitter bot text, intrusion attacks, and denial of service attacks. 
-We present methods for improving the model latency and evaluate this compression-based distance measure in the wider context of kernel metrics to show the broad efficacy  of these techniques in a wide variety of machine learning models.
 \end{abstract}
 
 
@@ -89,8 +90,8 @@ This raises profound questions for safety critical systems~\cite{meyers} and leg
 \cm{
 Furthermore, regulators and platform operators around the world have sought to balance privacy and security concerns by weakening encryption standards ~\cite{amnesty_encryption} or by scanning client devices for offensive content using neural networks~\cite{chat_control} that are known to leak private data~\cite{xiao2021improving,fredrikson_model_2015} while being trivial to circumvent with adversarial queries ~\cite{carlini_towards_2017,dohmatob_generalized_2019,hopskipjump,biggio_evasion_2013,meyers,chakraborty_adversarial_2018}.
 }
-One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data---by keeping it encrypted locally and providing no access in either direction to the internet.
-However, this lack of data sharing means that this hypothetical method must work well when trained on a small number of samples to minimise the run-time costs and maximise the efficacy for individual users.
+One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data---by keeping it encrypted locally and providing no access in either direction to the internet (\textit{i.e.} keep private data \textit{private}).
+However, this lack of data sharing means that this hypothetical method must work well when trained on a data collected from a single user.
 
 Recently, Jiang \textit{et al.}~\cite{jiang2022less} proposed a parameter-free text classification algorithm (NCD-KNN) that exploits the distance measure, \textit{normalized compression distance} (NCD)~\cite{ncd},  to classify objects using the k-nearest neighbours (KNN) algorithm~\cite{shalev2014understanding}.
 This method has shown very strong performance across several benchmark datasets, but the choice of KNN over other simple models is seemingly unexplored and unjustified. 
@@ -106,13 +107,14 @@ The end result is a method that can run entirely on a client device without fede
 \subsection{Threat Model}
 \label{threat}
 
-A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and black-box categories~\cite{meyers}. White-box attacks like the fast gradient method~\cite{fgm} or~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal API access. 
+A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and black-box categories~\cite{meyers}. White-box attacks like the fast gradient method~\cite{fgm} or Deepfool~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal API access. 
 Additionally, it has been shown that finding prototypical meta samples from the training set of neural networks is trivial~\cite{chakraborty_adversarial_2018}. 
 Likewise, this class membership data can then be used to reverse engineer the model weights~\cite{deepfool} and loss gradients for a set of (potentially adversarial) examples~\cite{hopskipjump}. 
 Even if the attacker only has access to a typical application programming interface (API), there are effective adversarial attacks\cite{hopskipjump}. 
-In short, the model-as-a-service paradigm is inherently fragile to attackers and dangerous for user privacy. Instead of relying on a model trained on massive amounts of user data, as is typical in deep neural networks and other ``big data'' approaches, we can categorically sidestep these attacks with a model that runs entirely client-side. 
-By avoiding the typical model-as-a-shared service approach, the attack surface is reduced to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message). 
-That is, the attack surface is reduced to that of any other cookie or browser-based secret~\cite{} and can be unique to each user, session, or device by collecting data from each user and training a model in real-time-- entirely on a client device.
+In short, the federated and centralized training paradigms are inherently fragile to attackers and dangerous for user privacy, even if the resulting model lives on the user device (rather than in the cloud). 
+Instead of relying on a model trained on massive amounts of user data, as is typical in deep neural networks and other ``big data'' approaches, we can categorically sidestep these attacks with a model that runs entirely client-side. 
+By avoiding the typical model-as-a-shared-service approach, the attack surface is reduced to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message). 
+That is, the attack surface is reduced to that of any other cookie or browser-based secret~\cite{} and can be unique to each user, session, or device by collecting data from each user and training a model on a client device.
 
 
 
@@ -228,27 +230,27 @@ K(x, x') = \langle \phi(x), \phi(x') \rangle \nu
 $$
 where $\nu$ is the feature vector space and $\phi(\cdot)$ is a function that extracts features from $x,x'$.
 
-\paragraph{Linear Kernel}
+\paragraph{Quadratic Kernel}
 \label{linear_kernel}
 The linear kernel is the simplest kernel, representing the inner product between two vectors in the input space. It does not transform the data into a higher-dimensional space, as it is inherently linear. Mathematically, it is expressed as:
 
 $$
-K(x, x') = x^T x'
+k(x, y) = (S(x, x') + c)^2
 $$
 
-where $x$ and $x'$ are two vectors in the input space, and $x^T x'$ denotes the dot product between the vectors. 
-Note that if $x = x'$ and x is itself a symmetric matrix (as is the case with the training set distance matrix), then this is equivalent to:
+where $x$ and $x'$ are two vectors in the input space, and $S, c$ are kernel-specific parameters. 
+If we assume $c=0$ and that $S(x,x')$ is one of the enumerated metrics, then this can be simplified to:
 $$
-K(x, x') = x^2
+K(x, x') = \langle x, x' \rangle ^2
 $$
 The linear kernel assumes that the data is already linearly separable or nearly linearly separable, so no non-linear mapping is needed. 
+
 For datasets that aren't linearly separable, alternative kernel functions exist. 
 
 \paragraph{Multiquadric Kernel}
 \label{multiquadric_kernel}
 The multiquadric kernel provides one such non-linear mapping. 
 It is defined as 
-
 $$
 K(x, x') = \sqrt{\langle x, x' \rangle ^2 + c^2}
 $$
@@ -483,11 +485,11 @@ Letting $D_{xy}$ be the distance matrix calculated when $x$ is the first string 
     \text{D}_{\text{average}} = \frac{D_{xy}  + D_{yx}}{2}.
     \label{eq:average}
 \end{equation}
-The zero-identity hack was not included in this last method and was calculated explicitly. 
+The zero-identity hack was not included in this last method and those distances were calculated explicitly. 
 For the purposes of the experiments below, the method proposed by Jiang et. al.~\cite{jiang2022less} is dubbed ``Vanilla''. 
 The second method (Algorithm ~\ref{alg:symmetric}) is called ``Assumed''. 
 The third method (Algorithm ~\ref{alg:modified}) is named ``Enforced''. 
-The final method (Equation ~\ref{eq:average}) is referred to ad ``Averaged''. 
+The final method (Equation ~\ref{eq:average}) is referred to as ``Averaged''. 
 
 \section{Run-Time Improvements}
 \label{improvements}
@@ -546,11 +548,12 @@ Accuracy, distance matrix calculation time, and prediction times were recorded f
 
 
 \subsection{Models}
+\label{models}
+
 After generating numerous train/test pairs, the distance matrices were calculated and provided to typical \texttt{scikit-learn} classifiers. For each compression algorithm or string metric, both the symmetric (as per  Algorithm\ref{alg:vanilla}) and asymmetric matrices were found and tested. Since these models have several parameters, some of which are drawn from continuous spaces, we used a grid search to evaluate each of the enumerated parameter sets. 
 For each hyper-parameter configuration trials were conducted across five-folds of the training set, as outlined in the subsection above. 
 The tested hyper-parameters are listed below.
 
-\label{models}
 \subsubsection{NCD-KNN}
 To use KNN, one must specify a number of nearest neighbours to use for class prediction. This number was selected from $\{1,3,5,7,11\}$, as choosing small, odd numbers to make ties impossible for binary classifiers. In addition, we tested whether or not to weight the samples uniformly or by distance (wherein a given sample is given a weight equal to its inverse). 
 
@@ -590,16 +593,28 @@ Figure~\ref{fig:metric_acc} shows the performance of the various classifiers (kn
 NCD using various compressors outperforms the string metrics across all datasets and classifiers. 
 It is clear that run-times are largely comparable between NCD and various string metrics for both training (Figure~\ref{fig:train_time}) and inference (Figure~\ref{fig:pred_time}). 
 Please note that the training step is only necessary for certain configurations of the KNN algorithm and that the vanilla version proposed by Jiang et. al.~\cite{jiang2022less} can skip this step entirely. 
-Overall, NCD offers superior performance over the tested string metrics since is is more consistently accurate across the datasets compared to the string metrics. 
+Overall, NCD (GZIP, BZ2, Brotli) offers superior performance over the tested string metrics (Hamming, Ratio, Levenshtein) since NCD is more consistently accurate. Across all datasets, the median and peak accuracy of the compressor-based metrics exceeds all the string metrics.
 
 \subsection{Effect of Kernelisation}
-\lipsum[1]
+
 \begin{figure*}[htb]
     \centering
     \includegraphics[width=\textwidth]{images/accuracy_vs_kernel.pdf}
-    \caption{The accuracy across each dataset (rows), model (columns) and distance matrix computation algorithm (color) for several different kernelisation functions (x-axis), calculated by averaging the scores of each fold in five-fold cross validation.}
+    \caption{The accuracy across each dataset (rows), model (columns) and distance matrix computation algorithm (color) for several different kernelisation functions (x-axis), calculated by averaging the scores of each fold in five-fold cross validation for each set of tested parameters (enumerated in Section~\ref{models}).}
     \label{fig:kernel_acc}
 \end{figure*}
+
+Figure~\ref{fig:kernel_acc} shows the effect of kernelisation when compared to the un-kernelised distance matrix (on the far right side, denoted with a $D$) across all tested configurations of models across all the datasets. 
+For KNN, the performance is identical for all datasets and models, which is not unexpected as the chosen kernel functions preserve the order of the neighbours, except when an (erroneous) negative distance occurs. 
+As this situation is incredibly rare (see Figures~\ref{fig:mod_acc}~and~\ref{fig:kernel_acc}), it is not unexpected that the resulting accuracy remains the same. 
+This trend is consistent across all of the datasets and distance matrix algorithms.
+The kernelised logistic regressor fails to outperform the raw distance matrix, on average. 
+However, after tuning, kernelised logistic regression can also approach perfect accuracy, but this comes at the cost of more tuneable parameters and a longer training time. 
+This trend is also consistent across all of the datasets and distance matrix algorithms.
+Unsurprisingly, the kernelised version of the distance matrix tends to outperform the un-kernelised distance matrix when used to build an SVC since that model is intended to work on similarity metrics (kernels) rather than dissimilarity metrics (distances). 
+Like with logistic regression, this comes at the cost of one or more tuneable parameters and the resultant increase in training time. 
+Nevertheless, this model might be more appropriate for situations in which the decision boundary is non-linear. 
+Like with KNN and logistic regression, this trend is consistent across all datasets and distance matrix algorithms.
 
 
 \subsection{Effect of Modified NCD Algorithm}
@@ -639,7 +654,21 @@ As the max string size or the maximum alphabet size is increased, these problems
 
 
 \subsection{Run-time Considerations}
-\lipsum[1]
+
+Figure~\ref{fig:train_time} depicts the time needed to calculate the distance matrix per sample in the training set for each dataset (column), algorithm (colour) and metric (x-axis). 
+It is clear that the run-times of the metrics are fairly consistent across the datasets and that the proposed run-time improvements (denoted ``Assumed'' and ``Enforced'') do decrease the training time with no resulting loss in accuracy (see: Figure~\ref{fig:metric_acc}). 
+While the symmetric extension of NCD (denoted ``Averages'') does take significantly more time thant the other distance matrix algorithms, that marginal increase is mere milliseconds in practice and is guaranteed to be symmetric without assuming or enforcing symmetry. 
+However, Hamming distance takes significantly more time than other metrics on the DDoS dataset and GZIP takes significantly more time than other metrics on the KDD NSL dataset. 
+This effect can be mitigated by considering the run-time costs during the model training stage since these metrics take longer but do not result in significantly better accuracies (see: Figure~\ref{fig:metric_acc}) for those datasets. 
+Overall, training times are low enough that this could feasibly be deployed on a user's device without specialised hardware (as is true in the case of neural networks). 
+If we pessimistically assume a training time of 50 milliseconds per sample, then training could occur as the user (or router or antivirus software or social media algorithm) encounters the sample in real-time with a latency that would be unnoticeable to most humans (roughly a few hundred milliseconds, depending on age and other factors)~\cite{reaction_time}. 
+Figure~\ref{fig:pred_time} depicts the time needed to predict a new classification on a single sample for each dataset (row), classifier (column), algorithm (colour) and metric (x-axis). 
+The prediction time per sample (after calculating the distance between a new sample and those in the training set) is trivial across all distance matrix algorithms, datasets, models, and metrics, though the branching logic introduced by the ``Assumed'' and ``Enforced'' algorithms does increase the model latency by a fraction of a millisecond.
+Overall, it is clear that the run-time improvements are effective and that NCD is can be plausibly used in real-time, client-side settings. 
+In applications where latency is more important than privacy, then the training distance matrix can be pre-computed (rather than generated at run-time as in unweighted KNN), reducing the run-time and computational costs for the user. 
+
+
+
 \begin{figure*}[htb]
     \includegraphics[width=\textwidth]{images/train_time_vs_algorithm.pdf}
     \caption{The distance matrix calculation time per sample for each metric (x-axis), dataset (columns) and algorithm (colour). Because the distance matrix was only calculated once per dataset, there is no differentiation between the models. Likewise, this time was much, much larger than the time needed to fit each model, making the choice of algorithm and metric the primary run-time concerns.}
