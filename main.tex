@@ -90,14 +90,15 @@ This raises profound questions for safety critical systems~\cite{meyers} and leg
 \cm{
 Furthermore, regulators and platform operators around the world have sought to balance privacy and security concerns by weakening encryption standards ~\cite{amnesty_encryption} or by scanning client devices for offensive content using neural networks~\cite{chat_control} that are known to leak private data~\cite{xiao2021improving,fredrikson_model_2015} while being trivial to circumvent with adversarial queries ~\cite{carlini_towards_2017,dohmatob_generalized_2019,hopskipjump,biggio_evasion_2013,meyers,chakraborty_adversarial_2018}.
 }
-One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data---by keeping it encrypted locally and providing no access in either direction to the internet (\textit{i.e.} keep private data \textit{private}).
+One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data---by keeping it encrypted locally and providing no access in either direction to the internet.
 However, this lack of data sharing means that this hypothetical method must work well when trained on a data collected from a single user.
 
 Recently, Jiang \textit{et al.}~\cite{jiang2022less} proposed a parameter-free text classification algorithm (NCD-KNN) that exploits the distance measure, \textit{normalized compression distance} (NCD)~\cite{ncd},  to classify objects using the k-nearest neighbours (KNN) algorithm~\cite{shalev2014understanding}.
 This method has shown very strong performance across several benchmark datasets, but the choice of KNN over other simple models is seemingly unexplored and unjustified. 
 \cm{
 Instead of relying on massive amounts of centralised data, this work proposes a model that has remarkable efficacy on a small number of samples and can be trained and queried entirely on a client device in real time.
-In this study, we explore the underlying theory of kernel methods and extend this notion of distance (dissimilarity) to one of kernel-like similarity}; offer run-time improvements over Jiang's method~\cite{jiang2022less}; and demonstrate the efficacy of our run-time optimised method on a variety of datasets to produce a model that competes with state-of-the-art neural network models trained on much larger datasets.  ~\cm{
+In this study, we explore the underlying theory of kernel methods and extend this notion of distance (dissimilarity) to one of kernel-like similarity}; offer run-time improvements over Jiang's method~\cite{jiang2022less}; and demonstrate the efficacy of our run-time optimised method on a variety of datasets to produce a model that competes with state-of-the-art neural network models trained on much larger datasets. 
+~\cm{
 The end result is a method that can run entirely on a client device without federation or centralisation of data across many users, allowing platform operators to find malicious users without exfiltrating private data from the entire user base.
 }
 
@@ -154,7 +155,7 @@ In the sections below, we outline the definition of a metric space and the conne
 \subsection{Measures of Distance}
 
 \cm{There are many different ways to measure the dissimilarity (or distance) between two objects.}
-For strings, several measures of distance are routine and available via the \texttt{levenshtein} package~\cite{levenshtein}. 
+For strings, several measures of distance (or metrics) are routine and available via the \texttt{levenshtein} package~\cite{levenshtein}. 
 The set of evaluated string metrics is outlined in Sec.~\ref{string_metrics}. 
 A somewhat forgotten method, proposed in 2001~\cite{ncd} (see Section~\ref{ncd}) extends to any type of object (not just strings) and a modified version of this metric has been incorporated into malware analysis tools for nearly two decades~\cite{}. 
 Jiang \textit{et al.} ~\cite{jiang2022less} propose using this distance measure in conjunction with the KNN classifier, but this method is identical to other classifiers~\cite{vapnik1994measuring} that use measures of distance to cluster samples into classes. 
@@ -215,7 +216,7 @@ Vector spaces, by definition are, at least, positive semi-definite such that for
 
 \subsubsection{Mercer's Theorem and Kernelisation}
 \label{kernels}
-Whereas distance functions are used to measure the similarity between different examples $x,y$, a \textit{kernel-function}, $K$, is a measure of similarity. That is, when $d(x,x') = 0, x = y$ , but when $K(x,x') = 0, x~\perp~y$. The opposite then follows when $d(x,x')=1$ or $K(x,x')=1$. Mercer's theorem says that for any symmetric, continuous function, $K$,
+Whereas distance functions are used to measure the similarity between different examples $x,y$, a \textit{kernel-function}, $K$, is a measure of similarity. That is, when $d(x,x') = 0, x = y$ , but when $K(x,x') = 0, x~\perp~y$. The opposite then follows when $d(x,x')=1$ or $K(x,x')=1$. Mercer's theorem~\cite{mercer} says that for any symmetric, continuous function, $K$,
 $$
 K : [a, b] \times [a, b] \rightarrow \mathbb{R}~\forall~x,x' \in [a,b].
 $$
@@ -231,15 +232,15 @@ $$
 where $\nu$ is the feature vector space and $\phi(\cdot)$ is a function that extracts features from $x,x'$.
 
 \paragraph{Quadratic Kernel}
-\label{linear_kernel}
-The linear kernel is the simplest kernel, representing the inner product between two vectors in the input space. It does not transform the data into a higher-dimensional space, as it is inherently linear. Mathematically, it is expressed as:
+\label{quadratic_kernel}
+The quadratic kernel~\cite{kernels} is a type of polynomial kernel that maps the input data into a higher-dimensional space by considering the pairwise quadratic interactions between the features of the input vectors. Mathematically, it is expressed as:
 
 $$
 k(x, y) = (S(x, x') + c)^2
 $$
 
 where $x$ and $x'$ are two vectors in the input space, and $S, c$ are kernel-specific parameters. 
-If we assume $c=0$ and that $S(x,x')$ is one of the enumerated metrics, then this can be simplified to:
+If we assume $c=0$ and that $S(x,x')$ is one of the enumerated distance metrics (denoted $\langle \cdot \rangle $), then this can be simplified to:
 $$
 K(x, x') = \langle x, x' \rangle ^2
 $$
@@ -249,7 +250,7 @@ For datasets that aren't linearly separable, alternative kernel functions exist.
 
 \paragraph{Multiquadric Kernel}
 \label{multiquadric_kernel}
-The multiquadric kernel provides one such non-linear mapping. 
+The multiquadric kernell~\cite{kernels} provides one such non-linear mapping. 
 It is defined as 
 $$
 K(x, x') = \sqrt{\langle x, x' \rangle ^2 + c^2}
@@ -264,7 +265,7 @@ These two kernel functions above preserve the values of $0,1$, making it useful 
 
 \paragraph{Radial basis function}
 \label{rbf_kernel}
-Another popular kernel function is the radial basis function (RBF), defined by
+Another popular kernel function is the radial basis function (RBF)l~\cite{kernels}, defined by
 $$
 K(x, x') = \exp{\frac{\langle x, x' \rangle}{\gamma}}
 $$
@@ -394,10 +395,10 @@ We propose a solution to this problem in Algorithm~\ref{alg:modified} by simply 
 
 \subsubsection{PewPew Problem}
 Since the first two authors consistently fail to occupy the same continent, communication is often conducted asynchronously. 
-Over the years that has led to a habit of sending the message ``pew'' to gauge the availability of the other author, with the other author responding ``pewpew'', which led to the realisation that when $x = "pewpew"$ and $y="pewpewpewpew"$, a strange phenomenon occurs-- NCD$(x,y) = 0$ even when $x \neq y$. 
-It's not immediately clear how this problem \textit{should} be handled (or even if this failed identity induces a problem) since it's not clear that there is \textit{actually} marginal useful information between the strings $x,y$. 
-However, this problem seems to only arise with very short strings that utilise very few characters (see: Figure~\ref{fig:synthetic_check}).
-We examine the effect of this in Figures~\ref{fig:synthetic_check}~and~\ref{fig:real_world_check} and discuss them in Section~\ref{considerations}.
+Over the years, this has led to a habit of sending the message ``pew'' to gauge the availability of the other author, with the other author responding ``pewpew'', which led to the realisation that when $x = "pewpew"$ and $y="pewpewpewpew"$, a strange phenomenon occurs-- NCD$(x,y) = 0$ even when $x \neq y$ (for the \texttt{gzip} compressor). 
+It's not immediately clear how this problem \textit{should} be handled (or even if this failed identity induces a problem in practice) since it's not clear that there is \textit{actually} marginal useful information between the strings $x,y$. 
+Additionally, this ``problem'' seems to only arise with very short strings that utilise very few characters (see: Figure~\ref{fig:synthetic_check}).
+We examine the effect of these metric-space violations in Figures~\ref{fig:synthetic_check}~and~\ref{fig:real_world_check} and discuss them in Section~\ref{considerations}.
 
 \subsection{Symmetry} 
 $$
@@ -559,15 +560,18 @@ To use KNN, one must specify a number of nearest neighbours to use for class pre
 
 \subsubsection{NCD-SVC}
 Ths \texttt{scikit-learn} SVC implementation provides several kernel methods for transforming the input into a separable feature space. 
-SVCs require a choice of value for a penalty term and we tested the range $[ 10^{-3}, 10^3]$ for each power of ten. 
+SVCs require a choice of value for a penalty term and we tested the range $\{ 10^{-3}, 10^3 \}$ for each power of ten. 
 
 \subsubsection{NCD-Logistic}
 The \texttt{scikit-learn} provides several parameters for the humble logistic function. 
-Both an $\ell_1$ and $\ell_2$ penalty term were tested as well as a configuration without a penalty. That penalty was sampled from the range $[10^{-3}, 10^3]$ using each power of 10. 
+Both an $\ell_1$ and $\ell_2$ penalty term were tested as well as a configuration without a penalty. That penalty was sampled from the range $\{10^{-3}, 10^3\}$ using each power of 10. 
 Using the \texttt{saga} solver, a tolerance of $10^{-4}$ was used.
 
 \subsubsection{Kernels}
-\cm{TODO: Enumerate the kernels and the parameters. KNN used first 2 kernels without other parameters. The others used RBF by tuning the denominator term.}
+In addition to evaluating the accuracy of various models on the un-kernelised distance matrix (denoted $D$), several kernels were evaluated.
+For KNN, the quadratic (see Section~\ref{quadratic_kernel}) and multiquadric (see Section~\ref{multiquadric_kernel}) kernels were evaluated for each metric, model, dataset, and algorithm combination. 
+To minimise the search space, the additive constant, $C$, was assumed to be 0. 
+For the logistic regressor and the SVC, the RBF (see Section~\ref{rbf_kernel}) was used and the values $\gamma \in \{10^{-3}, 10^3\}$ for each power of ten were evaluated.
 
 \subsection{Compressors}
 \label{compressors}
@@ -591,7 +595,7 @@ In the section below, several datasets, models, and measures of examined for eff
 
 Figure~\ref{fig:metric_acc} shows the performance of the various classifiers (knn, logistic, SVC) across each of the datasets using various string metrics to calculate NCD. 
 NCD using various compressors outperforms the string metrics across all datasets and classifiers. 
-It is clear that run-times are largely comparable between NCD and various string metrics for both training (Figure~\ref{fig:train_time}) and inference (Figure~\ref{fig:pred_time}). 
+It is clear that run-times are largely comparable between NCD and various string metrics for both training (Figure~\ref{fig:distance_time}) and inference (Figure~\ref{fig:pred_time}). 
 Please note that the training step is only necessary for certain configurations of the KNN algorithm and that the vanilla version proposed by Jiang et. al.~\cite{jiang2022less} can skip this step entirely. 
 Overall, NCD (GZIP, BZ2, Brotli) offers superior performance over the tested string metrics (Hamming, Ratio, Levenshtein) since NCD is more consistently accurate. Across all datasets, the median and peak accuracy of the compressor-based metrics exceeds all the string metrics.
 
@@ -636,7 +640,7 @@ Like with KNN and logistic regression, this trend is consistent across all datas
     \label{fig:real_world_check}
 \end{figure*}
 
-Figures~\ref{fig:metric_acc}~and~\ref{fig:kernel_acc} depict the accuracy (top), Figure~\ref{fig:train_time} depicts the   training time per sample, and Figure~\ref{fig:pred_time}  depicts the inference time per sample (bottom) for each algorithm (denoted by color and outlined in ~\ref{extensions}). 
+Figures~\ref{fig:metric_acc}~and~\ref{fig:kernel_acc} depict the accuracy (top), Figure~\ref{fig:distance_time} depicts the   training time per sample, and Figure~\ref{fig:pred_time}  depicts the inference time per sample (bottom) for each algorithm (denoted by colour and outlined in ~\ref{extensions}). 
 The accuracy of the modified algorithm is fairly consistent with the unmodified version. 
 In practice, the model builder would choose the most accurate model, which is consistent across the algorithms and classifiers for each dataset. 
 However, the modified version of the algorithm is clearly much faster per sample when constructing the distance matrix ($t_t$) by reducing the number of distance computations by a factor of 2. 
@@ -653,15 +657,18 @@ z=AAA$, we find that $NCD(x,y) \approx .26$ while $NCD(x,z) + NCD(z,y) \approx .
 As the max string size or the maximum alphabet size is increased, these problems quickly disappear(see: Figures~\ref{fig:synthetic_check}~and~\ref{fig:real_world_check}.
 
 
+
 \subsection{Run-time Considerations}
 
-Figure~\ref{fig:train_time} depicts the time needed to calculate the distance matrix per sample in the training set for each dataset (column), algorithm (colour) and metric (x-axis). 
-It is clear that the run-times of the metrics are fairly consistent across the datasets and that the proposed run-time improvements (denoted ``Assumed'' and ``Enforced'') do decrease the training time with no resulting loss in accuracy (see: Figure~\ref{fig:metric_acc}). 
-While the symmetric extension of NCD (denoted ``Averages'') does take significantly more time thant the other distance matrix algorithms, that marginal increase is mere milliseconds in practice and is guaranteed to be symmetric without assuming or enforcing symmetry. 
+Figure~\ref{fig:distance_time} depicts the time needed to calculate the distance matrix per sample in the training set for each dataset (column), algorithm (colour) and metric (x-axis). 
+It is clear that the run-times of the metrics are fairly consistent across the datasets and that the proposed run-time improvements (denoted ``Assumed'' and ``Enforced'') do decrease the distance matrix calculation time with no resulting loss in accuracy (see: Figure~\ref{fig:metric_acc}). 
+While the symmetric extension of NCD (denoted ``Averages'') does take significantly more time than the other distance matrix algorithms, that marginal increase is mere milliseconds in practice and is guaranteed to be symmetric without assuming or enforcing symmetry. 
 However, Hamming distance takes significantly more time than other metrics on the DDoS dataset and GZIP takes significantly more time than other metrics on the KDD NSL dataset. 
 This effect can be mitigated by considering the run-time costs during the model training stage since these metrics take longer but do not result in significantly better accuracies (see: Figure~\ref{fig:metric_acc}) for those datasets. 
-Overall, training times are low enough that this could feasibly be deployed on a user's device without specialised hardware (as is true in the case of neural networks). 
+Overall, training times (the combination of Figure~\ref{fig:distance_time}~and~\ref{fig:distance_time}) are low enough that this could feasibly be deployed on a user's device without specialised hardware (as is true in the case of neural networks). 
 If we pessimistically assume a training time of 50 milliseconds per sample, then training could occur as the user (or router or antivirus software or social media algorithm) encounters the sample in real-time with a latency that would be unnoticeable to most humans (roughly a few hundred milliseconds, depending on age and other factors)~\cite{reaction_time}. 
+Figure~\ref{fig:train_time} depicts the time needed to train a given model on a given distance matrix. 
+It is clear that the time needed to do the compression is the largest consideration
 Figure~\ref{fig:pred_time} depicts the time needed to predict a new classification on a single sample for each dataset (row), classifier (column), algorithm (colour) and metric (x-axis). 
 The prediction time per sample (after calculating the distance between a new sample and those in the training set) is trivial across all distance matrix algorithms, datasets, models, and metrics, though the branching logic introduced by the ``Assumed'' and ``Enforced'' algorithms does increase the model latency by a fraction of a millisecond.
 Overall, it is clear that the run-time improvements are effective and that NCD is can be plausibly used in real-time, client-side settings. 
@@ -670,30 +677,44 @@ In applications where latency is more important than privacy, then the training 
 
 
 \begin{figure*}[htb]
+    \includegraphics[width=\textwidth]{images/distance_matrix_time_vs_algorithm.pdf}
+    \caption{The distance matrix calculation time per sample for each metric (x-axis), dataset (columns) and algorithm (colour). Because the distance matrix was only calculated once per dataset, algorithm, and metric, there is no differentiation between the models.}
+    \label{fig:distance_time}
+\end{figure*}
+
+\begin{figure*}[htb]
     \includegraphics[width=\textwidth]{images/train_time_vs_algorithm.pdf}
-    \caption{The distance matrix calculation time per sample for each metric (x-axis), dataset (columns) and algorithm (colour). Because the distance matrix was only calculated once per dataset, there is no differentiation between the models. Likewise, this time was much, much larger than the time needed to fit each model, making the choice of algorithm and metric the primary run-time concerns.}
+    \caption{The training time per sample for each metric (x-axis), dataset (rows), model (columns) and algorithm (colour).}
     \label{fig:train_time}
 \end{figure*}
 
 \begin{figure*}[htb]
     \includegraphics[width=\textwidth]{images/pred_time_vs_algorithm.pdf}
-    \caption{The predictions time per sample for each metric (x-axis), dataset (rows), models (columns), and algorithm (colour).}
+    \caption{The predictions time per sample for each metric (x-axis), dataset (rows), model (columns) and algorithm (colour).}
     \label{fig:pred_time}
 \end{figure*}
 
-
+\subsection{Sample Size Considerations}
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-performing model (\textit{e.g.} the model tuned via cross-validation) for each dataset (rows), model (columns), metric (line style), and algorithm (colour) for a number of different sample sizes (x-axis) using 200 samples that were not used during cross-validation. 
+It is clear that this method is quite effective even on 10s of samples and that the accuracy tends to converge quickly across datasets, models, metrics, and distance matrix algorithms. 
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{images/accuracy_vs_train_size.pdf}
+    \caption{The accuracy for each metric (line style), dataset (rows), model (column) and algorithm (colour) as the number of training samples varies (x-axis).}
+    \label{fig:sample_size}
+\end{figure*}
 
 \section{Considerations}
 \label{considerations}
 While the proposed algorithm (see \ref{alg:modified}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see: Section~\ref{extensions} do not have any significant effect on model performance (see: Figures~\ref{fig:metric_acc}~and~\ref{fig:kernel_acc}). 
 However, the vanilla NCD-KNN proposed by Jiang et. al.~\cite{jiang2022less} remains an effective choice if the training step is deemed too expensive for the chosen applications and the only reason to deploy the extensions would be to reduce the training time--- an unnecessary step for unweighted KNN. 
 Here, the authors would like to note the borderline performance of all metrics on the Truthseeker dataset---both NCD and more traditional distance measures. However, this is on par with the performance from the original authors~\cite{truthseeker}. To the best knowledge of the authors, most content on the platform formerly known as Twitter is simply indistinguishable from bot-generated spam---using any known distance metric.
-
+\cm{TODO discuss the new threat model (e.g. XSS attacks).}
 
 \section{Conclusion}
 \label{conclusion}
 
-It is clear from Figures~\ref{fig:metric_acc}-\ref{fig:train_time} that the extensions proposed in this work are superior to the method proposed by Jiang et. al. when applied used a distance measure for kernelised classifiers. 
+It is clear from Figures~\ref{fig:metric_acc}-\ref{fig:distance_time} that the extensions proposed in this work are superior to the method proposed by Jiang et. al. when applied used a distance measure for kernelised classifiers. 
 By pre-emptively handling cases that would result in negative values for distance (thus violating the Non-negativity identity) and sorting the inputs, this modified NCD is guaranteed to behave more like a true metric. 
 This allows the model builder to use standard tooling (e.g.~\texttt{scikit-learn},~\texttt{imblearn}) to build classifiers that perform well on an exceedingly small number of samples. The end result is a real-time, client-side classification algorithm that doesn't rely on federation, centralization, or the large scale processing of millions of data points across a global user-base. 
 This categorically circumvents poisoning attacks~\cite{biggio_poisoning_2013} since each labelled database is unique to each user. 
