@@ -1,0 +1,851 @@
+\documentclass[preprint,12pt]{article}
+
+\usepackage{cite}
+\usepackage{amsmath,amsthm,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{multirow}
+\usepackage{hyperref}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{tabularx}
+\usepackage{subcaption}
+\usepackage{lipsum} % For lipsum
+\usepackage[dvipsnames]{xcolor} % Custom Colors
+% \usepackage{natbib}
+\newcommand{\cm}[1]{\textit{{\color{blue}#1}}}
+\newtheorem{lemma}{Lemma}
+
+
+
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{A Tiny, Human-Interpretable, Client-Side, Classifier}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+
+\author{Charles Meyers, Aaron P. MacSween, Tommy L\"{o}fstedt, and~Erik Elmroth}
+
+\maketitle
+
+
+\begin{abstract}
+The recent developments in machine learning have highlighted a conflict between online platforms and their users in terms of privacy. 
+The importance of user privacy and the struggle for power over their data has been intensified as regulators and operators attempt to police the platforms.
+As users have become increasingly aware of privacy issues, client-side data storage, management, and analysis have become a favoured approach to large-scale machine learning.
+However, state-of-the-art machine learning methods require vast amounts of labelled user data, making them unsuitable for models that reside client-side and only have access to a single user's data.
+State-of-the-art methods are also computationally expensive, which degrades the user experience on compute-limited hardware and also reduces battery life.
+% Classical machine learning methods often require fewer samples to be effective, but may not provide the same performance as large-scale neural networks, for instance.
+A recent alternative approach has proven remarkably successful in classification tasks across a wide variety of data--- using only a small number of samples. 
+The idea is to use a compression-based distance measure (called normalized compression distance) to measure the distance between objects in classical distance-based machine learning methods.
+In this work, we demonstrate that the normalized compression distance is a pseudo metric; develop it for the wider context of kernel methods to allow modelling of complex data; present techniques to improve the training time of models that use this metric; and demonstrate state-of-the-art accuracy using the proposed methodology.
+We show that the normalised compression distance is as accurate as other metrics and kernel methods---without incurring additional computational costs.
+The end results is a simple, classification model with an accuracy that competes with state-of-the-art models while using only a fraction of their power, data, and compute requirements---with training times measured in seconds instead of days or weeks.
+\end{abstract}
+
+
+
+
+
+\section{Introduction}
+
+Despite their efficacy across many domains, modern machine learning (ML) methods often have large numbers of parameters, and thus also require large numbers of samples to train~\cite{desislavov2021compute}. 
+This aggregation of vast amounts of data creates numerous privacy, safety, and security threats~\cite{chat_control}---especially in the context of large neural networks---that are consequences of large-scale user data collection by platform operators (see Section~\ref{threat} for more details).
+We propose an alternative method that uses compression algorithms to measure the distance between samples and incorporate this distance in a kernel for classification. The proposed method requires a remarkably small number of samples.
+% The proposed distance metrics and kernels do not require special hardware.
+\cm{Additionally, when using small training sets, the models can be trained entirely on a client device without sharing private user data with the platform operator---allowing the model builder to circumvent many weaknesses associated with state-of-the-art methods~\cite{chat_control,power_consumption_ai}.}
+We demonstrate the efficacy of the proposed approach in the context of malware detection, network intrusion detection, and spam detection and show that this approach is effective even when trained on a small number of samples.
+
+
+
+
+
+\subsection{Threat Model}
+\label{threat}
+
+In the context of online platforms, data are collected from end-users using dubious amounts of consent~\cite{nouwens2020dark} and aggregated at massive scales~\cite{desislavov2021compute}. 
+Such data collection on online platforms often creates privacy, safety, and security risks~\cite{chakraborty_adversarial_2018,meyers}. 
+One such privacy risk is the periodic attempts by regulators to weaken encryption standards~\cite{amnesty_encryption} and create a permanent backdoor on every device in a given jurisdiction.
+Platform operators also discuss with governments to scan client devices for illegal or offensive content~\cite{chat_control,apple_csam}, but existing proposals are no less risky to user privacy, safety, or security.
+Privacy experts have denounced such approaches for numerous reasons: the ease of \textit{extracting} private training data~\cite{choquette2021label,fredrikson_model_2015,li2021membership} or the model~\cite{fredrikson_model_2015,orekondy2019knockoff,jagielski2020high,correia2018copycat,shokri2017membership} itself, the ability of a malicious user to induce false positives for other users when the model is trained on user data~\cite{rawat2022devil,shokri2020bypassing,gu2017badnets,saha2020hidden,aghakhani2021bullseye,turner2018clean,shafahi2018poison,geiping2020witches,souri2022sleeper} (\textit{poisoning} attacks), and the triviality of simply \textit{evading} the detection mechanism~\cite{carlini_towards_2017,dohmatob_generalized_2019,hopskipjump,biggio_evasion_2013,meyers,chakraborty_adversarial_2018,deepfool,hopskipjump}.
+
+Current platform solutions often rely on large-scale ML methods that are trained on vast amounts of user data and federated across devices~\cite{apple_csam}---an approach that has been criticized by privacy experts~\cite{abelson2024bugs}. 
+Examples of security risks include attacks against ML systems that target a model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, and deployment~\cite{distributed_attacks,santos2021universal}. 
+Even when access to a model by an adversary is limited, it is possible to induce a misclassification~\cite{hopskipjump}, reverse engineer the model~\cite{extraction_attack}, determine the model weights~\cite{jagielski2020high}, or infer the class-membership of new samples~\cite{bentley2020quantifying}. 
+This raises profound questions for safety-critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}.
+Additionally, it has been shown that finding prototypical meta samples from the training set of large-scale ML models is trivial~\cite{chakraborty_adversarial_2018}. 
+Even if the attacker only has access to a typical application programming interface (API), there are reliable ways to fool the model~\cite{hopskipjump}. 
+In short, distributed and centralised training paradigms are both inherently fragile to malicious users and dangerous for user privacy, even if the resulting model lives on the user device (rather than in the cloud). 
+
+Instead of relying on a model trained on massive amounts of user data, as is typical in large-scale ML applied to platform-level data, it is possible to categorically sidestep the aforementioned attacks with a model that runs entirely client-side which  reduces the attack surface to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message). 
+That is, the attack surface is reduced and can be unique to each user, session, or device by using data from each user in isolation and training a model on that user's device. Client-side models would only need to share a single bit (the classification label in a binary classification context) with the platform operator---allowing those operators to serve user-specific contents without exfiltrating private data from their entire user base. 
+However, not training a model on large amounts of collected user data means that such hypothetical client-side methods are at risk of not performing at the level of state-of-the-art large-scale methods.
+
+Recently, Jiang \textit{et al.}~\cite{jiang2022less} proposed a remarkably successful approach: a parameter-free text classification method (denoted NCD-KNN) that exploits a compression-based distance measure, the \textit{normalized compression distance} (NCD)~\cite{ncd}, to classify objects using the k-nearest neighbours (KNN) method~\cite{shalev2014understanding}.
+
+
+
+
+\subsection{Motivations}
+The goal of the work was to explore the efficacy of NCD in the context of kernel classifiers and to produce a model  that can be trained on and used by each user in isolation from all others, categorically circumventing the privacy and security concerns associated with the collection and analysis of millions of user-generated data points. 
+First, NCD has been demonstrated to be a \textit{universal} measure of similarity between two objects~\cite{ncd}--- where a value of 0 denotes absolute dissimilarity and a value of 1 denotes similarity.
+Secondly, Jiang's analysis~\cite{jiang2022less} relies on many thousands of samples, which would be unsuitable for the proposed (client-side) implementation due to long run-times; their method also includes unnecessary, repeated calculations (see Section~\ref{pre_compute_compression}).
+While other research examined topics like image classification~\cite{opitz2023gzip}, chemical classification~\cite{weinreich2023parameter}, and text classification~\cite{nishida2011tweet}, the ability of NCD to classify datasets that contain string, numeric, and categorical data (heterogenous datasets) remains unexplored.
+
+Additionally, the original work~\cite{ncd} includes an error term that is subsequently ignored in recent research~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}, which leads to problems outlined in Section~\ref{pseudometric}.
+To the best of our knowledge, no research has addressed the problem of negative values for NCD as the original authors~\cite{ncd} insist that this measure is always positive. 
+This is clearly demonstrated to be false in Section~\ref{pseudometric}.
+
+% However, some pairs of strings yield NCD distances that do not follow the axioms listed in Section~\ref{metric_spaces} (see Figures~\ref{fig:synthetic_check} and~\ref{fig:real_world_check}).
+% Section~\ref{pseudometric} details some string pairs that induce improper distances and Section~\ref{improvements} details the proposed mitigations and run-time improvements.
+% This model normally uses NCD as a measure of distance~\cite{jiang2022less}.
+
+Also, these prior works focused on distance-based ML methods (\textit{e.g.}, KNN), restricting the class of methods that can be considered and the kinds of data that can be analysed.
+We extend the NCD to reproducing kernel Hilbert spaces and thus more elaborate ML methods---allowing for much more complex decision boundaries.
+
+Furthermore, if run-time, storage, and computation requirements are minimised by building a model that is accurate on a small number of samples, then we can fulfil the goal of training a ML model entirely on a client device using data generated by a single user. 
+In addition to a novel technique that uses NCD as a kernel, we propose several run-time improvements and modifications outlined in Sections~\ref{improvements}~and~\ref{modifications}.
+% For example, that might mean marking an email as spam~\cite{ansuz_email} or examining the nearest neighbours of some text in a browser~\cite{ansuz_browser}.
+
+
+
+
+\subsection{Contributions}
+To use NCD, the model builder must choose a compression algorithm. 
+While the effect of various compressors has been explored, in part, before~\cite{ncd_pitfalls}, but we expand the analysis in \cite{ncd_pitfalls} to newer compression algorithms and offer additional run-time improvements over the method of Jiang \textit{et al.} method.
+The NCD-KNN method has shown very strong performance across several benchmarks, but Jiang \textit{et all's} implementation was not appropriate for real-time settings. 
+However, NCD is a pseudo-metric~\cite{opitz2023gzip, weinreich2023parameter, nishida2011tweet, jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.}, by incorrectly ordering the nearest neighbours).  
+In this work we compile some examples of this non-metric behaviour Section~\ref{pseudometric} and propose techniques to mitigate the effects of this behaviour in Section~\ref{improvements}.
+We also propose run-time improvements over the method of Jiang~\textit{et al.} (Section~\ref{improvements}).
+Additionally, we expand the notion of NCD-as-a-distance~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less} to kernels (Section~\ref{kernels}) in an attempt to allow it to be used to model more complex decision boundaries than those allowed by distances alone.
+That is, we propose NCD kernels; demonstrate how NCD is not a proper metric; offer run-time improvements over Jiang's method~\cite{jiang2022less}; 
+and demonstrate the efficacy of the run-time optimised method on a variety of datasets. 
+In this paper, we:
+
+\begin{itemize}
+    \item Demonstrate that normalized compression distance is not a metric (Section~\ref{pseudometric}) and propose techniques to make it behave more like a metric (Section~\ref{modifications}).
+    % \item Discuss how private model deployment is safer by design (Section~\ref{threat}) and the efficacy of this design-constraint on several datasets (see Figure~\ref{fig:sample_size}).
+    \item Develop a classifier (evaluated with KNN, logistic regression, and SVC) that offers large run-time improvements over other implementations discussed in the literature (Section~\ref{improvements}).
+    % \item Provide efficient implementations of the proposed classifiers in \texttt{Java\-script} as well as a \texttt{Scikit-learn} compatible implementation in \texttt{Python}.
+    \item Evaluate and empirically show the efficacy of the proposed compression-based classifiers across multiple binary classification datasets.
+\end{itemize}
+
+
+
+
+
+\section{Background}
+
+In the sections below, we describe and define the NCD, summarize existing string metrics, define the distance matrix and how to calculate it, define some kernels and how to calculate the kernel matrix, and outline the method proposed by Jiang \textit{et al.}~\cite{jiang2022less}.
+
+
+
+\subsection{Measures of Distance}
+
+This section outlines the distance measures used in this work.
+
+
+% The evaluated string metrics is outlined below in Section~\ref{string_metrics}. 
+% A somewhat forgotten method (NCD), proposed in 2001~\cite{ncd} (see Section~\ref{ncd}), extends to any type of object (not just strings).
+
+
+
+\subsubsection{Normalized Compression Distance}
+\label{ncd}
+
+The normalized compression distance (NCD; \cite{ncd}) is defined as
+\begin{equation}
+    \text{NCD}(x, x') = \frac{\mathcal{C}(xx') - \min\{\mathcal{C}(x), \mathcal{C}(x')\}}{\max\{\mathcal{C}(x), \mathcal{C}(x')\}} + \varepsilon,
+\end{equation}
+where $\mathcal{C}(z)$ is the length of the compressed form of the data, $z$, using a compression algorithm, $\mathcal{C}$, the notation $xx'$ denotes the concatenation of strings $x$ and $x'$, and $\varepsilon$ is an error accounting for imperfect compression algorithms~\cite{ncd}. This error is generally assumed to be small relative to the rest of the terms, but, as the original authors already noted, the resulting NCD values may be larger than one~\cite{ncd}.
+Jiang \textit{et al.}~\cite{jiang2022less} proposed to use NCD in conjunction with the KNN classifier, but we extend this idea to other classifiers (\textit{e.g.}, SVCs~\cite{vapnik1994measuring}) that use measures of distance to cluster samples into classes.
+
+
+
+\subsubsection{Other measures of string distance}
+\label{string_metrics}
+To model datasets that comprise strings, several existing measures of distance between strings are routinely used~\cite{levenshtein}.
+To evaluate the relative performance of the NCD metric, we compared it to several other common measures of string similarity, briefly outlined below.
+% String Distances
+\begin{itemize}
+    \item \textit{Levenshtein:} is the ``edit distance'' or minimum number of single-character edits to transform one string into another~\cite{navarro2001guided}.
+    \item \textit{Lev Ratio:} is the Levenshtein distance divided by the total length of the strings~\cite{levenshtein}.
+    \item \textit{Hamming:} is the number of character positions where two strings differ. 
+    \item \textit{Ham Ratio: is the number of character positions where two strings differ, divided by the length of the longer string.}
+\end{itemize}
+
+
+
+
+
+
+\subsection{Other Notation}
+
+Some additional notation is defined here. 
+We denote the cardinality of a set, $X$, as
+$$
+    | X |.
+$$
+For a matrix, $D$, $D_{ij}$ is the entry of $D$ in the $i$-th row and $j$-th column.
+Since NCD requires the model builder to choose a compressor, we use the notation $\text{NCD}_{\text{gzip}}$ for \texttt{gzip}, $\text{NCD}_{\text{bz2}}$ for \texttt{bz2}, and $\text{NCD}_{\text{brotli}}$ for \texttt{brotli}. 
+
+
+
+\subsection{Calculating the distance matrix}
+\label{distance_matrix}
+\label{alg:vanilla}
+To use ML methods on string data, we need to find a set of numeric features that can be derived from a vector of samples.
+To accomplish this, we calculate the pairwise distances between two sets of samples (denoted $X, X'$) to generate a \textit{distance matrix} ($D$) 
+In addition, we propose modifications to this algorithm in Section~\ref{modifications}).
+For the training step, $X = X'$ and, for prediction, it is assumed that $X \neq X'$.
+While many of the above distance metrics are symmetric, this is, as we will see, not the case with NCD.
+Algorithm~\ref{alg:vanilla} clearly shows that the run time associated with finding the distance matrix scales with $n = | X |, m = | X' |$, \textit{i.e.}, the run time is $\mathcal{O}(nm)$ for both compute and memory.
+Clearly, if the number of samples in $X$ or $X'$ is large, then run-time becomes a major concern.
+Additional modifications to calculating the pairwise distances between sets are outlined in Section~\ref{modifications}.
+
+
+
+\subsection{Kernelisation}
+\label{kernels}
+
+% Whereas distance functions are used to measure the \textit{dissimilarity} between different examples, $x,x'$, a \textit{kernel-function}, $k$, is a measure of \textit{similarity} in an associated \textit{feature space}.
+We propose to use NCD to construct an approximate kernel, allowing NCD to be used with a much larger set of ML methods than as a distance.
+
+For our purposes, a kernel is defined as a symmetric function, $k : \mathcal{X} \times \mathcal{X} \rightarrow \mathbb{R}$, such that
+\begin{equation}
+    k(x, x') := \langle \phi(x), \phi(x') \rangle 
+    \label{eq:kernel}
+\end{equation}
+for all $x, x' \in \mathcal{X}$,
+where $\phi: \mathcal{X} \to \mathcal{Y}$ is a feature function (a function extracting features from its inputs), and $\langle \cdot, \cdot \rangle$ denotes an inner product in the feature space, $\mathcal{Y}$.
+The $i$-th row and $j$-th column of a kernel matrix, $K$, is
+$$
+    K_{ij} = k(x_i, x_j).
+$$
+% Some kernels can be rewritten as a function of the distance between two points, such that.
+% $$
+%     K_{ij} = k(d(x_i,x_j))
+% $$
+
+
+If we are interested in Euclidean distances in the feature space, then we see that
+\begin{align*}
+    d(x,x')
+        &= \| \phi(x) - \phi(x') \|_2^2 \\ 
+        &= \langle\phi(x) - \phi(x'), \phi(x) - \phi(x') \rangle \\
+        &= \langle \phi(x), \phi(x) \rangle + \langle \phi(x'), \phi(x') \rangle - 2\langle \phi(x), \phi(x') \rangle \\
+        &= k(x, x) + k(x', x') - 2k(x, x').
+\end{align*}
+We denote this distance as the \textit{kernel distance}.
+
+
+% The kernel functions that were evaluated in this work are defined in the next paragraphs.
+
+% \subsubsection{Quadratic Kernel}
+% \label{quadratic_kernel}
+% The quadratic kernel~\cite{kernels} maps the input data to a higher-dimensional space by considering the pairwise quadratic interactions between the features of the input vectors.
+% The quadratic kernel is defined as
+% $$
+%     k(x, x') = (s \cdot d(x,x') + c)^2,
+% $$
+% where $x$ and $x'$ are two vectors in the input space, and $s, c$ are tunable parameters.
+% \cm{TODO: test more parameters for this kernel}
+
+% \subsubsection{Multiquadric Kernel}
+% \label{multiquadric_kernel}
+% The multiquadric kernel~\cite{kernels} provides one another non-linear mapping. 
+% It is defined as 
+% $$
+% k(x, x') = \sqrt{d(x,x') ^2 + c^2}
+% $$
+% where $c$ is a tunable constant. 
+% \cm{TODO: test more parameters for this kernel}
+
+% \subsubsection{Exponential}
+% \label{rbf_kernel}
+% \cm{TODO: since I'm running this again anyway, it probably makes more sense to square the distance and get rid of the problem of negative distances.}
+% Another kernel function is the exponential kernel~\cite{kernels}, defined by
+% $$
+%     k(x, x') = \exp\left\{-\frac{d(x,x')}{\gamma}\right\},
+% $$
+% where $\gamma$ is a tunable parameter (called a length scale) that controls the rate of similarity decay between dissimilar samples. In order to use these methods with NCD, the pairwise distances between all samples must first be calculated and stored as a matrix, generally called a \textit{distance matrix}.
+
+
+% \subsubsection{Radial Basis Function Kernel}
+\label{rbf_kernel}
+
+The radial basis function (RBF) kernel~\cite{kernels}, also known as the Gaussian kernel (when the distance is the Euclidean distance), maps an input space to an infinite-dimensional feature space, and is defined as
+$$
+    k(x, x') = \exp\left(-\frac{d(x, x')^2}{\lambda}\right),
+$$
+where $\lambda$ is a tunable parameter (denoted a \textit{length scale}) that controls how quickly the kernel function decreases as a function of the distance between points, \textit{i.e.}, determines the influence of individual points on neighbouring points.
+The RBF kernel is particularly effective as it is known to be a universal function approximator~\cite{}.
+% To use such a kernel with the outlined string distances, however, a pairwise distance matrix between all samples must be precomputed.
+For the RBF kernel, when the symmetry and the zero axioms hold, we have that $k(x,x) = k(x',x') = 1$, and the kernel distance can be computed efficiently as
+$$
+    d_k(x, x') = 2 - 2 k(x, x').
+$$
+
+
+
+
+
+
+
+\section{NCD is a not a metric}
+\label{pseudometric}
+\label{metric_spaces}
+While NCD is often discussed as a measure of distance~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less,ncd}, it does in fact not adhere to the axioms of metric spaces. 
+Instead, as we will show here, it is a not a metric.
+% Figures~\ref{fig:synthetic_check}~\&~\ref{fig:real_world_check}) examine the rate at which these axiom violations occur for synthetic data and real-world data respectively.
+We denote the points $x_1,x_2,\ldots,x_n$  in a set $X$, and some distance function $d(x_1,x_2)$, where  $\mathbb{R}$ denotes the set of real numbers. 
+A metric space is defined by some measure of distance ($d:X \times X \rightarrow \mathbb{R}$) between the constituent components of some space, usually called points. 
+The distance function, $d$, and set of points,  $X$, are said to be a metric space if the following four axioms hold~\cite{metrics}:
+\begin{align}
+    d(x_1,x_2) &= 0 \iff x_1 = x_2 \qquad\text{(zero axiom)} \label{eq:axioms_zero}\\
+    d(x_1,x_2) &\geq 0 \qquad\text{(non-negativity axiom)} \\
+    d(x_1,x_2) &= d(x_2, x_1) \qquad\text{(symmetry axiom)} \\
+    d(x_1,x_3) & \leq d(x_1,x_2) + d(x_2,x_3) \qquad\text{(triangle inequality axiom)} \label{eq:axiom_triangle_inequality}
+\end{align}
+
+% \begin{alignat*}{3}
+%   &[x \mapsto s]x &&= s && \\
+%   &[x \mapsto s]y &&= y \qquad &&\text{als } y\neq x \\
+%   &[x \mapsto s](\lambda(y)t_1) &&= \lambda(y)[x \mapsto s]t_1 \qquad &&\text{als } y \neq x \text{ en   } y \not \in FV(s) \\
+%   &[x \mapsto s](t_1 \; t_2)&&= ([x \mapsto s]t_1)\;([x \mapsto s]t_2) &&
+% \end{alignat*}
+
+Much of the literature devoted to NCD has treated it as a proper metric~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}. However, it is not.
+\begin{lemma}
+    When using \texttt{gzip}, \texttt{bz2}, and \texttt{brotli} compressors, NCD does not adhere to the axioms in Equations~\ref{eq:axioms_zero}--\ref{eq:axiom_triangle_inequality}, and is thus not a metric.
+\end{lemma}
+\begin{proof}
+    We show that NCD fails to adhere to the axiom for metrics by counter-examples in what follows.
+
+    \vspace{0.5em}
+    \noindent%
+    \textit{Zero axiom:} The following counter-examples violate the zero axiom:
+    $\text{NCD}_{\text{gzip}}(aaa, bbb) = .01$, $\text{NCD}_{\text{bz2}}(aaa, bbb) = .01 $, and $\text{NCD}_{\text{brotli}}(aaa, bbb) = .01$.
+
+    \vspace{0.5em}
+    \noindent%
+    \textit{Non-negativity axiom:} ...
+
+    % ...
+\end{proof}
+
+
+
+
+% Below, we examine the cases that violate these axioms and our proposed mitigation techniques are discussed in Section~\ref{modifications}. 
+% Since NCD is only defined for a particular compressor, we show how several popular choices all fail to meet the axioms listed above.
+
+
+
+
+
+% \subsection{Non-negativity axiom}
+
+% Proper metrics are non-negative and only zero when $x=x'$.
+% This is true for all of the compressors operating under most circumstances. 
+% However, 
+% For example, if one string is a substring of another, then their NCD distance can be zero. 
+% One such case is where $x = ``pewpew''$ and $x' = ``pewpewpewpew''$ and the \texttt{gzip} compressor is used. 
+% That is to say $\text{NCD}_{\text{gzip}}(``pewpew'', ``pewpewpewpew'') = 0$.
+% However, this behaviour is somewhat inconsistent. 
+% When $x= ``pew'', x' =``pewpew''$ and \texttt{gzip} is used, $\text{NCD}(x,x') = .07$. 
+% For example, $\text{NCD}_{\text{gzip}}(\text{``AAAA''}, \text{``AAAA''}) = -.04$
+
+
+
+% \subsection{Zero-identity axiom}
+
+% Compression algorithms only return empty compression buffers when the null string is passed to them. 
+% For all other strings, the value of $\mathcal{C}(x)$ is a positive value. 
+% For the resulting NCD value to be 0, $\mathcal{C}(x)$ must be equal to $\mathcal{C}(xx)$. 
+% In general, this is not true. 
+% One such example is when $x = \text{``a''} = x'$, the resulting value is .04 when using the \texttt{gzip} compressor.
+% In addition, sometimes $\text{NCD}_{\text{gzip}}(x,x') = 0$ when $x\neq x'$, when $x'$ is some non-empty string. 
+% \cm{TODO: Somehow include the other compressors without adding a ton of space}
+
+
+
+% \subsection{Symmetry axiom} 
+
+% NCD is generally not symmetric.
+% Let
+% \begin{align*}
+%     x &= \text{``wKfQkLQnnEPdODbYbvLIKojolytYtVQkkEhzFIapHxcBaKBmwgAvDrH''} \\
+%       &\text{~and~} \\
+%     x' &= \text{``HxctIhyfOIuqhDEHiP''},
+% \end{align*}
+% then $\text{NCD}_{\text{gzip}}(x,x') = .71 $ and $\text{NCD}_{\text{gzip}}(x',x) = .73$. 
+% Again, this applies to all evaluated compression algorithms, as shown in Figures~\ref{fig:synthetic_check}~and~\ref{fig:real_world_check}, though the specific failure-inducing strings vary amongst the compression algorithms.
+
+% \cm{TODO: Somehow include the other compressors without adding a ton of space}
+
+
+
+% \subsection{Triangle inequality} 
+
+% $$
+%     d(x, z) \leq d(x, y) + d(y, z)
+% $$
+% % The distance between $x$ and $z$ is less than or equal to the sum of the distances between $x$ and $y$, and $y$ and $z$.
+% While this is true for most randomly generated strings, it is not hard to generate counter examples.
+% For example, if $ x = "ACAC", y = "AAC", z = "ABAABC" $ and \texttt{gzip} is used, then the the values are $ \text{NCD}_{\text{gzip}}(y,z) \approx .23,\text{NCD}_{\text{gzip}}(y,x) +\text{NCD}_{\text{gzip}}(x,z) \approx .19 $ and the axiom is violated. 
+% \cm{TODO: Somehow include the other compressors without adding a ton of space}
+
+
+
+\section{Run-Time Improvements}
+\cm{Move to methods section}
+\label{improvements}
+
+% In this work, we propose two ways to improve the run-time of NCD when used as a distance measure for machine learning methods.
+% First, we propose a rather trivial improvement to Jiang \textit{et al.}'s algorithm in Section~\ref{pre_compute_compression}.
+% Second, we propose several modifications to the distance matrix computation algorithm outlined in Section~\ref{distance_matrix}, which are detailed below in Section~\ref{modifications}. 
+
+Starting from Jiang...
+
+
+\subsection{Pre-computing the Compression vector}
+\label{pre_compute_compression}
+
+When computing the value of NCD$(x,x')$, it is necessary to calculate the values of $C(x)$ and $C(x')$. 
+To classify a sample, Jiang \textit{et al.}~\cite{jiang2022less} iterated over the sets $X$ and $X'$ where $X$ is the set of samples with known labels and $X'$ has unknown labels. 
+For $x_i \in X$ and $x_i' \in X'$, $C(x_i)$ and $C(x_i')$ are calculated repeatedly when calculating the pairwise distances between $X$ and $X'$.
+Rather than do these unnecessary computations, our implementation compresses each entry in the $X$ and $X'$ once. 
+Since compressing the input samples is the most costly part of this calculation, this saves significant run-time as shown in Section~\ref{results}.
+
+
+
+\subsection{Symmetrization}
+\label{modifications}
+
+We propose several methods to induce adherence to the axioms listed above and compare their efficacy and run-time in Section~\ref{results}.
+For the purposes of the experiments below, the method proposed by Jiang \textit{et al.}~\cite{jiang2022less} is denoted ``Vanilla''. 
+The second method (Algorithm~\ref{alg:symmetric}) is called ``Assumed''. 
+The third method (Algorithm~\ref{alg:modified}) is named ``Enforced''. 
+The final method (Equation~\ref{eq:average}) is referred to as ``Averaged''. 
+Together, Algorithm~\ref{alg:symmetric}, Algorithm~\ref{alg:modified}, and Equation~\ref{eq:average} are defined as distance matrix \textit{modifications}. 
+
+
+
+\subsubsection{Assuming Symmetry}
+
+Firstly, symmetry can be \textit{assumed} while calculating the distance matrix for a training set by using only the lower triangular portion of the distance matrix and then reflecting those values about the diagonal.
+In this work, we computed the lower triangular part.
+% Consequently, while it is necessary to iterate through all samples in the set $X$, such that the $i$-th entry is denoted $x_i$, it is only necessary to iterate through the $i +1$-th sample in $X'$, which we have denoted with $X'[0 \cdots i]$ notation.
+Additionally, to handle the case when $x_i = x_j$, we add a conditional statement and return a value of zero before any distances are calculated, as per the Zero axiom. 
+We dub this process the ``Zero-axiom check''.
+This process is precisely outlined in ``Assumed'' symmetry distance matrix Algorithm~\ref{alg:symmetric}.
+
+\begin{algorithm}
+    \begin{algorithmic}
+        \Require Datasets $X$, $X'$ and some distance function $d(x, x')$.
+        \For{$x_{i} \in X$}
+            \For{$x'_{j} \in X'[0 \cdots i ]$} \Comment{Lower triangular matrix}
+                \If{$x_i = x_j$} \Comment{Zero-axiom check}
+                    \State $D_{ij} \gets 0$
+                \Else
+                    \State $D_{ij} \gets d(x_{i},x'_{j})$
+                \EndIf
+                \State $D_{ij} \gets D_{ji}$ \Comment{\textit{Assume} symmetry}
+            \EndFor
+        \EndFor
+        \State \Return distance matrix $D$ with dimensions $i,j$.
+    \end{algorithmic}
+    \caption{\textit{Assuming} symmetry in the training distance matrix}
+    \label{alg:symmetric}
+\end{algorithm}
+
+
+
+\subsubsection{Enforcing Symmetry}
+
+Secondly, symmetry can be \textit{enforced} by sorting the strings, as outlined in Algorithm~\ref{alg:modified}.
+In both the \textit{assumed} and \textit{enforced} symmetry methods, we additionally include a conditional statement for when $x_i = x_j$ and return a value of zero, as required by the conditions outlined in Section~\ref{metric_spaces}.
+% Then, the inputs $x$ and $x'$ are sorted.
+Since string comparisons require comparing each character individually, they can be quite expensive for long strings that are similar.
+For example, if two strings are 1000 characters and only differ at the last character, then sorting would require 1000 individual comparisons.
+To mitigate this expensive comparison operation most of the time, the length of the strings is used to sort the values and the strings themselves are only examined if that length is the same. 
+If the strings are the same length, they are sorted alphabetically such that the string that comes first alphabetically becomes the first string passed to the distance function.
+This process of comparing lengths of two strings before comparing the contents of those strings is identical to how strings are compared internally within the \texttt{python} string object~\cite{}. 
+%  python source code: https://github.com/python/cpython/blob/v3.6.1/Objects/unicodeobject.c#L10967-L10986
+Additionally, identical strings are generally assigned the same address in memory~\cite{}, so equality comparisons are much faster than other comparison operations. 
+% https://github.com/python/cpython/blob/main/InternalDocs/string_interning.md
+Therefore, the ``Zero-axiom'' check does not suffer from the same downsides as the $<$ operator in \texttt{python} as it only requires checking the memory address of the strings and not the examination of their contents.
+The choice of sorting algorithm is somewhat arbitrary and was chosen to be relatively fast rather than theoretically sound since the intention is merely to induce symmetry. 
+
+\begin{algorithm}
+    \begin{algorithmic}
+        \Require Strings $x_i, x_j$, a length function, $l$, and some distance function $d$.
+        \If{$x_i = x_j$} \Comment{Zero-axiom check}
+            \State \Return 0
+        \Else  \Comment{\textit{Enforce} symmetry}
+            \State $l_i = l(x_i)$
+            \State $l_j = l(x_j)$
+            \If {$l_i < l_j$}
+                 \State $x_i, x_j \gets x_j, x'_i$ \Comment{Switch order}
+            \ElsIf{$l_i = l_j$}
+                \If{$x_i < x_j$} \Comment{Sort alphabetically}
+                     \State $x_i, x_j \gets x_j, x_i$ \Comment{Switch order}
+                \EndIf
+            \EndIf
+            \State \Return $d(x_i, x_j)$
+        \EndIf
+    \end{algorithmic}
+    \caption{Compute the ``Enforced'' symmetry NCD by \textit{enforcing} symmetry and checking for the case where the strings are identical.}
+    \label{alg:modified}
+\end{algorithm}
+
+
+
+\subsubsection{Averaged Symmetry}
+
+Thirdly, the \textit{average} value of $\text{NCD}(x,x')$ and $\text{NCD}(x',x)$ can be used when calculating the distance matrix.
+The average value of $\text{NCD}(x,x')$ and $\text{NCD}(x',x)$ can be expressed as
+$$
+    \overline{\text{NCD}}(x,x') = \frac{\text{NCD}(x,x') + \text{NCD}(x', x)}{2}
+$$
+After simplifying and combining the error terms, this becomes
+\begin{equation}
+    \overline{\text{NCD}}(x, y) = \frac{\frac{\mathcal{C}(xx') + \mathcal{C}(x'x)}{2} - \min[\mathcal{C}(x), \mathcal{C}(x')]}{\max[\mathcal{C}(x), \mathcal{C}(x')]} + \varepsilon.
+\end{equation}
+Letting $D^{xx'}$ be the distance matrix calculated when $x$ is the first string and $D^{x'x}$ be the distance matrix calculated when $x'$ is the first string, then this can be further simplified to
+\begin{equation}
+    \overline{D} = \frac{D^{xx'}  + D^{x'x}}{2}.
+    \label{eq:average}
+\end{equation}
+The zero-axiom check was not included when using Equation~\ref{eq:average} to calculate the distance matrices for this method.
+
+
+
+\subsubsection{Modified NCD Algorithms}
+
+While NCD is often treated as a metric, some implementations~\cite{jiang2022less} do not take advantage of the implied symmetry and calculate each pairwise entry of the distance matrix.
+However, if symmetry is assumed, it can be used to reduce the run-time requirements by a factor of roughly 2 (for the ``Assumed'' and ``Enforced'' symmetry versions).
+However, the run-time for the ``Averaged'' version is a little bit longer as the compressed string for the concatenation must be calculated twice---for $\text{NCD}(x,x')$ and $\text{NCD}(x',x)$ (see Section~\ref{eq:average}).
+Because $\mathcal{C}(x), \mathcal{C}(x')$ are only computed once per sample (rather than repeatedly for each pairwise distance), the run-time of the ``Average'' method is approximately twice that of the ``Vanilla'' algorithm and four times that of the ``Assumed'' and ``Enforced'' variants with the advantage of being more theoretically sound.
+
+
+
+
+
+\section{Experimental Methods}
+\label{methods}
+
+Several datasets, models, distance matrix computation algorithms (``Vanilla'', ``Assumed'', ``Enforced'' and ``Averaged''), and metrics ($\text{NCD}_{\text{gzip}}$, $\text{NCD}_{bz2}$, $\text{NCD}_{brotli}$, Levenshtein distance, Hamming distance, and Ratio distance) to evaluate the proposed methodology.
+After generating the 5-fold cross validation sets for each dataset, the distance matrices for each distance matrix algorithm and metric were calculated, as outlined in Sections~\ref{distance_matrix}~and~\ref{modifications}.
+Additionally, kernel matrices were found according to Section~\ref{kernels}.
+Then, these distance and kernel matrices were provided to typical \texttt{scikit-learn} classifiers---KNN, logistic regression, and SVC.
+To find the most appropriate hyper-parameters (the best-fit model), each of the combinations enumerated above were evaluated using 5-fold cross validation. 
+Then, to examine the trade-offs between accuracy and run-time, the number of training samples was varied on the set of hyper-parameters that was most consistently accurate during cross-validation for each dataset, model, distance matrix algorithm, and metric.
+Process time was recorded for the distance matrix computation, as well as the model training and prediction times.
+In addition, accuracy was recorded for all experiments.
+
+To compare the effect of the distance matrix algorithms on the propensity to follow the axioms listed in Section~\ref{metric_spaces},
+%  two more evaluations were conducted. 
+% First, in order to generate Figure~\ref{fig:synthetic_check},
+100 thousand string triplets were generated from the standard English alphabet (upper and lowercase) and exhaustively checked for adherence to the axioms.
+Also,
+% To generate Figure~\ref{fig:real_world_check},
+the training distance matrices found during cross-validation were evaluated for adherence to the axioms.
+The matrices generated on the test set were not included as there is no expectation for that matrix to be symmetric, as it is generally assumed that the training set, $X$, is not the same as the test set $X'$ (and is not even square, in our case).
+
+
+
+\subsection{Data}
+\label{datasets}
+
+Several open datasets were used to evaluate the efficacy of NCD in the context of heterogeneous tabular and text data.
+% Each dataset, regardless of the content, was cast to a set of strings (one per sample).
+We limit ourselves to strings here because some of the datasets are string data and the others are formatted as such for the experiments to allow for direct comparisons across all of the datasets.
+We used KDD-NSL which is a log of system process data for both regular users (denoted benign) and malicious software (denoted adversarial)~\cite{kddnsl} which includes 6072 samples and 41 features that encapsulate the behaviour of both benign software and malware.
+KDD-NSL includes software protocol, system error rate, whether the process has root privileges, and the number of files accessed by the process.
+We also used the DDoS IoT dataset~\cite{ddos}, which includes information collected from network packet headers of adversarial and benign users across many types of DDoS attacks.
+Specific features include source IP address, source port, destination IP address, destination port, and network protocol among a total of 90 features across more than 40 million samples, collected from both benign users and malicious traffic.
+% To prepare the DDoS IoT dataset, the timestamp data was removed since the malicious and benign data were collected at different times and necessarily encodes the class label.
+We used the Truthseeker dataset~\cite{truthseeker}, which includes 134 thousand messages from Twitter users with a label, provided by the researchers, whether or not a given user was a suspected bot.
+% While this dataset is normally includes metadata-- in an effort to examine the efficacy of NCD on text alone-- this work only included the ``tweet" and the ``BotScoreBinary'' label provided by the researchers who distribute the data (the classes represent regular users and suspected bot users).
+Finally, we used the SMS Spam dataset~\cite{sms_spam} which includes SMS messages and a label indicating whether or not it is spam across 5575 samples.
+
+
+
+\subsection{Sampling Methods}
+
+In order to address class imbalances and ensure robust model evaluation, various sampling techniques were applied to the datasets. 
+For several of the datasets, malicious examples were rare compared to the number of benign examples; therefore, each dataset was under-sampled~\cite{undersampling} using the \texttt{imblearn} package~\cite{imblearn} to ensure that the classes were balanced in each dataset. 
+For each dataset, model, distance matrix algorithm, and distance metric, 1000 samples from each dataset were used to conduct five-fold cross validation, yielding five disjoint test sets of 200 samples each. 
+Accuracy, distance matrix calculation time, and model training times, and prediction times were recorded for each of the 5 cross-validated folds.
+After fitting each model for each dataset, distance matrix algorithm, measure of distance, and model-dependent hyper-parameters, the best-fit models were repeatedly trained on $m \in \{ 10, 20, 35, 60, 100, 200, 500, 1000\}$ samples and evaluated against 200 samples that were withheld during cross-validation with.
+
+
+
+\subsection{Models}
+\label{models}
+NCD was evaluated both as a distance metric and as a kernel with several machine learning models and compared to standard string distances.
+To convert each dataset from strings to numeric data, the distance matrices were calculated for each dataset, data fold, distance matrix algorithm (see Sections~\ref{distance_matrix} and~\ref{modifications}), and metric before being passed to a \texttt{scikit-learn} classifier---KNN, logistic regression, and SVC.
+For each classifier, several hyper-parameters were evaluated using 5-fold cross-validation on both the distance matrices (see Sections~\ref{distance_matrix} and~\ref{modifications}) and the kernel matrices (see Section~\ref{kernels}).
+The tested hyper-parameters for each model are listed in the remainder of this subsection.
+
+
+\subsubsection{$k$ Nearest Neighbors (KNN)}
+K-Nearest Neighbors (KNN) is a simple ML algorithm that classifies a sample based on the majority label of its $k$ closest neighbours in the feature space.
+To use KNN, one must specify a number of nearest neighbours to use for class prediction. 
+This number was selected from $\{1,3,5,7,11\}$, as odd numbers make ties impossible for binary classifiers.
+
+
+\subsubsection{Logistic Regression}
+Logistic regression is a statistical model used for binary classification where the probability of a sample belonging to a particular class is modelled as a linear combination of input features, transformed by a sigmoid function.
+The \texttt{scikit-learn} provides several parameters for logistic regression. 
+Both an $\ell_1$ and $\ell_2$ penalty term were tested as well as a configuration without any penalty. The coefficient of the penalty was in powers of 10 in the range $(10^{-3}, 10^3)$.
+The \texttt{SAGA} solver~\cite{saga} was used with a tolerance of $10^{-4}$.
+
+
+\subsubsection{Support Vector Classsifier (SVC)}
+Support vector classifiers (SVCs) are a class of ML models that finds the hyperplane that separates the data into distinct classes by maximizing the margin between the class boundary points which are called support vectors.
+% The \texttt{scikit-learn} SVC implementation was used with the ``precomputed'' kernel option.
+SVCs require a choice of value for a penalty term and we tested the range $(10^{-3}, 10^3)$ for each power of ten.
+
+
+
+
+
+
+
+
+
+
+\subsection{Compressors}
+\label{compressors}
+
+To use NCD as a measure of distance, one must choose a compression algorithm.
+We evaluated the \texttt{gzip}~\cite{gzip}, \texttt{bz2}~\cite{bz2}, and \texttt{brotli}~\cite{brotli_package} algorithms using their Pytho
+For these experiments, we used the \texttt{gzip} and \texttt{bz2} modules that are part of the \texttt{Python} standard library, with default parameters.
+For \texttt{brotli}, we used the \texttt{Python} package authored by Google~\cite{brotli_package}, also with default parameters.
+Compared to \texttt{gzip}, the \texttt{bz2} algorithm is faster and decompression is slower due to the better compression ratio~\cite{bz2_comparison}, however those differences are negligible for the datasets used here (see Figure~\ref{fig:distance_time}) as the datasets we tested are much smaller than the documents, software, images, source code, audio, and operating systems tested in prior work~\cite{bz2_comparison}.
+
+
+
+
+
+
+% \subsection{String Metrics}
+% We evaluated the Hamming, Levenshtein, and ratio string distances as outlined in Section~\ref{string_metrics}.
+
+
+
+% \subsection{Distance Matrix Calculation Algorithms}
+
+% We evaluated each of the aforementioned distance matrix algorithms. 
+% The method used by Jiang \textit{et al.} is dubbed ``Vanilla''.
+% The second method (Algorithm~\ref{alg:symmetric}) is called ``Assumed''.
+% The third method (Algorithm~\ref{alg:modified}) is named ``Enforced''.
+% The final method (Equation~\ref{eq:average}) is referred to as ``Averaged''.
+
+
+
+
+
+\section{Results and Discussion}
+\label{results}
+
+In this section, several datasets, models, and measures are examined for efficacy in both accuracy and run-time requirements to verify the efficacy of the proposed distance matrix algorithms (see Section~\ref{distance_matrix} Algorithms~\ref{alg:symmetric}--\ref{alg:modified} and Equation~\ref{eq:average}) and demonstrate the efficacy of NCD in comparison to the other string metrics.
+
+
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/accuracy_vs_algorithm.pdf}
+    \caption{The accuracy across each dataset (rows), model (columns), and distance matrix computation (colour) for several different string metrics (first axis), calculated by averaging the scores of each fold in five-fold cross validation for each set of tested parameters (enumerated in Section~\ref{models}).}
+    \label{fig:metric_acc}
+\end{figure}
+
+
+
+\subsection{Comparison of Different String Metrics}
+
+\begin{table}[p]
+\begin{center}
+\caption{We need a caption.}
+\label{table:results}
+\input{table}
+\end{center}
+\end{table}
+
+Figure~\ref{fig:metric_acc} shows the classifier performance across each dataset and various string metric (and for NCD, with various compressors).
+
+NCD using various compressors is comparable in run-time to all other tested string metrics.
+Figure~\ref{fig:distance_time} illustrates the run-times for the distance calculation time per sample, Figure~\ref{fig:train_time} illustrates the run-times for the model training time per sample, and Figure~\ref{fig:pred_time} illustrates the run-times for model prediction per sample. It is clear that run-times are largely comparable between NCD and the other string metrics for distance calculation time, training time, and prediction time.
+% Please note that the training step is only necessary for certain configurations of the KNN method (\textit{e.g.}, when ball-tree or $k$-dimensional tree~\cite{knn_extensions} algorithms to learn features of the training set) and that the brute force version proposed by Jiang \textit{et al.}~\cite{jiang2022less} can skip this step entirely.
+Overall, NCD (with GZIP, BZ2, and Brotli) offers comparable performance to the tested string metrics (Hamming, Ratio, and Levenshtein). Across all datasets, the median and peak accuracy of the compressor-based metrics exceeds all the string metrics.
+
+
+
+\subsection{Effect of Kernelisation}
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/accuracy_vs_kernel.pdf}
+    \caption{The accuracy across each dataset (rows), model (columns), and distance matrix computation (color) for several different kernelisation functions (first axis), computed by averaging the scores of each fold in five-fold cross validation for each combination of  ML model, model-specific hyper-parameters, metric, distance matrix algorithm, and dataset.}
+    \label{fig:kernel_acc}
+\end{figure}
+
+Figure~\ref{fig:kernel_acc} shows the effect of kernelisation when compared to the distance matrix (on the far right side, denoted with a $D$) across all tested configurations of models across all the datasets.
+
+For KNN, the performance is identical for all datasets and models, which is not unexpected as the chosen kernel functions preserve the order of the neighbours, except when an (erroneous) negative distance occurs.
+As the occurrence of negative distances is quite rare (see Figures~\ref{fig:synthetic_check} and~\ref{fig:real_world_check}), it is not unexpected that the resulting accuracy remains the same.
+For all datasets, the distribution of accuracies is effectively identical across distance matrix algorithms.
+
+Kernel logistic regression fails to outperform distance-based logistic regression, on average.
+However, after tuning, kernel logistic regression can also approach perfect accuracy, but logistic regression includes more tuneable parameters than KNN, resulting in longer training times---consistently across all of the datasets and distances.
+
+Unsurprisingly, the kernel matrix tends to outperform the distance matrix in the SVC since that model is intended to work on similarity metrics (kernels) rather than dissimilarity metrics (distances).
+Like with logistic regression, this increased training time comes at the cost of one or more tuneable parameters and the resultant increase in training time.
+Nevertheless, SVC might be more appropriate for situations in which the decision boundary is highly complex.
+Like with KNN and logistic regression, the performance of SVCs is consistent across all datasets and distances.
+
+
+
+\subsection{Effect of the Modified NCD}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.70\textwidth]{images/synthetic_check.pdf}
+    \caption{
+    Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), assumed symmetry (Algorithm~\ref{alg:symmetric}, second row), enforced (Algorithm~\ref{alg:modified}), and averaged (Equation~\ref{eq:average}) algorithms on 100 thousand random strings generated from the standard English alphabet (upper and lowercase). 
+    \textit{Sig Figs} refers to the number of significant figures. \textit{Max String Size} and \textit{Max Alphabet Size} refer to the number of characters and the number of unique characters respectively. 
+    Unless otherwise specified by the x-axis in an individual plot, \textit{Max String Size}, \textit{Max Alphabet Size}, and \textit{Sig Figs} were all 144 characters (the character limit of a ``tweet''), 52 letters (upper and lower case English letters), and 10 significant figures. Each colour corresponds to a different axiom as defined in Section~\ref{metric_spaces} and each line marker corresponds to a different string distance as outlined in Section~\ref{compressors} and Section~\ref{string_metrics}. \cm{Here it says positivity instead of non-negativity, but that has been fixed locally and will be re-rendered when the ongoing experiments finish.}
+    }
+    \label{fig:synthetic_check}
+\end{figure}
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/read_world_check.pdf}
+    \caption{Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), assumed symmetry (Algorithm~\ref{alg:symmetric}, second row), enforced (Algorithm~\ref{alg:modified}), and averaged (Equation~\ref{eq:average}) algorithms on the training matrices for each of the outlined datasets. Each column is dedicated to a dataset and each model is given a column. The first axis displays which of the axioms is violated and the colour indicates which distance matrix algorithm was used. Since evaluating all possible distance 3-tuples would be computationally infeasible for even hundreds of samples, three disjoint distances were sampled  100 thousand times. \cm{Note: I have fixed the capitalisation in this plot, but am waiting on the new results after changing the ratio metric before re-rendering.}}
+    \label{fig:real_world_check}
+\end{figure}
+
+Figures~\ref{fig:metric_acc}~and~\ref{fig:kernel_acc} depict the accuracy (top), Figure~\ref{fig:distance_time} depicts the training time per sample, and Figure~\ref{fig:pred_time} depicts the inference time per sample (bottom) for each algorithm (denoted by colour and outlined in Section~\ref{modifications}).
+The accuracy of the modified algorithm is fairly consistent with the unmodified version. 
+In practice, the model builder would choose the most accurate model, the accuracy of which is consistent across the distance matrix algorithms and classifiers for each dataset.
+However, the ``Assumed'' and ``Enforced'' versions of the distances are clearly much faster per sample when constructing the distance matrix, by reducing the number of distance computations by a factor of around two when compared to the ``Vanilla'' algorithm.
+This comes at the marginal cost of a few hundred milliseconds for each prediction, however, but this could easily be mitigated by skipping the algorithmic modifications during the prediction step and handle the problem of negative distances at run-time, depending on the particular application. 
+However, the ``Averaged'' algorithm is significantly slower---increasing the distance matrix calculation time by roughly two times over the ``Vanilla'' method.
+Overall, it is clear that this modified version of NCD offers significant run-time improvements 
+
+
+
+\subsection{Run-time Considerations}
+
+Figure~\ref{fig:distance_time} depicts the time needed to compute the distance matrix per sample in the training set for each dataset (column), algorithm (colour), and metric (first axis).
+It is clear that the run-times of the metrics are fairly consistent across the datasets and that the proposed run-time improvements (denoted ``Assumed'' and ``Enforced'') do decrease the distance matrix calculation time with no resulting loss in accuracy (see Figure~\ref{fig:metric_acc}).
+While the symmetric extension of NCD (denoted ``Averages'') does take significantly more time than the other distance matrix algorithms, that marginal increase is mere milliseconds in practice and is guaranteed to be symmetric without assuming or enforcing symmetry.
+However, Hamming distance takes substantially more time than other metrics on the DDoS dataset and GZIP takes substantially more time than the other metrics on the KDD NSL dataset.
+This effect can be mitigated by considering the run-time costs during the model training stage since these metrics take longer but do not result in substantially better accuracies for those datasets (see Figure~\ref{fig:metric_acc}).
+
+Figure~\ref{fig:train_time} depicts the time needed to train a given model on a given distance matrix and the time need to compute the distance matrix on 800 training samples (64 thousand pairwise distances) is depicted in Figure~\ref{fig:train_time}.
+The training step can be skipped entirely if the decision boundary can be accurately modelled by an unweighted KNN method, but the distance matrix calculation must still occur for prediction.
+Overall, training times (the combination of Figure~\ref{fig:distance_time} and~\ref{fig:train_time}) are low enough that this could feasibly be deployed on a user's device without specialised hardware (which is generally not true for neural networks).
+If we pessimistically assume a training time of 50 milliseconds per sample, then training could occur as the user (or router or antivirus software or social media algorithm) encounters the sample in real-time with a latency that would be unnoticeable to most humans (on the order of a few hundred milliseconds, depending on age and other factors~\cite{reaction_time}).
+
+Figure~\ref{fig:pred_time} depicts the time needed to predict a new classification on a single sample for each dataset (row), classifier (column), algorithm (colour) and metric (first axis).
+The prediction time per sample (after calculating the distance between a new sample and those in the training set) is trivial across all distances, datasets, models, and metrics, though the branching logic introduced by the ``Assumed'' and ``Enforced'' algorithms does increase the model latency by a fraction of a millisecond.
+Overall, it is clear that the run-time improvements are effective and that NCD is can be plausibly used in real-time, client-side settings.
+It is clear that the time needed to do the compression is a larger factor in the resulting run-time than either the model training or model prediction, though models with many hyper-parameters would need to be tuned for each user and this run-time can be significant.
+Rather than tuning a model every time an application is launched or a webpage is refreshed, the resulting model parameters could be stored locally.
+This increases the attack surface, but only for that particular user.
+Since passwords, banking information, authentication tokens, and other secrets are stored in this manner, it is unlikely to be objectionable to users---especially since the attack surface is significantly reduce compared to something like a neural network.
+In applications where latency is more important than privacy, the distance matrix can be pre-computed (\textit{e.g.}, on an email server) reducing the run-time and computational costs for the user.
+In applications where privacy is more important than latency, this task can run in the background, as users receive new messages or content and before they launch the application.
+% Since content on the internet is often sent in a compressed form~\cite{} and decompressed for the user, calculating the un-concatenated length of the compressed content (\textit{e.g.} $C(x), C(x')$) is trivial in practice, reducing model overhead.
+
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/distance_matrix_time_vs_algorithm.pdf}
+    \caption{The distance matrix calculation time per sample for each metric (first axis), dataset (columns), and algorithm (colour). Because the distance matrix was only calculated once per dataset/algorithm/metric combination there is no differentiation between the models.}
+    \label{fig:distance_time}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/train_time_vs_algorithm.pdf}
+    \caption{The training time  per sample (after computing the distance matrix) for each metric (first axis), dataset (rows), model (columns) and algorithm (colour).}
+    \label{fig:train_time}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/pred_time_vs_algorithm.pdf}
+    \caption{The predictions time per sample (after computing the distance matrix) for each metric (first axis), dataset (rows), model (columns) and algorithm (colour).}
+    \label{fig:pred_time}
+\end{figure}
+
+
+
+\subsection{Sample Size Considerations}
+
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-performing model (\textit{e.g.}, the model tuned via cross-validation) for each dataset (rows), model (columns), metric (line style), and algorithm (colour) for a number of different sample sizes (first axis) using 200 left-out validation samples from the cross-validation.
+It is clear that this method is quite effective even on tens of samples and that the accuracy tends to converge quickly across datasets, models, metrics, and distance matrix algorithms.
+
+\begin{figure}[p]
+    \centering
+    \includegraphics[width=0.99\textwidth]{images/accuracy_vs_train_size.pdf}
+    \caption{The accuracy for each metric (line style), dataset (rows), model (column) and algorithm (colour) as the number of training samples varies (first axis) computed on 200 samples that were withheld in the cross-validation (as reported in Figures~\ref{fig:kernel_acc} and~\ref{fig:metric_acc}).}
+    \label{fig:sample_size}
+\end{figure}
+
+
+
+
+
+\section{Considerations}
+\label{considerations}
+
+While the proposed algorithm (see Algorithm~\ref{alg:modified}) does improve upon certain edge cases outlined in Section~\ref{pseudometric}, the examined condensing methods (see Section~\ref{modifications}) do not have any significant effect on model performance (see Figures~\ref{fig:metric_acc} and~\ref{fig:kernel_acc}). 
+However, the vanilla NCD-KNN proposed by Jiang \textit{et al.}~\cite{jiang2022less} remains an effective choice if the training step is deemed too expensive for the chosen applications and the only reason to deploy the extensions would be to reduce the training time---an unnecessary step for unweighted KNN.
+Here, the authors would like to note the borderline performance of all metrics on the Truthseeker dataset---both NCD and more traditional distance measures.
+However, this is on par with the performance from the original authors~\cite{truthseeker}.
+To the best knowledge of the authors, most content on the platform formerly known as Twitter is simply indistinguishable from bot-generated spam---using any known distance metric.
+\cm{TODO discuss the new threat model  and the limitations of browser-based security (e.g. XSS attacks). Also discuss concerns around censorship/surveillance and how the labels must be generated by users and not platform operators so as to decentralise the power of labelling something as malicious (e.g. if enough users mark you as spam, then Facebook marks you as spam rather than Facebook deciding a priori what spam is.)}
+Additionally, to reduce the number of training samples (and subsequent run-time for both the prediction and training steps), only the most important samples in each class could be considered, as in other work~\cite{amal2011survey}.
+% cosine similarity + classifiers: https://www.tandfonline.com/doi/full/10.1080/08839514.2020.1723868#d1e195 This paper uses a cosine distance to yield a run-time of O(m+n) since encoding the string as an n-gram is much more expensive than the cosine calculation, but only needs to be done once per sample rather than once per pairwise distance. For strings (rather than documents, video, images, binaries, etc), this is probably a speedup overall, but their accuracy is only 95 percent. For binary-format files, encoding is trivial and this is definitely a speedup. 
+% Mention condensing
+
+
+
+
+
+\section{Conclusion}
+\label{conclusion}
+
+It is clear from Figures~\ref{fig:metric_acc}--\ref{fig:distance_time} that the modifications proposed in this work are superior to those found in the literature by decreasing the run-time without penalising accuracy.
+By reducing the chance of erroneous zero distances and enforcing symmetry, the proposed modifications guarantee that NCD will behave more like a true metric.
+% Additionally, the proposed kernels pre-emptively handle negative distances by squaring d(x,x'), thus fulfilling the axiom in the kernel space, if not in the distance measure space.
+By inducing beh, the model builder can use standard tooling (\textit{e.g.}, \texttt{scikit-learn}) to build classifiers that perform well on an exceedingly small number of samples.
+The proposed model is a real-time, client-side classification algorithm that does not rely on the large scale processing of millions of data points across a global user-base.
+By training a model for each user, session, and/or device, model database poisoning attacks~\cite{biggio_poisoning_2013} are categorically avoided.
+Furthermore, the proposed model reduces the attack surface of attacks like model inference attacks, database exfiltration attacks, and evasion attacks since a malicious user would need to target the personalised classifier of each user session, and/or device~\cite{biggio_evasion_2013,deepfool,chakraborty_adversarial_2018,extraction_attack}.
+While it is known that some attacks are quite transferable~\cite{wang2021enhancing}, the proposed model reduces the common attack surface to \textit{only} samples that are universal for all users. 
+The end result is a model with a substantially reduced attack surface that is nevertheless accurate.
+
+
+
+\bibliographystyle{elsarticle-num} 
+\bibliography{bibliography}
+
+\end{document}

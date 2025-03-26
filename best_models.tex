@@ -1,0 +1,261 @@
+% \begin{tabularx}{\textwidth}{lllll}
+%     \toprule
+%     Dataset & Metric & Model & Mean Accuracy & Std. Accuracy \\
+%     \midrule
+%     \multirow[t]{18}{*}{DDoS} & \multirow[t]{3}{*}{BZ2} & KNN & 91.900000 & 10.002500 \\
+%      &  & Logistic & 84.200000 & 21.253235 \\
+%      &  & SVC & 85.800000 & 20.792427 \\
+%     \cmidrule{2-5}
+%      & \multirow[t]{3}{*}{Brotli} & KNN & 99.300000 & 0.273861 \\
+%      &  & Logistic & 99.600000 & 0.223607 \\
+%      &  & SVC & 99.900000 & 0.223607 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{GZIP} & KNN & 99.400000 & 0.418330 \\
+%     &  & Logistic & 90.300000 & 7.637081 \\
+%     &  & SVC & 91.400000 & 9.989995 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Hamming} & KNN & 69.300000 & 23.378944 \\
+%     &  & Logistic & 69.500000 & 26.702060 \\
+%     &  & SVC & 55.000000 & 7.549834 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Levenshtein} & KNN & 71.400000 & 25.182831 \\
+%     &  & Logistic & 70.000000 & 27.386128 \\
+%     &  & SVC & 60.100000 & 15.985931 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Ratio} & KNN & 98.700000 & 0.974679 \\
+%     &  & Logistic & 84.100000 & 20.634922 \\
+%     &  & SVC & 91.700000 & 8.864254 \\
+%     \cmidrule{1-5} \cmidrule{2-5}
+%     \multirow[t]{18}{*}{KDD NSL} & \multirow[t]{3}{*}{BZ2} & KNN & 98.200000 & 0.908295 \\
+%     &  & Logistic & 87.700000 & 5.995832 \\
+%     &  & SVC & 81.800000 & 18.856696 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Brotli} & KNN & 96.900000 & 0.821584 \\
+%     &  & Logistic & 68.100000 & 24.815318 \\
+%     &  & SVC & 86.600000 & 3.228777 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{GZIP} & KNN & 97.600000 & 0.418330 \\
+%     &  & Logistic & 86.900000 & 20.634922 \\
+%     &  & SVC & 87.500000 & 20.985114 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Hamming} & KNN & 77.800000 & 25.175881 \\
+%     &  & Logistic & 68.400000 & 21.477896 \\
+%     &  & SVC & 69.300000 & 19.386206 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Levenshtein} & KNN & 90.800000 & 17.782013 \\
+%     &  & Logistic & 69.300000 & 26.442390 \\
+%     &  & SVC & 73.200000 & 23.705485 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Ratio} & KNN & 98.500000 & 0.353553 \\
+%     &  & Logistic & 86.600000 & 20.485971 \\
+%     &  & SVC & 86.300000 & 16.242691 \\
+%     \cmidrule{1-5} \cmidrule{2-5}
+%     \multirow[t]{18}{*}{SMS Spam} & \multirow[t]{3}{*}{BZ2} & KNN & 91.100000 & 0.821584 \\
+%     &  & Logistic & 75.900000 & 23.003804 \\
+%     &  & SVC & 74.900000 & 22.661642 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Brotli} & KNN & 87.000000 & 2.761340 \\
+%     &  & Logistic & 72.900000 & 12.596627 \\
+%     &  & SVC & 83.000000 & 12.549900 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{GZIP} & KNN & 91.800000 & 4.266146 \\
+%     &  & Logistic & 66.900000 & 12.325786 \\
+%     &  & SVC & 75.800000 & 18.922870 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Hamming} & KNN & 68.900000 & 16.157042 \\
+%     &  & Logistic & 59.400000 & 12.876335 \\
+%     &  & SVC & 60.800000 & 12.532957 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Levenshtein} & KNN & 75.900000 & 20.262033 \\
+%     &  & Logistic & 77.100000 & 22.286206 \\
+%     &  & SVC & 70.800000 & 19.001974 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Ratio} & KNN & 94.500000 & 1.322876 \\
+%     &  & Logistic & 82.700000 & 18.420776 \\
+%     &  & SVC & 82.500000 & 18.864649 \\
+%     \cmidrule{1-5} \cmidrule{2-5}
+%     \multirow[t]{18}{*}{Truthseeker} & \multirow[t]{3}{*}{BZ2} & KNN & 54.100000 & 3.646917 \\
+%     &  & Logistic & 53.700000 & 4.024922 \\
+%     &  & SVC & 55.300000 & 3.546125 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Brotli} & KNN & 55.400000 & 4.189272 \\
+%     &  & Logistic & 53.300000 & 4.024922 \\
+%     &  & SVC & 53.100000 & 3.943349 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{GZIP} & KNN & 56.800000 & 4.671723 \\
+%     &  & Logistic & 54.100000 & 3.150397 \\
+%     &  & SVC & 55.900000 & 3.150397 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Hamming} & KNN & 52.300000 & 2.729469 \\
+%     &  & Logistic & 50.500000 & 0.866025 \\
+%     &  & SVC & 51.100000 & 1.596872 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Levenshtein} & KNN & 56.300000 & 4.295346 \\
+%     &  & Logistic & 51.700000 & 3.801316 \\
+%     &  & SVC & 55.900000 & 4.735504 \\
+%     \cmidrule{2-5}
+%     & \multirow[t]{3}{*}{Ratio} & KNN & 57.100000 & 2.880972 \\
+%     &  & Logistic & 52.900000 & 4.006245 \\
+%     &  & SVC & 54.500000 & 1.968502 \\
+%     \cmidrule{1-5} \cmidrule{2-5}
+%     \bottomrule
+% \end{tabularx}
+
+
+% \begin{table}
+% \caption{Best models for each dataset, metric and model}
+% \label{tab:best_models}
+% \begin{table}
+% \caption{Best models for each dataset, metric and model}
+% \label{tab:best_models}
+\begin{tabularx}{\textwidth}{llllll}
+\toprule
+ &  &  &  & Accuracy (mean) & Accuracy (std) \\
+Dataset & Metric & Model & Algorithm &  &  \\
+\midrule
+\multirow[t]{18}{*}{DDoS} & \multirow[t]{3}{*}{BZ2} & KNN & Averaged & 91.90 & 10.00 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 84.20 & 21.25 \\
+\cline{3-6}
+ &  & SVC & Assumed & 85.80 & 20.79 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Brotli} & KNN & Assumed & 99.30 & 0.27 \\
+\cline{3-6}
+ &  & Logistic & Vanilla & 99.60 & 0.22 \\
+\cline{3-6}
+ &  & SVC & Vanilla & 99.90 & 0.22 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{GZIP} & KNN & Averaged & 99.40 & 0.42 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 90.30 & 7.64 \\
+\cline{3-6}
+ &  & SVC & Enforced & 91.40 & 9.99 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Hamming} & KNN & Enforced & 69.30 & 23.17 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 69.50 & 26.70 \\
+\cline{3-6}
+ &  & SVC & Vanilla & 55.00 & 7.55 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Levenshtein} & KNN & Assumed & 71.40 & 25.18 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 70.00 & 27.39 \\
+\cline{3-6}
+ &  & SVC & Averaged & 60.10 & 15.99 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Ratio} & KNN & Averaged & 98.70 & 0.97 \\
+\cline{3-6}
+ &  & Logistic & Averaged & 84.10 & 20.63 \\
+\cline{3-6}
+ &  & SVC & Averaged & 91.70 & 8.86 \\
+\cline{1-6} \cline{2-6} \cline{3-6}
+\multirow[t]{18}{*}{KDD NSL} & \multirow[t]{3}{*}{BZ2} & KNN & Assumed & 98.20 & 0.91 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 87.70 & 6.00 \\
+\cline{3-6}
+ &  & SVC & Assumed & 81.80 & 18.86 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Brotli} & KNN & Assumed & 96.90 & 0.82 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 68.10 & 24.82 \\
+\cline{3-6}
+ &  & SVC & Assumed & 86.60 & 3.23 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{GZIP} & KNN & Averaged & 97.60 & 0.42 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 86.90 & 20.63 \\
+\cline{3-6}
+ &  & SVC & Enforced & 87.50 & 20.99 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Hamming} & KNN & Vanilla & 77.80 & 25.18 \\
+\cline{3-6}
+ &  & Logistic & Vanilla & 68.40 & 21.48 \\
+\cline{3-6}
+ &  & SVC & Vanilla & 69.30 & 19.39 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Levenshtein} & KNN & Vanilla & 90.80 & 17.78 \\
+\cline{3-6}
+ &  & Logistic & Vanilla & 69.30 & 26.44 \\
+\cline{3-6}
+ &  & SVC & Averaged & 73.20 & 23.71 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Ratio} & KNN & Assumed & 98.50 & 0.35 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 86.60 & 20.49 \\
+\cline{3-6}
+ &  & SVC & Assumed & 86.30 & 16.24 \\
+\cline{1-6} \cline{2-6} \cline{3-6}
+\multirow[t]{18}{*}{SMS Spam} & \multirow[t]{3}{*}{BZ2} & KNN & Vanilla & 91.10 & 0.82 \\
+\cline{3-6}
+ &  & Logistic & Averaged & 75.90 & 23.00 \\
+\cline{3-6}
+ &  & SVC & Averaged & 74.90 & 22.66 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Brotli} & KNN & Enforced & 87.00 & 2.76 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 72.90 & 12.60 \\
+\cline{3-6}
+ &  & SVC & Enforced & 83.00 & 12.55 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{GZIP} & KNN & Averaged & 91.80 & 4.27 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 66.90 & 12.33 \\
+\cline{3-6}
+ &  & SVC & Averaged & 75.80 & 18.92 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Hamming} & KNN & Averaged & 68.90 & 16.16 \\
+\cline{3-6}
+ &  & Logistic & Averaged & 59.40 & 12.88 \\
+\cline{3-6}
+ &  & SVC & Averaged & 60.80 & 12.53 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Levenshtein} & KNN & Assumed & 75.90 & 20.26 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 77.10 & 22.29 \\
+\cline{3-6}
+ &  & SVC & Assumed & 70.80 & 19.00 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Ratio} & KNN & Averaged & 94.50 & 1.32 \\
+\cline{3-6}
+ &  & Logistic & Vanilla & 82.70 & 18.42 \\
+\cline{3-6}
+ &  & SVC & Vanilla & 82.50 & 18.86 \\
+\cline{1-6} \cline{2-6} \cline{3-6}
+\multirow[t]{18}{*}{Truthseeker} & \multirow[t]{3}{*}{BZ2} & KNN & Assumed & 54.10 & 3.65 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 53.70 & 4.02 \\
+\cline{3-6}
+ &  & SVC & Enforced & 55.30 & 3.55 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Brotli} & KNN & Assumed & 55.40 & 4.19 \\
+\cline{3-6}
+ &  & Logistic & Averaged & 53.30 & 4.02 \\
+\cline{3-6}
+ &  & SVC & Averaged & 53.10 & 3.94 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{GZIP} & KNN & Assumed & 56.80 & 4.67 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 54.10 & 3.15 \\
+\cline{3-6}
+ &  & SVC & Enforced & 55.90 & 3.15 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Hamming} & KNN & Vanilla & 52.30 & 2.73 \\
+\cline{3-6}
+ &  & Logistic & Enforced & 50.50 & 0.87 \\
+\cline{3-6}
+ &  & SVC & Vanilla & 51.10 & 1.60 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Levenshtein} & KNN & Vanilla & 56.30 & 4.30 \\
+\cline{3-6}
+ &  & Logistic & Assumed & 51.70 & 3.80 \\
+\cline{3-6}
+ &  & SVC & Averaged & 55.90 & 4.74 \\
+\cline{2-6} \cline{3-6}
+ & \multirow[t]{3}{*}{Ratio} & KNN & Vanilla & 57.10 & 2.88 \\
+\cline{3-6}
+ &  & Logistic & Vanilla & 52.90 & 4.01 \\
+\cline{3-6}
+ &  & SVC & Assumed & 54.50 & 1.97 \\
+\cline{1-6} \cline{2-6} \cline{3-6}
+\bottomrule
+\end{tabularx}
