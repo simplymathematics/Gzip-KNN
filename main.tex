@@ -183,31 +183,23 @@ Much of the literature devoted to NCD has treated it as a proper metric~\cite{op
     \vspace{0.5em}
     \noindent%
     \textit{Zero axiom:} The following counter-examples violate the zero axiom:
-    $\text{NCD}_{\text{gzip}}(aaa, bbb) = .01$, $\text{NCD}_{\text{bz2}}(aaa, bbb) = .01 $, and $\text{NCD}_{\text{brotli}}(aaa, bbb) = .01$.
+    $\text{NCD}_{\text{gzip}}(A,A) = .04$, $\text{NCD}_{\text{bz2}}(B,G) = 0 $, and $\text{NCD}_{\text{brotli}}(X,X) = .2$.
 
     \vspace{0.5em}
     \noindent%
     \textit{Non-negativity axiom:} The following counter-examples violate the zero axiom:
-    $\text{NCD}_{\text{gzip}}(aaa, bbb) = .01$, $\text{NCD}_{\text{bz2}}(aaa, bbb) = .01 $, and $\text{NCD}_{\text{brotli}}(aaa, bbb) = .01$.
-
+    $\text{NCD}_{\text{gzip}}(AAAA,AAAA) = -.04$, $\text{NCD}_{\text{bz2}}(AAAA,AAAA) = -.04$, and $\text{NCD}_{\text{brotli}}(AAAA,AAAA) = -.04$.
+    \cm{TODO: Only gzip had negative values in my log file. Can try more combinations.}
     \vspace{0.5em}
     \noindent%
     \textit{Symmetry axiom:} The following counter-examples violate the zero axiom:
-    $\text{NCD}_{\text{gzip}}(aaa, bbb) = .01$, $\text{NCD}_{\text{bz2}}(aaa, bbb) = .01 $, and $\text{NCD}_{\text{brotli}}(aaa, bbb) = .01$.
+    $\text{NCD}_{\text{gzip}}(CCCcB, BCCA) = .2 \neq text{NCD}_{\text{gzip}}(BCCA, CCCcB)=.12$, $\text{NCD}_{\text{bz2}}(KC, CCC) = .11 \neq \text{NCD}_{\text{bz2}}(CCC, KC) = 0 $, and $\text{NCD}_{\text{brotli}}(CCAACCCCA, CBCA) = .62 \neq \text{NCD}_{\text{brotli}}(CBCA, CCAACCCCA) = .54$.
 
     \vspace{0.5em}
     \noindent%
-    \textit{Triangle Inequality:} The following counter-examples violate the zero axiom:
-    $\text{NCD}_{\text{gzip}}(aaa, bbb) = .01$, $\text{NCD}_{\text{bz2}}(aaa, bbb) = .01 $, and $\text{NCD}_{\text{brotli}}(aaa, bbb) = .01$.
+    \textit{Triangle Inequality:} The following counter-examples violate the zero axiom: When $x= AAAAAAAAA, y=AAA, z=A$, $\text{NCD}_{\text{gzip}}(y,z) > \text{NCD}_{\text{gzip}}(x,y) + \text{NCD}_{\text{gzip}}(x,z)$; When $x= BC, y=AN, z=J$, $\text{NCD}_{\text{bz2}}(x,y) > \text{NCD}_{\text{bz2}}(x,z) + \text{NCD}_{\text{bz2}}(y,z)$; When $x= BCAC, y=CCBABCBAB, z=CCCCABCC$, $\text{NCD}_{\text{brotli}}(x,z) > \text{NCD}_{\text{brotli}}(y,z) + \text{NCD}_{\text{brotli}}(x,y)$;
     
 \end{proof}
-\cm{TODO: Fill in above}
-
-
-
-
-
-
 
 % \subsection{Other Notation}
 
@@ -222,7 +214,6 @@ Much of the literature devoted to NCD has treated it as a proper metric~\cite{op
 
 \subsection{Calculating the distance matrix}
 \label{distance_matrix}
-\label{alg:vanilla}
 
 Put the "Starting from Jiang ..." part here.
 
@@ -311,24 +302,14 @@ Since compressing the input samples is the most costly part of this calculation,
 We propose three new methods to induce adherence to the axioms listed above and compare their efficacy and run-time in Section~\ref{results}.
 For the purposes of the experiments below, the method proposed by Jiang \textit{et al.}~\cite{jiang2022less} is denoted ``Vanilla'' and calculates the pairwise distance between two sets by finding every element of a distance matrix. 
 The second method, which assumes symmetry by calculating the lower triangular matrix instead of the entire distance matrix, is denoted ``Assumed.''
-The third method enforces symmetry by sorting the input values before calculating a distance and is called ``Enforced.''
-The final method averages the $d(x,x')$ and $d(x',x)$ and is called ``Averaged.''
-Together, Algorithm~\ref{alg:symmetric}, Algorithm~\ref{eq:enforced}, and Equation~\ref{eq:average} are defined as distance matrix \textit{modifications}. 
-
-
-
-Firstly, symmetry can be \textit{assumed} while calculating the distance matrix for a training set by using only the lower triangular portion of the distance matrix and then reflecting those values about the diagonal.
+Symmetry can be \textit{assumed} while calculating the distance matrix for a training set by using only the lower triangular portion of the distance matrix and then reflecting those values about the diagonal.
 For some distance matrix, $D$, which rows and columns denoted by $i,j$ respectively, then the ``Assumed'' methodology calculates the lower triangular matrix in $D$ and then assumes that 
 \begin{equation}
     D_{i,j} = D_{j,i}
     \label{eq:assumed}
 \end{equation}
-
-
 Secondly, symmetry can be \textit{enforced} by sorting the strings in the manner that is typical of several programming languages~\cite{}.
-In contrast to the ``Assumed'' methodology that only modifies the training distance matrix, this method ensures that the symmetric behavior occurs during predictin as well.
-
-
+In contrast to the ``Assumed'' methodology that only modifies the training distance matrix, this method ensures that the symmetric behaviour occurs during prediction as well.
 Thirdly, the \textit{average} value of $\text{NCD}(x,x')$ and $\text{NCD}(x',x)$ was used when calculating the distance matrix.
 The average value of $\text{NCD}(x,x')$ and $\text{NCD}(x',x)$ is
 $$
@@ -502,7 +483,7 @@ It is clear that \cm{TODO:}
     \centering
     \includegraphics[width=0.70\textwidth]{images/synthetic_check.pdf}
     \caption{
-    Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), assumed symmetry (Algorithm~\ref{alg:symmetric}, second row), enforced (Algorithm~\ref{eq:assumed}), and averaged (Equation~\ref{eq:average}) algorithms on 100 thousand random strings generated from the standard English alphabet (upper and lowercase). 
+    Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla symmetricisation algorithm (top row), assumed symmetry (second row), enforced symmetry (third row), and averaged (Equation~\ref{eq:average}) algorithms on 100 thousand random strings generated from the standard English alphabet (upper and lowercase). 
     \textit{Sig Figs} refers to the number of significant figures. \textit{Max String Size} and \textit{Max Alphabet Size} refer to the number of characters and the number of unique characters respectively. 
     Unless otherwise specified by the x-axis in an individual plot, \textit{Max String Size}, \textit{Max Alphabet Size}, and \textit{Sig Figs} were all 144 characters (the character limit of a ``tweet''), 52 letters (upper and lower case English letters), and 10 significant digits. Each colour corresponds to a different axiom as defined in Section~\ref{metric_spaces} and each line marker corresponds to a different string distance as outlined in Section~\ref{compressors} and Section~\ref{string_metrics}. \cm{Here it says positivity instead of non-negativity, but that has been fixed locally and will be re-rendered when the ongoing experiments finish.}
     }
@@ -511,7 +492,7 @@ It is clear that \cm{TODO:}
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.99\textwidth]{images/read_world_check.pdf}
+    \includegraphics[width=0.99\textwidth]{old_images/read_world_check.pdf}
     \caption{Percentage of examples found that violate the assumptions outlined in Section~\ref{metric_spaces} using the vanilla (Algorithm~\ref{alg:vanilla}, top row), assumed symmetry (Algorithm~\ref{alg:symmetric}, second row), enforced (Algorithm~\ref{eq:assumed}), and averaged (Equation~\ref{eq:average}) algorithms on the training matrices for each of the outlined datasets. Each column is dedicated to a dataset and each model is given a column. The first axis displays which of the axioms is violated and the colour indicates which distance matrix algorithm was used. Since evaluating all possible distance 3-tuples would be computationally infeasible for even hundreds of samples, three disjoint distances were sampled  100 thousand times. \cm{Note: I have fixed the capitalisation in this plot, but am waiting on the new results after changing the ratio metric before re-rendering.}}
     \label{fig:real_world_check}
 \end{figure}
@@ -563,23 +544,28 @@ It is clear that the time needed to do the compression (Figure~\ref{fig:distance
 
 
 \subsection{Sample Size Considerations}
-
-Figure~\ref{fig:sample_size} depicts the accuracy of the best-performing model (the model tuned via cross-validation) for each dataset (rows), model (columns), metric (line style), and algorithm (colour) for a number of different sample sizes (first axis) using 200 left-out validation samples from the cross-validation.
-It is clear that NCD is quite effective even on tens of samples and that the accuracy tends to converge quickly across datasets, models, metrics, and distance matrix algorithms.
-
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_sample_size_vs_metric.pdf}
-    \caption{The accuracy for each metric (line style), dataset (rows), model (column) and algorithm (colour) as the number of training samples varies (first axis) computed on 200 samples that were withheld in the cross-validation (as reported in Figures~\ref{fig:metric_acc} and~\ref{fig:symmetric_acc}).}
+    \caption{The accuracy for each metric (colour), dataset (column) across all models and symmetricisation algorithms as the number of training samples varies (first axis) computed on 200 samples that were withheld in the cross-validation (as reported in Figures~\ref{fig:metric_acc} and~\ref{fig:symmetric_acc}).}
     \label{fig:sample_size}
 \end{figure}
 
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_sample_size_vs_symmetric.pdf}
-    \caption{The accuracy for each metric (line style), dataset (rows), model (column) and algorithm (colour) as the number of training samples varies (first axis) computed on 200 samples that were withheld in the cross-validation (as reported in Figures~\ref{fig:metric_acc} and~\ref{fig:symmetric_acc}).}
+    \caption{The accuracy for each symmetricisation algorithm (colour), dataset (column) across all models and metrics as the number of training samples varies (first axis) computed on 200 samples that were withheld in the cross-validation (as reported in Figures~\ref{fig:metric_acc} and~\ref{fig:symmetric_acc}).}
     \label{fig:sample_size_symmetric}
 \end{figure}
+
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-performing model for each dataset (column), metric (colour) for a number of different sample sizes (first axis) using 200 left-out validation samples from the cross-validation.
+Figure~\ref{fig:sample_size_symmetric} depicts the accuracy of the best-performing model for each dataset (column) and symmetricisation algorithm (colour) for a number of different sample sizes (first axis) using 200 left-out validation samples from the cross-validation.
+
+It is clear that NCD is quite effective even on tens of samples and that the accuracy tends to converge quickly across datasets, models, metrics, and distance matrix algorithms.
+It is also clear that NCD tends to outperform other string metrics when the number of samples is small (see Figure~\ref{fig:sample_size}) and that the symmetricisation algorithms can outperform the vanilla distance computation algorithm, though this result is not consistent (see Figure~\ref{fig:sample_size_symmetric}). 
+As such, the symmetricisation algorithm should be treated as a tunable hyper-parameter.
+
+
 
 
 
