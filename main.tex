@@ -190,14 +190,15 @@ Much of the literature devoted to NCD has treated it as a proper metric~\cite{op
     \textit{Non-negativity axiom:} The following counter-examples violate the zero axiom:
     $\text{NCD}_{\text{gzip}}(AAAA,AAAA) = -.04$, $\text{NCD}_{\text{bz2}}(AAAA,AAAA) = -.04$, and $\text{NCD}_{\text{brotli}}(AAAA,AAAA) = -.04$.
     \cm{TODO: Only gzip had negative values in my log file. Can try more combinations.}
+    
     \vspace{0.5em}
     \noindent%
     \textit{Symmetry axiom:} The following counter-examples violate the zero axiom:
-    $\text{NCD}_{\text{gzip}}(CCCcB, BCCA) = .2 \neq text{NCD}_{\text{gzip}}(BCCA, CCCcB)=.12$, $\text{NCD}_{\text{bz2}}(KC, CCC) = .11 \neq \text{NCD}_{\text{bz2}}(CCC, KC) = 0 $, and $\text{NCD}_{\text{brotli}}(CCAACCCCA, CBCA) = .62 \neq \text{NCD}_{\text{brotli}}(CBCA, CCAACCCCA) = .54$.
+    $\text{NCD}_{\text{gzip}}(CCCCB, BCCA) = .2 \neq text{NCD}_{\text{gzip}}(BCCA, CCCCB)=.12$, $\text{NCD}_{\text{bz2}}(KC, CCC) = .11 \neq \text{NCD}_{\text{bz2}}(CCC, KC) = 0 $, and $\text{NCD}_{\text{brotli}}(CCAACCCCA, CBCA) = .62 \neq \text{NCD}_{\text{brotli}}(CBCA, CCAACCCCA) = .54$.
 
     \vspace{0.5em}
     \noindent%
-    \textit{Triangle Inequality:} The following counter-examples violate the zero axiom: When $x= AAAAAAAAA, y=AAA, z=A$, $\text{NCD}_{\text{gzip}}(y,z) > \text{NCD}_{\text{gzip}}(x,y) + \text{NCD}_{\text{gzip}}(x,z)$; When $x= BC, y=AN, z=J$, $\text{NCD}_{\text{bz2}}(x,y) > \text{NCD}_{\text{bz2}}(x,z) + \text{NCD}_{\text{bz2}}(y,z)$; When $x= BCAC, y=CCBABCBAB, z=CCCCABCC$, $\text{NCD}_{\text{brotli}}(x,z) > \text{NCD}_{\text{brotli}}(y,z) + \text{NCD}_{\text{brotli}}(x,y)$;
+    \textit{Triangle Inequality:} The following counter-examples violate the zero axiom. When $x= AAAAAAAAA, y=AAA, z=A$, $\text{NCD}_{\text{gzip}}(y,z) > \text{NCD}_{\text{gzip}}(x,y) + \text{NCD}_{\text{gzip}}(x,z)$. When $x= BC, y=AN, z=J$, $\text{NCD}_{\text{bz2}}(x,y) > \text{NCD}_{\text{bz2}}(x,z) + \text{NCD}_{\text{bz2}}(y,z)$. When $x= BCAC, y=CCBABCBAB, z=CCCCABCC$, $\text{NCD}_{\text{brotli}}(x,z) > \text{NCD}_{\text{brotli}}(y,z) + \text{NCD}_{\text{brotli}}(x,y)$
     
 \end{proof}
 
