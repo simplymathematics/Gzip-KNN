@@ -30,7 +30,47 @@
 	pages        = 3980
 }
 
-@article{power_consumption_ai, url={https://www.goldmansachs.com/insights/articles/AI-poised-to-drive-160-increase-in-power-demand}, journal={Goldman Sachs}, year={2024}, month=may }
+@book{gpu_compression,
+  title={Parallel lossless data compression on the GPU},
+  author={Patel, Ritesh A and Zhang, Yao and Mak, Jason and Davidson, Andrew and Owens, John D},
+  year={2012},
+  publisher={IEEE}
+}
+
+
+@article{rbf_universal,
+  title={A note on the universal approximation capability of support vector machines},
+  author={Hammer, Barbara and Gersmann, Kai},
+  journal={neural processing letters},
+  volume={17},
+  pages={43--53},
+  year={2003},
+  publisher={Springer}
+}
+
+
+@article{sklearn,
+  title={Scikit-learn: Machine Learning in {P}ython},
+  author={Pedregosa, F. and Varoquaux, G. and Gramfort, A. and Michel, V.
+          and Thirion, B. and Grisel, O. and Blondel, M. and Prettenhofer, P.
+          and Weiss, R. and Dubourg, V. and Vanderplas, J. and Passos, A. and
+          Cournapeau, D. and Brucher, M. and Perrot, M. and Duchesnay, E.},
+  journal={Journal of Machine Learning Research},
+  volume={12},
+  pages={2825--2830},
+  year={2011}
+}
+@article{xss,
+  title={Cross-Site Scripting (XSS) attacks and defense mechanisms: classification and state-of-the-art},
+  author={Gupta, Shashank and Gupta, Brij Bhooshan},
+  journal={International Journal of System Assurance Engineering and Management},
+  volume={8},
+  pages={512--530},
+  year={2017},
+  publisher={Springer}
+}
+
+@article{power_consumption_ai, url={https://www.goldmansachs.com/insights/articles/AI-poised-to-drive-160-increase-in-power-demand}, journal={Goldman Sachs}, year={2024}, month=may, title={{AI is poised to drive 160\% increase in data center power demand}}, author={{Goldman Sachs Research}}}
 
 @article{indian_point, title={Nuclear power for AI: what it will take to reopen Three Mile Island safely}, url={https://www.nature.com/articles/d41586-024-03162-2}, DOI={10.1038/d41586-024-03162-2}, journal={Nature}, author={Greshko, Michael}, year={2024}, month=sep }
 
@@ -147,15 +187,12 @@ journal = {Journal of Machine Learning Research},
 year    = {2017},
 volume  = {18},
 number  = {17},
-pages   = {1-5},
-url     = {http://jmlr.org/papers/v18/16-365}
 }
 @misc{sms_spam,
   author       = {Almeida, Tiago and Hidalgo, Jos},
   title        = {{SMS Spam Collection}},
   year         = {2011},
   howpublished = {UCI Machine Learning Repository},
-  note         = {{DOI}: https://doi.org/10.24432/C5CC84}
 }
 
 @article{sshash,
@@ -401,6 +438,25 @@ url     = {http://jmlr.org/papers/v18/16-365}
 	year         = 2018,
 	journal      = {arXiv:1810.00069 [cs, stat]}
 }
+
+@article{hamming_kernel,
+  title={Kernels of nonlinear Hamming codes},
+  author={Phelps, Kevin T and LeVan, Mike},
+  journal={Designs, Codes and Cryptography},
+  volume={6},
+  number={3},
+  pages={247--257},
+  year={1995},
+  publisher={Springer}
+}
+
+@article{hamming_classification,
+  title={Hamming distance metric learning},
+  author={Norouzi, Mohammad and Fleet, David J and Salakhutdinov, Russ R},
+  journal={Advances in neural information processing systems},
+  volume={25},
+  year={2012}
+}
 @article{chambolle2004algorithm,
 	title        = {An algorithm for total variation minimization and applications},
 	author       = {Chambolle, Antonin},
@@ -490,8 +546,14 @@ url     = {http://jmlr.org/papers/v18/16-365}
 	number       = 2,
 	pages        = {145--166}
 }
+
 @misc{apple_csam,
-title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-safety/pdf/CSAM_Detection_Technical_Summary.pdf}, journal={apple.com}, author={Apple Inc.}, year={2021}, month=aug, language={en} }
+    title={{CSAM} Detection: A Technical Summary},
+    url={https://www.apple.com/child-safety/pdf/CSAM_Detection_Technical_Summary.pdf},journal={apple.com},
+    author={{Apple Inc.}},
+    year={2021},
+}
+
 @article{cosentino2019search,
 	title        = {The search for sparse, robust neural networks},
 	author       = {Cosentino, Justin and Zaiter, Federico and Pei, Dan and Zhu, Jun},
@@ -549,14 +611,19 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	howpublished = {arXiv preprint arXiv:2109.05472},
 }
 
+
+@article{scilipoti2024strong,
+  title={A Strong Inductive Bias: Gzip for binary image classification},
+  author={Scilipoti, Marco and Fuster, Marina and Ramele, Rodrigo},
+  journal={arXiv preprint arXiv:2401.07392},
+  year={2024}
+}
+
 @misc{trashfire,
-      title={A Training Rate and Survival Heuristic for Inference and Robustness Evaluation (TRASHFIRE)}, 
-      author={Charles Meyers and Mohammad Reza Saleh Sedghpour and Tommy Löfstedt and Erik Elmroth},
-      year={2024},
-      eprint={2401.13751},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG},
-      url={https://arxiv.org/abs/2401.13751}, 
+    title={A Training Rate and Survival Heuristic for Inference and Robustness Evaluation (TRASHFIRE)}, 
+    author={Charles Meyers and Mohammad Reza Saleh Sedghpour and Tommy L\"{o}fstedt and Erik Elmroth},
+    year={2024},
+    howpublished={arXiv preprint: arXiv:2401.13751 [cs.LG]},
 }
 @inproceedings{discretization,
 	title        = {Defending against whitebox adversarial attacks via randomized discretization},
@@ -573,8 +640,6 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	journal      = {IEEE Access},
 	volume       = 9,
 	number       = {},
-	pages        = {42236--42264},
-	doi          = {10.1109/ACCESS.2021.3062909}
 }
 @inproceedings{dohmatob_generalized_2019,
 	title        = {Generalized {No} {Free} {Lunch} {Theorem} for {Adversarial} {Robustness}},
@@ -631,14 +696,6 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	booktitle    = {Proceedings of the 22nd {ACM} {SIGSAC} {Conference} on {Computer} and {Communications} {Security} - {CCS} '15},
 	publisher    = {ACM Press},
 	address      = {Denver, Colorado, USA},
-	pages        = {1322--1333},
-	doi          = {10.1145/2810103.2813677},
-	isbn         = {978-1-4503-3832-5},
-	url          = {http://dl.acm.org/citation.cfm?doid=2810103.2813677},
-	urldate      = {2020-11-02},
-	abstract     = {Machine-learning (ML) algorithms are increasingly utilized in privacy-sensitive applications such as predicting lifestyle choices, making medical diagnoses, and facial recognition. In a model inversion attack, recently introduced in a case study of linear classiﬁers in personalized medicine by Fredrikson et al. [13], adversarial access to an ML model is abused to learn sensitive genomic information about individuals. Whether model inversion attacks apply to settings outside theirs, however, is unknown.},
-	language     = {en},
-	file         = {Fredrikson et al. - 2015 - Model Inversion Attacks that Exploit Confidence In.pdf:C\:\\Users\\charlie\\Zotero\\storage\\6A5APDC5\\Fredrikson et al. - 2015 - Model Inversion Attacks that Exploit Confidence In.pdf:application/pdf}
 }
 @article{fukuda1992theory,
 	title        = {Theory and applications of neural networks for industrial control systems},
@@ -696,10 +753,9 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	author       = {Hadj-Selem, Fouad and L{\"o}fstedt, Tommy and Dohmatob, Elvis and Frouin, Vincent and Dubois, Mathieu and Guillemot, Vincent and Duchesnay, Edouard},
 	year         = 2018,
 	journal      = {IEEE Transactions on Medical Imaging},
-	publisher    = {IEEE},
 	volume       = 37,
 	number       = 11,
-	pages        = {2403--2413}
+	pages        = {2403--2413},
 }
 @inproceedings{hamming,
 	title        = {Global robustness evaluation of deep neural networks with provable guarantees for the hamming distance},
@@ -1063,7 +1119,7 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	title        = {Safety-critical computer vision: An empirical survey of adversarial evasion attacks and defenses on computer vision systems},
 	author       = {Meyers, Charles and L\"{o}fstedt, Tommy and Elmroth, Erik},
 	year         = 2023,
-	journal      = {Springer Artificial Intelligence Review}
+	journal      = {Artificial Intelligence Review}
 }
 @article{miller_adversarial_2020,
 	title        = {Adversarial {Learning} {Targeting} {Deep} {Neural} {Network} {Classification}: {A} {Comprehensive} {Review} of {Defenses} {Against} {Attacks}},
@@ -1571,12 +1627,12 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	pages        = {11845--11854}
 }
 @inproceedings{nouwens2020dark,
-	title        = {Dark patterns after the GDPR: Scraping consent pop-ups and demonstrating their influence},
+	title        = {Dark patterns after the {GDPR}: Scraping consent pop-ups and demonstrating their influence},
 	author       = {Nouwens, Midas and Liccardi, Ilaria and Veale, Michael and Karger, David and Kagal, Lalana},
 	year         = 2020,
 	booktitle    = {Proceedings of the 2020 CHI conference on human factors in computing systems},
-	pages        = {1--13}
 }
+
 @article{yu_bayesian_2016,
 	title        = {A {Bayesian} {Ensemble} for {Unsupervised} {Anomaly} {Detection}},
 	author       = {Yu, Edward and Parekh, Parth},
@@ -1636,10 +1692,9 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	pages        = {31--88}
 }
 @misc{amnesty_encryption,
-	title        = {{Encryption-- a matter of human rights}},
-	author       = {Amnesty International},
+	title        = {Encryption---a matter of human rights},
+	author       = {{Amnesty International}},
 	year         = 2016,
-	month        = 3,
 	url          = {https://www.amnesty.nl/content/uploads/2016/03/160322_encryption_-_a_matter_of_human_rights_-_def.pdf?x12112}
 }
 @article{metrics,
@@ -1657,9 +1712,6 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	publisher    = {Oxford University Press (OUP)},
 	volume       = 10,
 	number       = 1,
-	doi          = {10.1093/cybsec/tyad020},
-	issn         = {2057-2093},
-	url          = {http://dx.doi.org/10.1093/cybsec/tyad020}
 }
 @inproceedings{jaro,
 	title        = {A Comparison of String Distance Metrics for Name-Matching Tasks.},
@@ -1700,13 +1752,12 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 }
 
 @misc{kddnsl,
-	title        = {NSL-KDD},
+	title        = {{NSL-KDD}},
 	author       = {Mohi-ud-din, Ghulam},
 	year         = 2018,
-	publisher    = {IEEE Dataport},
-	doi          = {10.21227/425a-3e55},
-	url          = {https://dx.doi.org/10.21227/425a-3e55}
+	howpublished = {IEEE Dataport},
 }
+
 @article{shan2022monte,
 	title        = {Monte Carlo cross-validation for a study with binary outcome and limited sample size},
 	author       = {Shan, Guogen},
@@ -1739,10 +1790,8 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	journal      = {IEEE Transactions on Information Theory},
 	volume       = 50,
 	number       = 12,
-	pages        = {3250--3264},
-	doi          = {10.1109/TIT.2004.838101},
-	keywords     = {Bioinformatics;Computer science;Genomics;Phylogeny;Robustness;History;Data mining;Internet;Biology computing;Plagiarism;Dissimilarity distance;Kolmogorov complexity;language tree construction;normalized compression distance;normalized information distance;parameter-free data mining;phylogeny in bioinformatics;universal similarity metric}
 }
+
 @article{hamming_distance,
 	title        = {A technique for counting ones in a binary computer},
 	author       = {Wegner, Peter},
@@ -1876,10 +1925,11 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 @article{ncd_pitfalls,
 	title        = {Common pitfalls using the normalized compression distance: What to watch out for in a compressor},
 	author       = {Cebri{\'a}n, Manuel and Alfonseca, Manuel and Ortega, Alfonso},
-	year         = 2005
+	year         = 2005,
+    journal      = {}
 }
 
-@misc{brotli_package, title={GitHub - google/brotli: Brotli compression format}, url={https://github.com/google/brotli}, journal={GitHub}, author={google}, language={en} }
+@misc{brotli_package, title={GitHub - google/brotli: Brotli compression format}, url={https://github.com/google/brotli}, journal={GitHub}, author={google}, language={en}, year={2024} }
 
 @misc{bz2, url={https://web.archive.org/web/19980704181204/http://www.muraroa.demon.co.uk/}, journal={www.muraroa.demon.co.uk/}, year={1998}, month=jul, language={en}, author={muraroa.demon.co.uk}}
 
@@ -1949,3 +1999,4 @@ title={CSAM Detection: A Technical Summary}, url={https://www.apple.com/child-sa
 	year         = 2017,
 	publisher    = {CRC Press}
 }
+extra
