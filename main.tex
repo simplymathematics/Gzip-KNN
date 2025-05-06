@@ -117,7 +117,7 @@ We therefore propose several run-time improvements and modifications, outlined i
 Further, we show that NCD is not a metric~\cite{opitz2023gzip, weinreich2023parameter, nishida2011tweet, jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.}, by incorrectly ordering the nearest neighbours).
 In this work we demonstrate this non-metric behaviour in Lemma~\ref{pseudometric} and propose techniques to mitigate the effects of this behaviour in Section~\ref{improvements}, effectively making the modified NCD ``more like a metric''.
 
-Additionally, we expand the notion of NCD~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less,jiang2022less} to kernels (Section~\ref{kernels}) in an attempt to use it to model more complex decision boundaries than those allowed by NCD as a distances alone.
+Additionally, we expand the notion of NCD~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less,jiang2022less} to kernels (Section~\ref{kernels}) thus allowing for this method to be used with other models besides KNN.
 We thus extend NCD to reproducing kernel Hilbert spaces and hence more elaborate ML methods---allowing its use in a broader set of ML methods and to model more complex decision boundaries.
 
 Hence, in this paper, we:
@@ -444,12 +444,15 @@ In this section, the results from the aforementioned experiments are discussed.
 
 \begin{figure}[!htb]
     \centering
+    \includegraphics[width=0.99\textwidth]{images/accuracy_vs_kernel.pdf}
+    \hfill
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_metric.pdf}
     \hfill
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_symmetry.pdf}
     \caption{
-    The accuracy across each dataset (columns), distance metric (first-axis), model (top plot, colour), and symmetrisation method (bottom plot, colour). 
+    The accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), model (middle plot, colour), and symmetrisation method (bottom plot, colour). 
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
+    Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and only the kernel models are included in the the middle and lower plots.
     }
     \label{fig:acc}
 \end{figure}
@@ -467,9 +470,10 @@ In this section, the results from the aforementioned experiments are discussed.
 \end{figure}
 
 
-Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors). 
-The top sub-figure groups the results by model type using colour, and the bottom figure groups the results by symmetrisation method.
-From these results it is clear that KNN is the most consistently accurate (top of Figure~\ref{fig:acc}) across all of the metrics. 
+Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices (top row), all models (middle row) and all symmetrisation methods (bottow row). 
+The top sub-figure groups the results by whether or not the distance or kernel matrix was used, the middle sub-figure groups the results by model type using colour, and the bottom figure groups the results by symmetrisation method.
+From these results it is clear that KNN is the most consistently accurate (middle of Figure~\ref{fig:acc}) for NCD and that the distance matrix method tends to out-perform the kernel method (top of Figure~\ref{fig:acc}).
+
 None of the symmetrisation methods consistently out-perform any other as shown in the bottom of Figure~\ref{fig:acc}; however, there is clearly a significant difference in performance between the symmetrisation methods in some cases, dependent on the dataset and the chosen string distance or compressor. 
 There is no consistently most accurate distance measure or symmetrisation method (Figure~\ref{fig:acc}), though kernelised NCD can outperform other string metrics and the Hamming kernel.
 
@@ -531,12 +535,14 @@ It is clear that this does not correspond to a decrease in accuracy (see Figure~
 \section{Limitations}
 \label{limitations}
 
-Even if a model is trained entirely on private data and stored privately, the model itself can still be targeted by cross-site scripting attacks~\cite{xss}, though these can be prevented categorically using known, best practices~\cite{xss}. 
-Due to the efficacy of NCD when used as a kernel method on even a small number of samples (Figure~\ref{fig:sample_size}) and run-times on the order of a few milliseconds (Figures~\ref{fig:times}), the proposed method can be used to train and deploy models entirely on a client device, thus reducing the attack surface to user-error. 
-Nevertheless, automated spam detection systems raise broad censorship and surveillance concerns~\cite{chat_control} that are not solved here. 
+% Even if a model is trained entirely on private data and stored privately, the model itself can still be targeted by cross-site scripting attacks~\cite{xss}, though these can be prevented categorically using known, best practices~\cite{xss}. 
+
+% Nevertheless, automated spam detection systems raise broad censorship and surveillance concerns~\cite{chat_control} that are not solved here. 
 % However, the hope of the authors is that distributed and diverse models, trained on data from individual users rather than centrally deployed spam filters reduce the risks of censorship associated with models and data controlled by private interests~\cite{chat_control}. 
 To further improve the run-time, compression algorithms designed specifically to exploit graphics processing units have been developed and large datasets would be likely to benefit from these implementations over the CPU-based implementations presented in this paper~\cite{gpu_compression}. 
-
+None of the kernel methods outperform the distance-based KNN as proposed by Jiang~\textit{et al.}. 
+Perhaps this is due to insufficient model-tuning since the kernel methods have an additional parameter compared to the vanilla method (see Equations~\ref{eq:rbf_kernel} and \ref{eq:hamming_kernel}) and only powers of 10 were tested (see Section~\ref{methods}). 
+Alternatively, these datasets may simply be simple enough to not need the complex decision boundaries associated with kernel methods.
 
 
 
