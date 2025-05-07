@@ -452,7 +452,7 @@ In this section, the results from the aforementioned experiments are discussed.
     \caption{
     The accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), model (middle plot, colour), and symmetrisation method (bottom plot, colour). 
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
-    Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and only the kernel models are included in the the middle and lower plots.
+    Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and the results depict the 5-fold accuracies for the best-fit model of each model-dataset-metric combination before (orange) and after kernelisation (blue).
     }
     \label{fig:acc}
 \end{figure}
@@ -534,15 +534,12 @@ It is clear that this does not correspond to a decrease in accuracy (see Figure~
 
 \section{Limitations}
 \label{limitations}
-
-% Even if a model is trained entirely on private data and stored privately, the model itself can still be targeted by cross-site scripting attacks~\cite{xss}, though these can be prevented categorically using known, best practices~\cite{xss}. 
-
-% Nevertheless, automated spam detection systems raise broad censorship and surveillance concerns~\cite{chat_control} that are not solved here. 
-% However, the hope of the authors is that distributed and diverse models, trained on data from individual users rather than centrally deployed spam filters reduce the risks of censorship associated with models and data controlled by private interests~\cite{chat_control}. 
+[Intro sentence]
 To further improve the run-time, compression algorithms designed specifically to exploit graphics processing units have been developed and large datasets would be likely to benefit from these implementations over the CPU-based implementations presented in this paper~\cite{gpu_compression}. 
-None of the kernel methods outperform the distance-based KNN as proposed by Jiang~\textit{et al.}. 
-Perhaps this is due to insufficient model-tuning since the kernel methods have an additional parameter compared to the vanilla method (see Equations~\ref{eq:rbf_kernel} and \ref{eq:hamming_kernel}) and only powers of 10 were tested (see Section~\ref{methods}). 
-Alternatively, these datasets may simply be simple enough to not need the complex decision boundaries associated with kernel methods.
+Model tuning parameters were limited... 
+Other compressors are out of scope...
+Converting heterogenous spreadsheet data into a python string after casting each row to a python is rather crude... [simplify this]
+Anchoring methods~\cite{anchor}
 
 
 
