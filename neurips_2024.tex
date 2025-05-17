@@ -99,8 +99,8 @@
 
 
 \begin{abstract}
-  Machine learning have proven remarkable performance across a wide variety of domains, but nevertheless fail to adversaries during model training or deployment. 
-  Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API.  
+  Machine learning have proven remarkable performance across a wide variety of domains, but nevertheless fail to adversaries during model training or deployment.
+  Recent developments have focused on incredibly complex architectures with long run-times, specific hardware requirements, and models that leak private information to anyone with access to the API.
   However, the use of compression algorithms in conjunction with clustering algorithms has proven remarkably successful at text classification, excelling in few-show circumstances and across a wide-variety of datasets. This makes it ideal for a private anomaly detection algorithm. In this paper, we show how a client-side approach to anomaly detection is safer by design.
   In addition, we demonstrate the efficacy of this technique in the domain of computer security --- using datasets spanning computer processes, Twitter bots, intrusion attacks, denial of service attacks, and log file outlier detection.
   We offer advice for improving the model latency and evaluate NCD in the wider context of kernel metrics to show its broad efficacy.
@@ -108,14 +108,14 @@
 
 \section{Introduction}
 
-Despite their efficacy across many domains, modern machine learning methods often use very large models that require large numbers of samples to train~\cite{desislavov2021compute}. 
-The exchange of this data often creates privacy and security risks~\cite{chakraborty_adversarial_2018,meyers}. For example, several attacks against ML systems have been proposed, targeting the model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, or deployment~\cite{distributed_attacks,santos2021universal}. 
-Even when access to a model is limited only to the classification labels, it is possible to subvert the model~\cite{hopskipjump}, reverse engineer the decision boundary~\cite{deepfool}, determine the model weights~\cite{jagielski2020high} or infer the class-membership of new samples~\cite{bentley2020quantifying}. 
-This raises profound questions for safety critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}. 
-One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data --- by keeping it encrypted locally and providing no access in either direction to the internet. 
-However, this lack of data sharing means that our method must work well when trained on a small number of samples to minimise the run-time costs and maximise the efficacy for individual users.  
-Luckily, Jiang et al.~\cite{jiang2022less} proposed a parameter-free text classification algorithm that exploits the compression algorithm, DEFLATE, to compress and then classify strings that has shown very strong performance against several benchmark datasets. 
-In this study, we explore the underlying theory of kernel methods, offer run-time improvements over the original~\cite{jiang2022less} GZIP-KNN classifier, demonstrate the efficacy of our run-time optimised method on a variety of datasets comprised of a variety of data types to provide a plausible model for private and client-side anomaly detection.  
+Despite their efficacy across many domains, modern machine learning methods often use very large models that require large numbers of samples to train~\cite{desislavov2021compute}.
+The exchange of this data often creates privacy and security risks~\cite{chakraborty_adversarial_2018,meyers}. For example, several attacks against ML systems have been proposed, targeting the model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, or deployment~\cite{distributed_attacks,santos2021universal}.
+Even when access to a model is limited only to the classification labels, it is possible to subvert the model~\cite{hopskipjump}, reverse engineer the decision boundary~\cite{deepfool}, determine the model weights~\cite{jagielski2020high} or infer the class-membership of new samples~\cite{bentley2020quantifying}.
+This raises profound questions for safety critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}.
+One solution to the problem of adversaries is to treat the model as we would treat a session token or any other private data --- by keeping it encrypted locally and providing no access in either direction to the internet.
+However, this lack of data sharing means that our method must work well when trained on a small number of samples to minimise the run-time costs and maximise the efficacy for individual users.
+Luckily, Jiang et al.~\cite{jiang2022less} proposed a parameter-free text classification algorithm that exploits the compression algorithm, DEFLATE, to compress and then classify strings that has shown very strong performance against several benchmark datasets.
+In this study, we explore the underlying theory of kernel methods, offer run-time improvements over the original~\cite{jiang2022less} GZIP-KNN classifier, demonstrate the efficacy of our run-time optimised method on a variety of datasets comprised of a variety of data types to provide a plausible model for private and client-side anomaly detection.
 
 
 \subsection{Motivations}
@@ -136,7 +136,7 @@ In this study, we:
 
 % \subsection{Definitions}
 % \paragraph{Distance}
-% Distance refers to any norm or pseudo-norm for measuring the proximity of one sample to another. 
+% Distance refers to any norm or pseudo-norm for measuring the proximity of one sample to another.
 % % \paragraph{Benign vs Adversarial}
 % \paragraph{Failure Rate}
 % We will define the failure rate
@@ -176,14 +176,14 @@ In addition to the NCD metric defined above, we examined several other measures 
     \item \textit{SeqRatio:} identical to "Ratio", but calculated on sequences of strings by taking the single input string and splitting it into a list around white-space characters~\cite{levenshtein}.
     \item \textit{Hamming:} is the number of character positions where two strings differ, but is only defined for strings of equal length, leading to sparse distance matricies~\cite{hamming_distance}.
     \item \textit{Jaro:} is a measure of similarity between two strings, taking into account the number of identical characters as well as the number of transposed characters~\cite{jaro}.
-    \item \textit{Jaro-Winkler:} extends the above by incorporating a scaling factor to give weight to sub-strings that occur more frequently~\cite{jaro}. 
+    \item \textit{Jaro-Winkler:} extends the above by incorporating a scaling factor to give weight to sub-strings that occur more frequently~\cite{jaro}.
 \end{itemize}
 
 
 
 \subsection{Metric Spaces}
 
-A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a true distance metric if and only if the following are true~\cite{metrics}. For the sake of the reader, each identity is given a label (denoted in the parentheses). 
+A metric space is defined as some measure of distance between the constituent components of some space, usually called points.  For points $x,y$ in a space, separated by distance $d(x,y)$, $d$ is a true distance metric if and only if the following are true~\cite{metrics}. For the sake of the reader, each identity is given a label (denoted in the parentheses).
 
 \label{metric_spaces}
 \begin{itemize}
@@ -193,14 +193,14 @@ A metric space is defined as some measure of distance between the constituent co
     \item $d(x, z) \leq d(x, y) + d(y, z)$ (triangle inequality)
 \end{itemize}
 
-\subsubsection{Non-negativity} 
+\subsubsection{Non-negativity}
 \[
 d(x, y) \geq 0
 \]
-The distance between any two points is always non-negative. This is true for all of the compressors operating under normal circumstances. However, if one of the input strings $x,y$ is shorter than the minimum header length and is can be found verbatim in the second string, then this value can be negative. Using our python implementation and the strings $x=, y=$, we found a value of \cm{TODO: grab from the log file when I'm back in Europe since ssh'ing is hard from Japan}. This is also true for all of the string metrics since their domain is $[0,1]$~\cite{metrics,levenshtein}. 
+The distance between any two points is always non-negative. This is true for all of the compressors operating under normal circumstances. However, if one of the input strings $x,y$ is shorter than the minimum header length and is can be found verbatim in the second string, then this value can be negative. Using our python implementation and the strings $x=, y=$, we found a value of \cm{TODO: grab from the log file when I'm back in Europe since ssh'ing is hard from Japan}. This is also true for all of the string metrics since their domain is $[0,1]$~\cite{metrics,levenshtein}.
 
 
-\subsubsection{Zero Identity} 
+\subsubsection{Zero Identity}
 \[
 d(x, y) = 0 \iff x = y
 \]
@@ -215,30 +215,30 @@ Substituting this into the definition of NCD yields
 $$
 NCD(x,y) = \frac{\mathcal{C}(y) + \ell - \mathcal{C}(y)}{\mathcal{C}(y)} = \frac{\ell}{C(y)}.
 $$
-Therefore it is clear that this is not zero, but some constant. We propose a solution to this problem in Algorithm~\ref{alg:enforced_symmetry}. However, one other issue remains. If $y$ is a string contained verbatim in $x$ then the NCD is zero, violating the identity. However, by sorting the strings at run-time by length (making the longer one $x$), it is possible to circumvent this since this behaviour is asymmetrical. 
+Therefore it is clear that this is not zero, but some constant. We propose a solution to this problem in Algorithm~\ref{alg:enforced_symmetry}. However, one other issue remains. If $y$ is a string contained verbatim in $x$ then the NCD is zero, violating the identity. However, by sorting the strings at run-time by length (making the longer one $x$), it is possible to circumvent this since this behaviour is asymmetrical.
 
-% It's not clear if this \textit{should} be resolved since the marginal new information in a repeated string is, in fact, 0.  
+% It's not clear if this \textit{should} be resolved since the marginal new information in a repeated string is, in fact, 0.
 
 
-\subsubsection{Symmetry} 
+\subsubsection{Symmetry}
 \[
 d(x, y) = d(y, x)
 \]
 The distance between \( x \) and \( y \) is the same as the distance between \( y \) and \( x \). While this is true for the string metrics, this is not necessarily the case for the compressor based NCD measures, we show, empirically, that we can enforce this using Algorithm~\ref{alg:assumed_symmetry}. The pros and cons of this are discussed in ~\ref{results}.
 
-\subsubsection{Triangle inequality} 
+\subsubsection{Triangle inequality}
 \[
 d(x, z) \leq d(x, y) + d(y, z)
 \]
 The distance between \( x \) and \( z \) is less than or equal to the sum of the distances between \( x \) and \( y \), and \( y \) and \( z \). While this is true for most randomly generated strings, it's not hard to generate a counter example. For example, if $x = "aaa", y = "a", z = "bbb"$ then the the values are \cm{TODO} and the identity is violated.
-% Many of the string metrics do not follow this rule and I can probably think of specific compression examples where this would break down. In general, however, this should hold true for these compressors because they are sub-additive~\cite{}, which means: 
+% Many of the string metrics do not follow this rule and I can probably think of specific compression examples where this would break down. In general, however, this should hold true for these compressors because they are sub-additive~\cite{}, which means:
 % $$
 % \mathcal{C}(xy) \leq \mathcal{C}(x) + \mathcal{C}(y)
 % $$
 % for some compression function $\mathcal{C}$. Recalling the definition of NCD... TODO
 
 
-% Hmmm. If I have a string  that is unique in x and y, but shared between them, then the triangle inequality falls apart. 
+% Hmmm. If I have a string  that is unique in x and y, but shared between them, then the triangle inequality falls apart.
 
 % \begin{align*}
 % x &= abcdef \\
@@ -247,7 +247,7 @@ The distance between \( x \) and \( z \) is less than or equal to the sum of the
 % C(y) &= abcdef \rightarrow len(C(y)) = 6  \\
 % C(xy) &= C(abcdefabcdef) \\ &\rightarrow len(C(xy))= len(C(x)) + len(\S) \\
 % \end{align*}
-% where $\S$ is a token that represents the 2nd `abcdef' string. The length of this token depends on, among other things, the compression algorithm, the sliding window size, the compression level, the length of the full strings, the length of the repeated string, and the chosen encoding of the compressed buffer. However, it is clear that the length of this token is generally not the same length as the uncompressed string (since that would imply the compression doesn't actually compress). 
+% where $\S$ is a token that represents the 2nd `abcdef' string. The length of this token depends on, among other things, the compression algorithm, the sliding window size, the compression level, the length of the full strings, the length of the repeated string, and the chosen encoding of the compressed buffer. However, it is clear that the length of this token is generally not the same length as the uncompressed string (since that would imply the compression doesn't actually compress).
 
 
 
@@ -281,7 +281,7 @@ The algorithm for k-nearest neighbors is reproduced in Algorithm~\ref{alg:knn}.
 
 
 \subsection{GZIP-KNN}
-In this section, we reproduce the GZIP-KNN algorithm proposed by Jiang et al. to inform a run-time analysis of the algorithm and offer insights towards our  improvements that are outlined in Sec~\ref{improvements}. Broadly, this method uses a widely-researched clustering model, $k$-Nearest Neighbors, in conjunction with a  distance metric called \textit{normalized compression distance} (NCD). In addition to GZIP, we tested LZMA, BZ2, and 
+In this section, we reproduce the GZIP-KNN algorithm proposed by Jiang et al. to inform a run-time analysis of the algorithm and offer insights towards our  improvements that are outlined in Sec~\ref{improvements}. Broadly, this method uses a widely-researched clustering model, $k$-Nearest Neighbors, in conjunction with a  distance metric called \textit{normalized compression distance} (NCD). In addition to GZIP, we tested LZMA, BZ2, and
 
 
 % \subsection{GZIP}
@@ -291,7 +291,7 @@ In this section, we reproduce the GZIP-KNN algorithm proposed by Jiang et al. to
 
 \section{Threat Model}
 \label{threat}
-A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and black-box categories~\cite{meyers}. Whitebox attacks like the fast gradient method~\cite{fgm} or~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal . However, it has been shown that this finding prototypical meta samples from the training set is trivial~\cite{chakraborty_adversarial_2018}. Likewise, we can then use this class membership data to reverse engineer the model weights~\cite{} and loss gradients for a set of (potentially adversarial) examples~\cite{}. Even if our attacker only has access to a typical application programming interface (API), the HopSkipJump attack~\cite{hopskipjump} has been shown to minimize the number of queries needed to subvert detection at run-time. 
+A typical machine learning pipeline is vulnerable to attacks that target each stage of the machine learning pipeline. Broadly speaking, they come in white- and black-box categories~\cite{meyers}. Whitebox attacks like the fast gradient method~\cite{fgm} or~\cite{deepfool} require access to the model directly while other attacks can succeed with only normal . However, it has been shown that this finding prototypical meta samples from the training set is trivial~\cite{chakraborty_adversarial_2018}. Likewise, we can then use this class membership data to reverse engineer the model weights~\cite{} and loss gradients for a set of (potentially adversarial) examples~\cite{}. Even if our attacker only has access to a typical application programming interface (API), the HopSkipJump attack~\cite{hopskipjump} has been shown to minimize the number of queries needed to subvert detection at run-time.
 % To illustrate these risks, we have included Fig.~\ref{fig:threat_model}
 % \begin{figure*}[h!]
 %     \centering
@@ -336,7 +336,7 @@ In some situations, it might be necessary to find anomalies in real-time, which 
 
 \subsubsection{Calculating the Gram matrix}
 \label{symmetry}
-While many of the above distance metrics are symmetric, this is not-necessarily the case with NCD. However, if we assume this is true most of the time, we can reduce the computational cost of training and/or prediction. Below, we have tested two separate modifications of the 
+While many of the above distance metrics are symmetric, this is not-necessarily the case with NCD. However, if we assume this is true most of the time, we can reduce the computational cost of training and/or prediction. Below, we have tested two separate modifications of the
 
  Section~\ref{results} shows how this often improves the accuracy of a model and reduces the number of calculations required to find the distance matrix.
 
@@ -362,8 +362,8 @@ While many of the above distance metrics are symmetric, this is not-necessarily 
 
 
 \subsubsection{Pre-computing the Compression vector}
-Since the compression step requires the most processing time, we can pre-compute the compression distance for our input data as part of a training step, if we so choose. This offers marginal run-time improvements over the original implementation that repeatedly calculated the NCD of all training samples for each example in the test set. 
-See Fig.~\ref{fig:sym_train_time} to see the (signficant) decrease in run-time  and the resulting (marginal) change in accuracy when we pre-compress all of the train and test strings in the data. %Note: this is still running. 
+Since the compression step requires the most processing time, we can pre-compute the compression distance for our input data as part of a training step, if we so choose. This offers marginal run-time improvements over the original implementation that repeatedly calculated the NCD of all training samples for each example in the test set.
+See Fig.~\ref{fig:sym_train_time} to see the (signficant) decrease in run-time  and the resulting (marginal) change in accuracy when we pre-compress all of the train and test strings in the data. %Note: this is still running.
 
 
 
@@ -376,7 +376,7 @@ See Fig.~\ref{fig:sym_train_time} to see the (signficant) decrease in run-time  
 
 \subsubsection{Reducing the Search Space}
 \label{best-samples}
-In other situations, it is necessary to minimize the number of samples used for evaluation because the size of the user's database is too large to evaluated in a reasonable amount of time. We can use a variety of heuristics to reduce the size of our search space~\cite{amal2011survey}. 
+In other situations, it is necessary to minimize the number of samples used for evaluation because the size of the user's database is too large to evaluated in a reasonable amount of time. We can use a variety of heuristics to reduce the size of our search space~\cite{amal2011survey}.
 
 \begin{itemize}
     \item \textit{Sum:} After calculating the distance matrix, we sort the distance matrix by the sum of a row and find the $m$ most central samples per class.
@@ -441,15 +441,15 @@ Broadly, this section is divided into three sets of experiments. First, we tuned
 \label{methods}
 \subsection{Datasets}
 \label{datasets}
-We examine several to show that this method works well for a variety of anomaly-detection tasks. The `normal' data were under-sampled so that there was an equal number of normal and anomalous samples. For several of the datasets, anomalies were rare. 
-To overcome the limitation of getting a precise measure of accuracy on a small number of samples, Monte Carlo sampling was employed by testing each configuration across many random permutations of the data. 
-This is known to be asymptotically equivalent to cross-fold validation~\cite{} which is not remotely precise enough when we have only a small number of anomalous data points. 
-Additionally, the test and train sets were sampled in such a way that each configuration was guaranteed to have a uniform distribution of the classes in both sets. To examine the efficacy of this method on numeric, string, and heterogeneous datasets, several standard datasets were examined. 
-The oldest one is KDD-NSL which is a log of system process data for both regular users (labelled 0 or benign) and malicious users (labelled 1 or adversarial). The DDoS IoT dataset ~\cite{} was also included. 
-To prepare this dataset, we combined all classes of attacks with the non-malicious user data, collapsing all attacks into the adversarial (1) label. In addition, the timestamp data was removed to prevent data leakage  (since the malicious and benign data were collected sequentially). 
-Then, in an effort to examine the efficacy of this on text alone, the Truthseeker ~\cite{} was used. While this is normally distributed with metadata, this work only included the ``tweet" and the label provided by the researchers who distribute the data (again, a 0 or 1 corresponding to a regular or malicious user respectively). 
-To examine more heterogeneous data, the SMS Spam dataset was chosen. 
-This combines a short text message with numeric and protocol data to again distinguish between regular SMS messages (labelled with a 0) and spam ones (labelled with a 1). 
+We examine several to show that this method works well for a variety of anomaly-detection tasks. The `normal' data were under-sampled so that there was an equal number of normal and anomalous samples. For several of the datasets, anomalies were rare.
+To overcome the limitation of getting a precise measure of accuracy on a small number of samples, Monte Carlo sampling was employed by testing each configuration across many random permutations of the data.
+This is known to be asymptotically equivalent to cross-fold validation~\cite{} which is not remotely precise enough when we have only a small number of anomalous data points.
+Additionally, the test and train sets were sampled in such a way that each configuration was guaranteed to have a uniform distribution of the classes in both sets. To examine the efficacy of this method on numeric, string, and heterogeneous datasets, several standard datasets were examined.
+The oldest one is KDD-NSL which is a log of system process data for both regular users (labelled 0 or benign) and malicious users (labelled 1 or adversarial). The DDoS IoT dataset ~\cite{} was also included.
+To prepare this dataset, we combined all classes of attacks with the non-malicious user data, collapsing all attacks into the adversarial (1) label. In addition, the timestamp data was removed to prevent data leakage  (since the malicious and benign data were collected sequentially).
+Then, in an effort to examine the efficacy of this on text alone, the Truthseeker ~\cite{} was used. While this is normally distributed with metadata, this work only included the ``tweet" and the label provided by the researchers who distribute the data (again, a 0 or 1 corresponding to a regular or malicious user respectively).
+To examine more heterogeneous data, the SMS Spam dataset was chosen.
+This combines a short text message with numeric and protocol data to again distinguish between regular SMS messages (labelled with a 0) and spam ones (labelled with a 1).
 
 \subsection{Models}
 
@@ -457,19 +457,19 @@ After generating 1000 train/test set pairs for each dataset, the distance matric
 
 \label{models}
 \subsubsection{$k$-KNN}
-To use KNN, one must specify a number of nearest neighbors to use for class prediction (see: Algorithm~\ref{alg:knn}). This number was selected from $\{1,3,5,7,11\}$, as choosing small, odd numbers to make ties impossible for binary classifiers. In addition, we tested whether or not to weight the samples uniformly or by distance. 
+To use KNN, one must specify a number of nearest neighbors to use for class prediction (see: Algorithm~\ref{alg:knn}). This number was selected from $\{1,3,5,7,11\}$, as choosing small, odd numbers to make ties impossible for binary classifiers. In addition, we tested whether or not to weight the samples uniformly or by distance.
 
 \subsubsection{$k$-SVC}
-Ths \texttt{scikit-learn} SVC implementation provides several kernel methods for transforming the input into a separable feature space. 
-For the sake of simplicity, only the radial basis function (RBF) was tested (it's also known to be a universal function approximator~\cite{}). 
-SVCs require a choice of value for a penalty term and we tested the range $[ 10^{-3}, 10^3]$ and let \texttt{scikit-learn} choose an apporpriately sized $\gamma$ parameter for the RBF function. 
+Ths \texttt{scikit-learn} SVC implementation provides several kernel methods for transforming the input into a separable feature space.
+For the sake of simplicity, only the radial basis function (RBF) was tested (it's also known to be a universal function approximator~\cite{}).
+SVCs require a choice of value for a penalty term and we tested the range $[ 10^{-3}, 10^3]$ and let \texttt{scikit-learn} choose an apporpriately sized $\gamma$ parameter for the RBF function.
 The "balanced" and null class weight parameters that control the relative importance of a sample were also tested.
 
 \subsubsection{$k$-Logistic}
 The \texttt{scikit-learn} provides several parameters for the humble logistic function. Both an $\ell_1$ and $\ell_2$ penalty term were tested as well as a configuration without a penalty. That penalty was sampled from the range $[10^{-3}, 10^3]$. In addition, logistic models with and without intercept parameters were tested. Using the \texttt{saga} solver, we tested stopping criteria tolerances $\in [10^{-4}, 10^{-2}]$
 As with the SVC above, the "balanced" and null class weight parameters that control the relative importance of a sample were also tested.
 
-\subsection{Compressors} In addition to \texttt{gzip}, we tried numerous different compression algorithms. 
+\subsection{Compressors} In addition to \texttt{gzip}, we tried numerous different compression algorithms.
 \begin{itemize}
     \item gzip - widely available, fast compared to lzma/bz2
     \item lzma - more compression, more time

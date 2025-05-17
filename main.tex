@@ -36,7 +36,7 @@
 
 
 \begin{abstract}
-The recent developments in machine learning have highlighted a conflict between online platforms and their users in terms of privacy. 
+The recent developments in machine learning have highlighted a conflict between online platforms and their users in terms of privacy.
 The importance of user privacy and the struggle for power over user data has been intensified as regulators and operators attempt to police the online platforms.
 As users have become increasingly aware of privacy issues, client-side data storage, management, and analysis have become a favoured approach to large-scale centralised machine learning.
 However, state-of-the-art machine learning methods require vast amounts of labelled user data, making them unsuitable for models that reside client-side and only have access to a single user's data.
@@ -66,7 +66,7 @@ We demonstrate the efficacy of the proposed approach in the context of malware d
 In the context of online platforms, data are collected from end-users using dubious amounts of consent~\cite{nouwens2020dark} and aggregated at massive scales~\cite{desislavov2021compute}.
 Such data collection on online platforms often creates privacy, safety, and security risks~\cite{chakraborty_adversarial_2018,meyers}.
 One such privacy risk is the periodic attempts by regulators to weaken encryption standards~\cite{amnesty_encryption} and create backdoors to user devices.
-Platform operators and governments discuss best-practices for scanning client devices for illegal or ``offensive'' 
+Platform operators and governments discuss best-practices for scanning client devices for illegal or ``offensive''
 content~\cite{chat_control,apple_csam}, but existing proposals are no less risky to user privacy, safety, or security than weakening encryption.
 Privacy experts have denounced such approaches for numerous reasons: the ease of \textit{extracting} private training data~\cite{choquette2021label,fredrikson_model_2015,li2021membership} or the model itself~\cite{fredrikson_model_2015,orekondy2019knockoff,jagielski2020high,correia2018copycat,shokri2017membership}, the ability of a malicious user to induce false positives for other users when the model is trained on user data~\cite[\textit{poisoning} attacks;][]{rawat2022devil,shokri2020bypassing,gu2017badnets,saha2020hidden,aghakhani2021bullseye,turner2018clean,shafahi2018poison,geiping2020witches,souri2022sleeper}, and the triviality of simply \textit{evading} the detection mechanism~\cite{carlini_towards_2017,dohmatob_generalized_2019,hopskipjump,biggio_evasion_2013,meyers,chakraborty_adversarial_2018,deepfool,hopskipjump}.
 
@@ -74,7 +74,7 @@ Current platform solutions often rely on large-scale ML methods that are trained
 Examples of security risks include attacks against ML systems that target a model during training~\cite{biggio_poisoning_2013}, prediction~\cite{biggio_evasion_2013,deepfool,carlini_towards_2017}, and deployment~\cite{distributed_attacks,santos2021universal}.
 Even when access to a model by an adversary is limited, it is possible to induce a misclassification~\cite{hopskipjump}, reverse engineer the model~\cite{extraction_attack}, determine the model weights~\cite{jagielski2020high}, or infer the class-membership of new samples~\cite{bentley2020quantifying}.
 This raises profound questions for safety-critical systems~\cite{meyers} and legal questions about access and control of the underlying data~\cite{mitrou2018data,marks2023ai}.
-Additionally, it has been shown that finding prototypical meta samples from the training set of large-scale ML models is trivial~\cite{trashfire,meyers}. 
+Additionally, it has been shown that finding prototypical meta samples from the training set of large-scale ML models is trivial~\cite{trashfire,meyers}.
 Even if the attacker only has access to a typical application programming interface (API), there are reliable ways to fool the model~\cite{hopskipjump}.
 
 Many privacy experts warn of the potential for any hypothetical \textit{centralized} content-censoring system not only because of the potential failures due to adversaries mentioned above, but also because of the potential these systems to be used for mass surveillance and censorship~\cite{chat_control}.
@@ -93,7 +93,7 @@ An additional goal of this work was to evaluate the efficacy of NCD in general a
 While other research examined topics like image classification~\cite{opitz2023gzip}, molecular property classification~\cite{weinreich2023parameter}, and text classification~\cite{nishida2011tweet}, the ability of NCD to classify datasets that contain strings, numeric values, and categorical data (heterogenous datasets) has remained unexplored.
 
 Additionally, the original NCD work~\cite{ncd} included an error term that is usually ignored in recent research~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}.
-To the best of our knowledge, no research has addressed the problem of negative values for NCD. 
+To the best of our knowledge, no research has addressed the problem of negative values for NCD.
 The original authors~\cite{ncd} asserted that NCD is always positive when using perfect compressors.
 However, this is clearly demonstrated to be false in Lemma~\ref{pseudometric} when using imperfect compressors (which is what we will have in practice) .
 
@@ -159,7 +159,7 @@ A function, $d:X \times X \rightarrow \mathbb{R}$, associated with a set of poin
     \text{Triangle Inequality:} \quad & d(x_1,x_3) \leq d(x_1,x_2) + d(x_2,x_3) \label{eq:axiom_triangle}.
 \end{align}
 
-Much of the literature devoted to NCD has treated it as a proper metric~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}. 
+Much of the literature devoted to NCD has treated it as a proper metric~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}.
 However, as we show now, it is not.
 
 \begin{lemma}
@@ -191,7 +191,7 @@ However, as we show now, it is not.
     $$
         \text{NCD}_{\text{brotli}}(CCCCBBCCC, CBCCCBBCCC) = -0.08.
     $$
-    
+
     \vspace{0.5em}
     \noindent%
     \textit{Symmetry axiom:} The following counter-examples violate the symmetry axiom:
@@ -235,7 +235,7 @@ To evaluate the relative performance of the NCD metric, we compared it to severa
 \begin{itemize}
     \item \textit{Levenshtein} is the ``edit distance'' or minimum number of single-character edits to transform one string into another~\cite{navarro2001guided}.
     \item \textit{Lev Ratio} is the Levenshtein distance divided by the total length of the longer string~\cite{levenshtein}.
-    \item \textit{Hamming} is the number of character positions where two strings differ. 
+    \item \textit{Hamming} is the number of character positions where two strings differ.
     \item \textit{Ham Ratio} is the number of character positions where two strings differ, divided by the length of the longer string.
 \end{itemize}
 
@@ -274,7 +274,7 @@ Finally, we outline the proposed way to use NCD as a kernel in Section~\ref{kern
 \subsubsection{Pre-computing the Compression vector}
 \label{pre_compute_compression}
 
-When computing the value of NCD$(x,x')$, it is necessary to calculate the values of $\mathcal{C}(x)$ and $\mathcal{C}(x')$ as in Equation~\ref{eq:ncd}. 
+When computing the value of NCD$(x,x')$, it is necessary to calculate the values of $\mathcal{C}(x)$ and $\mathcal{C}(x')$ as in Equation~\ref{eq:ncd}.
 For each $x \in X$, the $\mathcal{C}(x)$ would be computed repeatedly when computing the pairwise NCD distances between $x\in X$ and the elements in $X'$.
 Instead of recomputing the $\mathcal{C}(x)$ repeatedly, it is much more efficient to pre-compute the compressed versions of each element in $X$ and $X'$ only once.
 Since compressing the input samples is the most costly part of this computation, this saves substantial run-time as demonstrated in Section~\ref{results}.
@@ -329,7 +329,7 @@ The Zero-axiom check was performed with the ``Assumed'' and ``Enforced'' methods
 We propose to use NCD to construct an approximate kernel, allowing NCD to be used with a much larger set of ML methods than as a distance.
 For this purpose, a kernel is defined as a function, $k : X \times X \rightarrow \mathbb{R}$, such that
 \begin{equation}
-    k(x, x') := \langle \phi(x), \phi(x') \rangle 
+    k(x, x') := \langle \phi(x), \phi(x') \rangle
     \label{eq:kernel}
 \end{equation}
 for all $x, x' \in X$,
@@ -348,11 +348,11 @@ where $\lambda$ is a tunable parameter (denoted a \textit{length scale}) that co
 We thus propose to use NCD as the distance function, $d$, in the kernel in Equation~\ref{eq:rbf_kernel}.
 The RBF kernel is particularly effective as it is known to be a universal function approximator~\cite{rbf_universal}.
 
-The Hamming kernel~\cite{hamming_kernel}, based on the Hamming distance between two strings or binary vectors, is defined as  
+The Hamming kernel~\cite{hamming_kernel}, based on the Hamming distance between two strings or binary vectors, is defined as
 \begin{equation}
     k(x, x') = 1 - \lambda \frac{d_H(x,x')}{\max(|x|,|x'|)},
     \label{eq:hamming_kernel}
-\end{equation}  
+\end{equation}
 where $ d_H(x, x') $ denotes the Hamming distance, $\max(|x|,|x'|)$ denotes the length of the longer string, and $ \lambda $ is a tunable parameter that controls the sensitivity of the kernel to differences between input vectors.
 Smaller values of $ \lambda $ cause the kernel to decay more rapidly as the number of differing positions increases, thereby emphasizing exact or near-exact matches.
 We propose to use this kernel in settings where inputs are strings or binary representations, as it naturally captures similarity through positional agreement.
@@ -363,7 +363,7 @@ Like the RBF kernel, the Hamming kernel belongs to the class of positive-definit
 Euclidean distances can be computed in the feature space by using a kernel. We see that
 \begin{align*}
     d(x,x')
-        &= \| \phi(x) - \phi(x') \|_2^2 \\ 
+        &= \| \phi(x) - \phi(x') \|_2^2 \\
         &= \langle\phi(x) - \phi(x'), \phi(x) - \phi(x') \rangle \\
         &= \langle \phi(x), \phi(x) \rangle + \langle \phi(x'), \phi(x') \rangle - 2\langle \phi(x), \phi(x') \rangle \\
         &= k(x, x) + k(x', x') - 2k(x, x'),
@@ -374,8 +374,8 @@ For the RBF kernel, when the symmetry and the zero axioms hold, we have that $k(
     d_k(x, x') = 2 - 2 k(x, x').
     \label{eq:kernel_distance}
 \end{equation}
-This formulation was used to extend NCD-KNN to kernels, \textit{i.e.}, the kernel distance in Equation~\ref{eq:kernel_distance} was used together with the RBF kernel in Equation~\ref{eq:rbf_kernel}, as well as with the Hamming kernel in Equation~\ref{eq:hamming_kernel}. 
-Logistic regression and SVCs were trained on the kernel matrices formed from Equations~\ref{eq:rbf_kernel}~\&~\ref{eq:hamming_kernel}. 
+This formulation was used to extend NCD-KNN to kernels, \textit{i.e.}, the kernel distance in Equation~\ref{eq:kernel_distance} was used together with the RBF kernel in Equation~\ref{eq:rbf_kernel}, as well as with the Hamming kernel in Equation~\ref{eq:hamming_kernel}.
+Logistic regression and SVCs were trained on the kernel matrices formed from Equations~\ref{eq:rbf_kernel}~\&~\ref{eq:hamming_kernel}.
 
 
 \subsection{Data}
@@ -397,7 +397,7 @@ Finally, we used the SMS Spam dataset~\cite{sms_spam} which includes SMS message
 
 For several of the datasets, malicious examples were rare compared to the number of benign examples. To address the class imbalances, each dataset was under-sampled~\cite{undersampling} using the \texttt{imblearn} package~\cite{imblearn} to reduce bias towards the majority class and to ensure metrics like accuracy are meaningful.
 For each dataset, model, symmetrisation method, and distance metric, 1000 samples from each dataset were used to conduct five-fold cross validation, yielding five disjoint validation sets of 200 samples each.
-Accuracy, distance matrix computation time, model training times, and prediction times were recorded for each of the five cross-validation folds. 
+Accuracy, distance matrix computation time, model training times, and prediction times were recorded for each of the five cross-validation folds.
 In an effort to represent both text and numerical data as strings, the rows of each numerical dataset were extracted as lists in \texttt{Python} and then those lists were cast directly to strings for the DDoS, KDD-NSL, and SMS Spam datasets.
 
 \subsection{Experiments}
@@ -407,11 +407,11 @@ We evaluated the proposed methodology using the described datasets, models, symm
 After generating the 5-fold cross validation sets for each dataset, the distance matrices for each symmetrisation method and metric were computed, as outlined in Sections~\ref{distance_matrix} and~\ref{symmetrisation}.
 Additionally, kernel matrices were computed as described in Section~\ref{kernels}.
 The classifiers used were KNN, logistic regression, and SVC, as implemented in \texttt{scikit-learn}~\cite{sklearn}.
-For KNN, we both used NCD directly and used the kernel distance from Equation~\ref{eq:kernel_distance} computed using both the RBF and Hamming kernels. 
-For (kernel) logistic regression and SVC, the RBF kernel in Equation~\ref{eq:rbf_kernel} and the Hamming kernel in Equation~\ref{eq:hamming_kernel} were used with the NCD distance. 
+For KNN, we both used NCD directly and used the kernel distance from Equation~\ref{eq:kernel_distance} computed using both the RBF and Hamming kernels.
+For (kernel) logistic regression and SVC, the RBF kernel in Equation~\ref{eq:rbf_kernel} and the Hamming kernel in Equation~\ref{eq:hamming_kernel} were used with the NCD distance.
 
 Each model was tuned using the hyper-parameters outlined in the following.
-For NCD, all metrics (NCD, Hamming distance, Levenshtein distance, etc) were used to compute kernel matrices as per Equations~\ref{eq:rbf_kernel}~and~\ref{eq:kernel_distance}. 
+For NCD, all metrics (NCD, Hamming distance, Levenshtein distance, etc) were used to compute kernel matrices as per Equations~\ref{eq:rbf_kernel}~and~\ref{eq:kernel_distance}.
 In addition, the Hamming kernel from Equation~\ref{eq:hamming_kernel} was used as a baseline~\cite{hamming_kernel}.
 Both kernels have a hyper-parameter, $\lambda$, that must be tuned; $\lambda$ was was evaluated in powers of 10 in the range $[10^{-3}, 10^3]$.
 
@@ -426,15 +426,15 @@ To find the most appropriate set of hyper-parameters, each of the dataset-model-
 Then, the best-fit model was chosen for each dataset-model-symmetrisation-metric configuration by finding the configuration(s) with the highest mean cross-validation accuracy and choosing the model with the smallest standard deviation in the case ties.
 After fitting each model to each dataset, symmetrisation method, measure of distance, and model-dependent hyper-parameters, the best-fit models were repeatedly trained on $m \in \{10, 20, 35, 60, 100, 200, 500, 1000\}$ samples and evaluated against the 200 withheld samples during cross-validation to evaluate the ability of the model to generalise even when trained on a small number of samples.
 
-In addition to the classification experiments above, the distance matrices calculated from those datasets were exhaustively checked for adherence to the axioms in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_symmetry} and the percentage of violations for each axiom was recorded. 
-In addition, 100k randomly selected 3-tuples from each distance matrix were sampled to compute the percentage of samples that violate Equation~\ref{eq:axiom_triangle}. 
+In addition to the classification experiments above, the distance matrices calculated from those datasets were exhaustively checked for adherence to the axioms in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_symmetry} and the percentage of violations for each axiom was recorded.
+In addition, 100k randomly selected 3-tuples from each distance matrix were sampled to compute the percentage of samples that violate Equation~\ref{eq:axiom_triangle}.
 An additional synthetic dataset comprised of 100k 3-tuples was generated from short, alphabetic strings using the uppercase English alphabet and a maximum string size of 144 characters (the length of a ``tweet'') for each metric and symmetrisation method and used to calculate the probability of axiom violations.
 
 
 \section{Results and Discussion}
 \label{results}
 
-In this section, the results from the aforementioned experiments are discussed. 
+In this section, the results from the aforementioned experiments are discussed.
 
 \begin{figure}[!htb]
     \centering
@@ -442,20 +442,20 @@ In this section, the results from the aforementioned experiments are discussed.
     \hfill
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_rbf_or_hamming.pdf}
     \caption{
-    The 5-fold accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), kernel (top plot, colour), and symmetrisation method (bottom plot, colour). 
+    The 5-fold accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), kernel (top plot, colour), and symmetrisation method (bottom plot, colour).
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
     }
     \label{fig:baseline}
 \end{figure}
 
 
-Figure~\ref{fig:baseline} depicts the mean accuracy of the best-fit model for each dataset-metric-model-kernel combination. 
-The error bars reflect the 95\% confidence interval of the mean accuracy, computed across five cross-validated folds. 
-The top of Figure~\ref{fig:baseline} compares accuracy of the proposed kernelised KNN to the distance-based KNN proposed by Jiang \textit{et al.}~\cite{jiang2022less} for a variety of string metrics (first axis). 
-The bottom of Figure~\ref{fig:baseline} compares the RBF kernel (Equation~\ref{eq:rbf_kernel}) to the Hamming kernel (Equation~\ref{eq:hamming_kernel}) for all three kernelised ML models. 
-It is clear that the kernel method is consistent with the distance method (top of Figure~\ref{fig:baseline}), apart from the un-normalised Levenshtein and Hamming distances, wherein the distance method is superior for the DDoS dataset. 
-Additionally, the RBF kernel has accuracy that is consistent with the Hamming kernel (bottom of Figure~\ref{fig:baseline}) and at least one version of NCD outperforms the Hamming ratio in every dataset. 
-Therefore, it is clear that the proposed kernelised classification model is as accurate at the distance-based KNN~\cite{jiang2022less} (top of Figure~\ref{fig:baseline}) and can also outperform the Hamming kernel (bottom of Figure~\ref{fig:baseline}). 
+Figure~\ref{fig:baseline} depicts the mean accuracy of the best-fit model for each dataset-metric-model-kernel combination.
+The error bars reflect the 95\% confidence interval of the mean accuracy, computed across five cross-validated folds.
+The top of Figure~\ref{fig:baseline} compares accuracy of the proposed kernelised KNN to the distance-based KNN proposed by Jiang \textit{et al.}~\cite{jiang2022less} for a variety of string metrics (first axis).
+The bottom of Figure~\ref{fig:baseline} compares the RBF kernel (Equation~\ref{eq:rbf_kernel}) to the Hamming kernel (Equation~\ref{eq:hamming_kernel}) for all three kernelised ML models.
+It is clear that the kernel method is consistent with the distance method (top of Figure~\ref{fig:baseline}), apart from the un-normalised Levenshtein and Hamming distances, wherein the distance method is superior for the DDoS dataset.
+Additionally, the RBF kernel has accuracy that is consistent with the Hamming kernel (bottom of Figure~\ref{fig:baseline}) and at least one version of NCD outperforms the Hamming ratio in every dataset.
+Therefore, it is clear that the proposed kernelised classification model is as accurate at the distance-based KNN~\cite{jiang2022less} (top of Figure~\ref{fig:baseline}) and can also outperform the Hamming kernel (bottom of Figure~\ref{fig:baseline}).
 
 
 
@@ -468,14 +468,14 @@ Therefore, it is clear that the proposed kernelised classification model is as a
     \hfill
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_symmetry.pdf}
     \caption{
-    The accuracy across each dataset (columns), distance metric (first-axis),  model (top plot, colour), and symmetrisation method (bottom plot, colour). 
+    The accuracy across each dataset (columns), distance metric (first-axis),  model (top plot, colour), and symmetrisation method (bottom plot, colour).
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
     Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and the results depict the 5-fold accuracies for the best-fit model of each model-dataset-metric combination before (orange) and after kernelisation (blue).
     }
     \label{fig:acc}
 \end{figure}
 
-Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices (top row), all models (middle row) and all symmetrisation methods (bottow row). 
+Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices (top row), all models (middle row) and all symmetrisation methods (bottow row).
 The top sub-figure groups the results by whether or not the distance or kernel matrix was used, the middle sub-figure groups the results by model type using colour, and the bottom figure groups the results by symmetrisation method.
 From these results it is clear that KNN is the most consistently accurate (middle of Figure~\ref{fig:acc}) for NCD and that the distance matrix method tends to out-perform the kernel method (top of Figure~\ref{fig:acc}).
 
@@ -490,10 +490,10 @@ From these results it is clear that KNN is the most consistently accurate (middl
     \label{fig:sample_size}
 \end{figure}
 
-Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis). 
-The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups. 
-For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics. 
-However, results are more mixed for other datasets. 
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis).
+The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups.
+For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics.
+However, results are more mixed for other datasets.
 Additionally, we can see that non-Vanilla symmetrisation methods tend to outperform the Vanilla variety on DDoS, SMS-Spam, and Truthseeker, although the confidence intervals overlap somewhat.
 
 
@@ -516,17 +516,17 @@ Additionally, we can see that non-Vanilla symmetrisation methods tend to outperf
 
 
 
-Figure~\ref{fig:times} shows the run-times associated with calculating the distance between two samples (top), training the model on a single sample (middle), or inferring the classification of a new sample (bottom). 
-The importance of the symmetrisation methods is to reduce the run-time. 
-It is clear from Figure~\ref{fig:times} that choice of symmetrisation method has a substantial effect on run-time, with the ``Assumed'' and ``Enforced'' symmetrisation methods taking roughly half as long per sample as the ``Vanilla'' version and the ``Averaged'' version taking slightly longer. 
-During training (assuming the distance or kernel-matrix is pre-computed), the variance between models is far large than the variance induced by the symmetrisation methods (see middle row of Figure~\ref{fig:times}). 
+Figure~\ref{fig:times} shows the run-times associated with calculating the distance between two samples (top), training the model on a single sample (middle), or inferring the classification of a new sample (bottom).
+The importance of the symmetrisation methods is to reduce the run-time.
+It is clear from Figure~\ref{fig:times} that choice of symmetrisation method has a substantial effect on run-time, with the ``Assumed'' and ``Enforced'' symmetrisation methods taking roughly half as long per sample as the ``Vanilla'' version and the ``Averaged'' version taking slightly longer.
+During training (assuming the distance or kernel-matrix is pre-computed), the variance between models is far large than the variance induced by the symmetrisation methods (see middle row of Figure~\ref{fig:times}).
 During prediction, the differences between symmetrisation methods are much less pronounced, owing to the smaller number of samples---instead, the variance in prediction times is predominated by the run-time of the distance function as the variance within a given metric is much smaller than the variance between them (see the bottom row of Figure~\ref{fig:times}).
 
 \begin{figure}[ht!]
     \centering
     \includegraphics[width=\textwidth]{images/synthetic_check.pdf}
     \caption{
-    Percentage of examples found that violate the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} using the vanilla symmetrisation method (top column), assumed symmetry (second column), enforced symmetry (third column), and averaged (bottom column) methods on 100 thousand random strings generated from the standard English alphabet. 
+    Percentage of examples found that violate the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} using the vanilla symmetrisation method (top column), assumed symmetry (second column), enforced symmetry (third column), and averaged (bottom column) methods on 100 thousand random strings generated from the standard English alphabet.
     Unless otherwise specified by the first axis in an individual plot, \textit{Max String Size} was 144 characters (the length of a ``tweet'') and the \textit{Alphabet Size} was 26. Each line marker corresponds to a different axiom as outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} and each colour corresponds to either NCD (Equation~\ref{eq:ncd}) or some other string metric (Section~\ref{other_string_metrics}).
     }
     \label{fig:synthetic_check}
@@ -541,8 +541,8 @@ During prediction, the differences between symmetrisation methods are much less 
 \end{figure}
 
 Figures~\ref{fig:synthetic_check}--\ref{fig:real_world_check} display how the symmetrisation methods influence to what degree a given metric adheres to the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} and show that they enforce adherence to the symmetric and zero-axiom as expected.
-It is clear that the proposed modifications make NCD behave more like a metric and more consistently adhere to the axioms in Equations~\ref{eq:axiom_zero}-~\ref{eq:axiom_triangle}. 
-This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}). 
+It is clear that the proposed modifications make NCD behave more like a metric and more consistently adhere to the axioms in Equations~\ref{eq:axiom_zero}-~\ref{eq:axiom_triangle}.
+This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}).
 It is clear that this does not correspond to a decrease in accuracy (see Figure~\ref{fig:acc}) and that these modifications can significantly improve run-time (see Figure~\ref{fig:times}).
 
 
@@ -550,20 +550,20 @@ It is clear that this does not correspond to a decrease in accuracy (see Figure~
 \label{limitations}
 While the methods presented in this work demonstrate strong performance across various tasks and datasets, several limitations should be acknowledged.
 
-To further improve run-time performance, compression algorithms optimised for graphics processing units (GPUs) have been developed~\cite{gpu_compression}. 
-These are likely to outperform the CPU-based implementations used in this paper when applied to large-scale datasets. 
+To further improve run-time performance, compression algorithms optimised for graphics processing units (GPUs) have been developed~\cite{gpu_compression}.
+These are likely to outperform the CPU-based implementations used in this paper when applied to large-scale datasets.
 Incorporating such GPU-accelerated compressors could significantly reduce processing time and improve scalability.
 
-The model tuning parameters used in this study were limited in scope. 
+The model tuning parameters used in this study were limited in scope.
 While the selected configurations were sufficient to demonstrate key insights, a broader hyperparameter search may reveal additional trade-offs or improvements in accuracy and efficiency.
 
-This work focused on a specific set of compression algorithms. 
-Although other compressors exist--including those optimised for specific data types~\cite{gpu_compression,mp3,hevc}—-they were considered out of scope for this study. 
+This work focused on a specific set of compression algorithms.
+Although other compressors exist--including those optimised for specific data types~\cite{gpu_compression,mp3,hevc}—-they were considered out of scope for this study.
 Future work could explore the impact of alternative compressors on both accuracy and run-time.
 
-The preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string. 
+The preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string.
 While effective for our purposes (see Figure~\ref{fig:baseline}), this approach is crude and may obscure structural or semantic relationships within the data by including extraneous characters like commas and brackets (used to delineate and denote a list in Python, respectively).
-As always, the best implementation will be determined by the data and its schema. 
+As always, the best implementation will be determined by the data and its schema.
 More sophisticated encoding methods—such as schema-aware parsing or embedding techniques—could improve performance, particularly on more complex or high-dimensional datasets.
 
 
@@ -572,8 +572,8 @@ More sophisticated encoding methods—such as schema-aware parsing or embedding 
 \section{Conclusion}
 \label{conclusion}
 
-Overall, we see that NCD is at least as accurate as other string metrics (top of Figure~\ref{fig:acc}), despite not being a true metric (Lemma~\ref{pseudometric}). 
-Furthermore, we see that the proposed symmetrisation methods are quite effective---sometimes even outperforming the ``Vanilla'' method (bottom of Figure~\ref{fig:acc}). 
+Overall, we see that NCD is at least as accurate as other string metrics (top of Figure~\ref{fig:acc}), despite not being a true metric (Lemma~\ref{pseudometric}).
+Furthermore, we see that the proposed symmetrisation methods are quite effective---sometimes even outperforming the ``Vanilla'' method (bottom of Figure~\ref{fig:acc}).
 Kernelised NCD is effective even when only a small number of samples are used to train the model, making it ideal for lightweight, client-side deployments (top of Figure~\ref{fig:sample_size}) and our extensions (Section~\ref{improvements}) do not significantly change this result (bottom of Figure~\ref{fig:sample_size}).
 NCD can reach more than 95\% accuracy on even tens of samples (Figure~\ref{fig:sample_size}).
 It is clear from Figure~\ref{fig:times} that the ``Assumed'' and ``Enforced'' symmetrisation methods proposed in this work are superior to those found in the literature by decreasing the run-time without penalising accuracy (bottom of Figure~\ref{fig:acc}).
@@ -581,17 +581,17 @@ In some cases, the ``Averaged'' symmetrisation method offers superior accuracy o
 In other cases, ``Enforced'' and ``Assumed'' offer both superior accuracies (Figure~\ref{fig:acc}, bottom) and run-times (Figure~\ref{fig:times}, top and bottom).
 
 The proposed model is a real-time, client-side classification method that can be trained on a very small number of samples---potentially collected from only a single user.
-This reduces the attack surface to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message). 
-That is, the attack surface is reduced and can be unique to each user, session, or device by using data from each user in isolation and training a model on that user's device. Client-side models would only need to share a single bit (the classification label in a binary classification context) with the platform operator---allowing those operators to serve user-specific contents without exfiltrating private data from their entire user base. 
+This reduces the attack surface to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message).
+That is, the attack surface is reduced and can be unique to each user, session, or device by using data from each user in isolation and training a model on that user's device. Client-side models would only need to share a single bit (the classification label in a binary classification context) with the platform operator---allowing those operators to serve user-specific contents without exfiltrating private data from their entire user base.
 However, not training a model on large amounts of collected user data means that such hypothetical client-side methods are at risk of not performing at the level of state-of-the-art large-scale methods.
 % By training a model for each user, session, and/or device, model database poisoning attacks~\cite{biggio_poisoning_2013} are categorically avoided.
 % Furthermore, the proposed model reduces the attack surface of attacks like model inference attacks, database exfiltration attacks, and evasion attacks since a malicious user would need to target the personalised classifier of each user session, and/or device~\cite{biggio_evasion_2013,deepfool,chakraborty_adversarial_2018,extraction_attack}.
-% While it is known that some attacks are quite transferable~\cite{wang2021enhancing}, the proposed model reduces the common attack surface to \textit{only} samples that are universal for all users. 
+% While it is known that some attacks are quite transferable~\cite{wang2021enhancing}, the proposed model reduces the common attack surface to \textit{only} samples that are universal for all users.
 The end result is a model with a substantially reduced attack surface that is nevertheless accurate, but also simple, generally applicable, and very fast.
 
 
 
-\bibliographystyle{elsarticle-num} 
+\bibliographystyle{elsarticle-num}
 \bibliography{bibliography}
 
 \end{document}
