@@ -34,7 +34,7 @@ stages:
       size: 19613
       isexec: true
     - path: main.log
-      md5: 0c8f530f2be7b4f3900b5d4ee19bd1f4
+      md5: 6e2aa57ac7b59da9ae7898df9f5c433e
       size: 29494
       isexec: true
     - path: main.out
@@ -46,7 +46,7 @@ stages:
       size: 50087
     outs:
     - path: main.pdf
-      md5: 24319efb2bcb924a19e3a48e79344d9c
+      md5: 487ba50fb5d9a72837d0332a9379ee5c
       size: 555386
       isexec: true
   pre-commmit:
@@ -82,18 +82,18 @@ stages:
       size: 456377
       nfiles: 14
     - path: main.pdf
-      md5: 24319efb2bcb924a19e3a48e79344d9c
+      md5: 487ba50fb5d9a72837d0332a9379ee5c
       size: 555386
     outs:
     - path: A Tiny, Client-Side Classifier.zip
-      md5: 1005111416800c941c4d2604230294ac
-      size: 65001239
+      md5: 835111f6fc6d5e50e054a10cb1981406
+      size: 65465814
       isexec: true
     - path: arxiv.log
-      md5: f514eb1308ef6f1d360bc4200f7f7524
+      md5: 2881ff2d04bdd6b2f4847546bccfb07d
       size: 2581
       isexec: true
     - path: tmp/
-      md5: b956fe3bf81719847ffb1675cf433595.dir
-      size: 3251008
+      md5: 58cbdc7a06d8b3f5a80b56bd46692dba.dir
+      size: 3252965
       nfiles: 85

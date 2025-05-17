@@ -30,7 +30,7 @@
 %% "authornote" and "authornotemark" commands
 %% used to denote shared contribution to the research.
 
-\author{C. Meyers, A. P. MacSween, T. L\"{o}fstedt, and~E. Elmroth}
+\author{C. Meyers, A. P. MacSween, E. Elmroth, and~T. L\"{o}fstedt}
 
 \maketitle
 
@@ -443,6 +443,7 @@ In this section, the results from the aforementioned experiments are discussed.
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_rbf_or_hamming.pdf}
     \caption{
     The 5-fold accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), kernel (top plot, colour), and symmetrisation method (bottom plot, colour).
+    Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and the results depict the 5-fold accuracies for the best-fit model of each model-dataset-metric combination before (orange) and after kernelisation (blue).
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
     }
     \label{fig:baseline}
@@ -470,14 +471,13 @@ Therefore, it is clear that the proposed kernelised classification model is as a
     \caption{
     The accuracy across each dataset (columns), distance metric (first-axis),  model (top plot, colour), and symmetrisation method (bottom plot, colour).
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
-    Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and the results depict the 5-fold accuracies for the best-fit model of each model-dataset-metric combination before (orange) and after kernelisation (blue).
     }
     \label{fig:acc}
 \end{figure}
 
-Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices (top row), all models (middle row) and all symmetrisation methods (bottow row).
-The top sub-figure groups the results by whether or not the distance or kernel matrix was used, the middle sub-figure groups the results by model type using colour, and the bottom figure groups the results by symmetrisation method.
-From these results it is clear that KNN is the most consistently accurate (middle of Figure~\ref{fig:acc}) for NCD and that the distance matrix method tends to out-perform the kernel method (top of Figure~\ref{fig:acc}).
+Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices across all models (top row) and all symmetrisation methods (bottom row). 
+The top sub-figure groups the results by model and the bottom figure groups the results by symmetrisation method.
+From these results it is clear that KNN is the most consistently accurate (top of Figure~\ref{fig:acc}) and that symmetrisation method can be treated as a hyper-parameter, with optimal choice varying between dataset and model.
 
 \begin{figure}[!bht]
     \centering
@@ -490,14 +490,11 @@ From these results it is clear that KNN is the most consistently accurate (middl
     \label{fig:sample_size}
 \end{figure}
 
-Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis).
-The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups.
-For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics.
-However, results are more mixed for other datasets.
-Additionally, we can see that non-Vanilla symmetrisation methods tend to outperform the Vanilla variety on DDoS, SMS-Spam, and Truthseeker, although the confidence intervals overlap somewhat.
-
-
-
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis). 
+The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups. 
+For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics. 
+However, results are more mixed for other datasets. 
+Additionally, we can see that non-Vanilla symmetrisation methods tend to outperform the Vanilla variety on DDoS, SMS-Spam, and Truthseeker, although this is not significant.
 
 
 \begin{figure}[htb!]
@@ -526,24 +523,25 @@ During prediction, the differences between symmetrisation methods are much less 
     \centering
     \includegraphics[width=\textwidth]{images/synthetic_check.pdf}
     \caption{
-    Percentage of examples found that violate the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} using the vanilla symmetrisation method (top column), assumed symmetry (second column), enforced symmetry (third column), and averaged (bottom column) methods on 100 thousand random strings generated from the standard English alphabet.
-    Unless otherwise specified by the first axis in an individual plot, \textit{Max String Size} was 144 characters (the length of a ``tweet'') and the \textit{Alphabet Size} was 26. Each line marker corresponds to a different axiom as outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} and each colour corresponds to either NCD (Equation~\ref{eq:ncd}) or some other string metric (Section~\ref{other_string_metrics}).
+   Percentage of violations of Axioms~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} among 100,000 random strings (from the standard English alphabet), using four symmetrisation methods: vanilla, assumed symmetry, enforced symmetry, and averaging. The top plots vary max string size; bottom plots vary alphabet size. Default settings: max string size is 144, alphabet size is 26. Colours indicate axioms; solid lines indicate NCD (Equation~\ref{eq:ncd}) and dashed lines are for other string metrics (Section~\ref{other_string_metrics}).
     }
     \label{fig:synthetic_check}
 \end{figure}
 
-\begin{figure}[ht!]
+\begin{figure}[p!]
     \centering
     \includegraphics[width=0.99\textwidth]{images/real_world_check.pdf}
-    \caption{Percentage of examples found that violate the assumptions outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} using the vanilla (top row), assumed symmetry (second row), enforced (third row), and averaged (bottom row) methods on the training matrices for each of the outlined datasets. Each column is dedicated to a dataset and each model is given a column. The first axis displays which of the axioms is violated and the colour indicates which symmetrisation method was used. Since evaluating all possible distance 3-tuples would be computationally infeasible for even hundreds of samples, three samples were sampled  100 thousand times such that no 3-tuple was repeated.
+    \caption{
+    Percentage of examples found that violate the assumptions outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} using the vanilla (top row), assumed symmetry (second row), enforced (third row), and averaged (bottom row) methods on the training matrices for each of the outlined datasets. Each column is dedicated to a dataset and each model is given a column. The first axis displays which of the axioms is violated and the colour indicates which symmetrisation method was used. Since evaluating all possible distance 3-tuples would be computationally infeasible for even hundreds of samples, three samples were sampled  100 thousand times such that no 3-tuple was repeated.
     }
     \label{fig:real_world_check}
 \end{figure}
 
 Figures~\ref{fig:synthetic_check}--\ref{fig:real_world_check} display how the symmetrisation methods influence to what degree a given metric adheres to the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} and show that they enforce adherence to the symmetric and zero-axiom as expected.
-It is clear that the proposed modifications make NCD behave more like a metric and more consistently adhere to the axioms in Equations~\ref{eq:axiom_zero}-~\ref{eq:axiom_triangle}.
-This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}).
-It is clear that this does not correspond to a decrease in accuracy (see Figure~\ref{fig:acc}) and that these modifications can significantly improve run-time (see Figure~\ref{fig:times}).
+It is clear from these figures that the averaging, enforcing, or assuming symmetry works quite well, thus fulfilling Equation~\ref{eq:axiom_symmetry}.
+Likewise, Equation~\ref{eq:axiom_zero} acts as expected (compare ``Vanilla'' and ``Averaged'' with the other two methods). 
+This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}). 
+It is clear that this does not correspond to a decrease in accuracy (see Figure~\ref{fig:acc}) and that these modifications can significantly improve run-time (see Figure~\ref{fig:times} in Figures~\ref{fig:synthetic_check}--\ref{fig:real_world_check}).
 
 
 \section{Limitations}
@@ -560,8 +558,7 @@ While the selected configurations were sufficient to demonstrate key insights, a
 This work focused on a specific set of compression algorithms.
 Although other compressors exist--including those optimised for specific data types~\cite{gpu_compression,mp3,hevc}—-they were considered out of scope for this study.
 Future work could explore the impact of alternative compressors on both accuracy and run-time.
-
-The preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string.
+Likewise, the data preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string. 
 While effective for our purposes (see Figure~\ref{fig:baseline}), this approach is crude and may obscure structural or semantic relationships within the data by including extraneous characters like commas and brackets (used to delineate and denote a list in Python, respectively).
 As always, the best implementation will be determined by the data and its schema.
 More sophisticated encoding methods—such as schema-aware parsing or embedding techniques—could improve performance, particularly on more complex or high-dimensional datasets.
