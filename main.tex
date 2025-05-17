@@ -442,7 +442,7 @@ In this section, the results from the aforementioned experiments are discussed.
     \hfill
     \includegraphics[width=0.99\textwidth]{images/accuracy_vs_rbf_or_hamming.pdf}
     \caption{
-    The 5-fold accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour), kernel (top plot, colour), and symmetrisation method (bottom plot, colour).
+    The accuracy across each dataset (columns), distance metric (first-axis), whether or not the distance or kernel matrix was used (top plot, colour) and model (bottom plot, colour).
     Only KNN was used in the top plot as it is the only tested model that is meant to use distance matrices and the results depict the 5-fold accuracies for the best-fit model of each model-dataset-metric combination before (orange) and after kernelisation (blue).
     For both plots, the bars represent the mean accuracy and the error bars represent 95\% confidence intervals.
     }
@@ -523,7 +523,7 @@ During prediction, the differences between symmetrisation methods are much less 
     \centering
     \includegraphics[width=\textwidth]{images/synthetic_check.pdf}
     \caption{
-   Percentage of violations of Axioms~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} among 100,000 random strings (from the standard English alphabet), using four symmetrisation methods: vanilla, assumed symmetry, enforced symmetry, and averaging. The top plots vary max string size; bottom plots vary alphabet size. Default settings: max string size is 144, alphabet size is 26. Colours indicate axioms; solid lines indicate NCD (Equation~\ref{eq:ncd}) and dashed lines are for other string metrics (Section~\ref{other_string_metrics}).
+   Percentage of violations of Axioms~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} among 100,000 random strings (from the standard English alphabet), using four symmetrisation methods: vanilla, assumed symmetry, enforced symmetry, and averaged symmetry. The top plots vary max string size; bottom plots vary alphabet size. Default settings: max string size is 144, alphabet size is 26. Colours indicate axioms; solid lines indicate NCD (Equation~\ref{eq:ncd}) and dashed lines are for other string metrics (Section~\ref{other_string_metrics}).
     }
     \label{fig:synthetic_check}
 \end{figure}
@@ -581,9 +581,6 @@ The proposed model is a real-time, client-side classification method that can be
 This reduces the attack surface to only adversaries that have access to data that users generally consider private (\textit{e.g.}, the contents of a message).
 That is, the attack surface is reduced and can be unique to each user, session, or device by using data from each user in isolation and training a model on that user's device. Client-side models would only need to share a single bit (the classification label in a binary classification context) with the platform operator---allowing those operators to serve user-specific contents without exfiltrating private data from their entire user base.
 However, not training a model on large amounts of collected user data means that such hypothetical client-side methods are at risk of not performing at the level of state-of-the-art large-scale methods.
-% By training a model for each user, session, and/or device, model database poisoning attacks~\cite{biggio_poisoning_2013} are categorically avoided.
-% Furthermore, the proposed model reduces the attack surface of attacks like model inference attacks, database exfiltration attacks, and evasion attacks since a malicious user would need to target the personalised classifier of each user session, and/or device~\cite{biggio_evasion_2013,deepfool,chakraborty_adversarial_2018,extraction_attack}.
-% While it is known that some attacks are quite transferable~\cite{wang2021enhancing}, the proposed model reduces the common attack surface to \textit{only} samples that are universal for all users.
 The end result is a model with a substantially reduced attack surface that is nevertheless accurate, but also simple, generally applicable, and very fast.
 
 
