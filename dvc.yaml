@@ -1,0 +1,47 @@
+stages:
+  pre-commmit:
+    cmd: pre-commit run --all-files  && chktex -q -V main.tex -n 24 -n 8 -n 1 -n 45 -n 36 && touch pre_commit.flag # Suppresses warnings 8 (dash length), 24 (\labels inside floats),  1 (trailing whitespace following a command), 45 (prefers \[]\ over $$)
+    deps:
+      - main.tex
+      - bibliography.bib
+      - images/
+    outs:
+      - pre_commit.flag
+  first_run:
+    cmd: pdflatex  main.tex
+    deps:
+      - main.tex
+      - pre_commit.flag
+    outs:
+      - main.aux
+      - main.log
+      - main.out
+  big_run:
+    cmd: pdflatex main.tex && bibtex main && pdflatex  main.tex && pdflatex  main.tex 
+    deps:
+      - main.tex
+      - bibliography.bib
+      - images/
+      - main.aux
+      - main.log
+      - main.out
+    outs:
+      - main.pdf
+  arxiv: # Commented this out for now because /tmp doesn't have enough space to generate the plots on itchy and I don't need to run this anyway.
+    cmd: >-
+      rm -rf tmp/ && 
+      python arxiv.py 
+      --directories images
+      --delete_these_dirs old_images template
+      --extensions py yaml csv 
+      --title "A Tiny, Client-Side Classifier"
+      --delete_these_files  "main.aux" "main.blg" "main.out"  "main.pdf" "main.log"   "arxiv.log"
+      --temporary_directory tmp
+    deps:
+      - arxiv.py
+      - images/
+      - main.pdf
+    outs:
+      - "A Tiny, Client-Side Classifier.zip"
+      - arxiv.log
+      - tmp/

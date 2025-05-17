@@ -1,0 +1,99 @@
+schema: '2.0'
+stages:
+  first_run:
+    cmd: pdflatex  main.tex
+    deps:
+    - path: main.tex
+      md5: 4d1d76d3034051ca1914a5191121cd73
+      size: 50087
+    - path: pre_commit.flag
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+    outs:
+    - path: main.aux
+      md5: b30303264b159149d64dee6e42428856
+      size: 19613
+    - path: main.log
+      md5: 4e60ccacb0e8da11b72164b86552862b
+      size: 49842
+    - path: main.out
+      md5: 2aa9d748aa3bfed06bce97dfa592a080
+      size: 2655
+  big_run:
+    cmd: pdflatex main.tex && bibtex main && pdflatex  main.tex && pdflatex  main.tex
+    deps:
+    - path: bibliography.bib
+      md5: 1df0171389aa9222949f78c98ed6f52f
+      size: 116668
+    - path: images/
+      md5: 04f94273868e22adea69567570a1fc96.dir
+      size: 456377
+      nfiles: 14
+    - path: main.aux
+      md5: b30303264b159149d64dee6e42428856
+      size: 19613
+      isexec: true
+    - path: main.log
+      md5: 0c8f530f2be7b4f3900b5d4ee19bd1f4
+      size: 29494
+      isexec: true
+    - path: main.out
+      md5: 2aa9d748aa3bfed06bce97dfa592a080
+      size: 2655
+      isexec: true
+    - path: main.tex
+      md5: 4d1d76d3034051ca1914a5191121cd73
+      size: 50087
+    outs:
+    - path: main.pdf
+      md5: 24319efb2bcb924a19e3a48e79344d9c
+      size: 555386
+      isexec: true
+  pre-commmit:
+    cmd: pre-commit run --all-files  && chktex -q -V main.tex -n 24 -n 8 -n 1 -n 45
+      -n 36 && touch pre_commit.flag
+    deps:
+    - path: bibliography.bib
+      md5: 1df0171389aa9222949f78c98ed6f52f
+      size: 116668
+    - path: images/
+      md5: 04f94273868e22adea69567570a1fc96.dir
+      size: 456377
+      nfiles: 14
+    - path: main.tex
+      md5: 4d1d76d3034051ca1914a5191121cd73
+      size: 50087
+    outs:
+    - path: pre_commit.flag
+      md5: d41d8cd98f00b204e9800998ecf8427e
+      size: 0
+      isexec: true
+  arxiv:
+    cmd: rm -rf tmp/ &&  python arxiv.py  --directories images --delete_these_dirs
+      old_images template --extensions py yaml csv  --title "A Tiny, Client-Side Classifier"
+      --delete_these_files  "main.aux" "main.blg" "main.out"  "main.pdf" "main.log"   "arxiv.log"
+      --temporary_directory tmp
+    deps:
+    - path: arxiv.py
+      md5: 4874fb721f3cdf46fe5e41f561a079bc
+      size: 7979
+    - path: images/
+      md5: 04f94273868e22adea69567570a1fc96.dir
+      size: 456377
+      nfiles: 14
+    - path: main.pdf
+      md5: 24319efb2bcb924a19e3a48e79344d9c
+      size: 555386
+    outs:
+    - path: A Tiny, Client-Side Classifier.zip
+      md5: 1005111416800c941c4d2604230294ac
+      size: 65001239
+      isexec: true
+    - path: arxiv.log
+      md5: f514eb1308ef6f1d360bc4200f7f7524
+      size: 2581
+      isexec: true
+    - path: tmp/
+      md5: b956fe3bf81719847ffb1675cf433595.dir
+      size: 3251008
+      nfiles: 85
