@@ -1,1 +1,11 @@
 *.csv
+/main.aux
+/main.log
+/main.out
+/main.pdf
+/A Tiny, Client-Side Classifier.zip
+/arxiv.log
+/tmp
+*.flag
+main.bbl
+main.blg

@@ -93,9 +93,9 @@ An additional goal of this work was to evaluate the efficacy of NCD in general a
 While other research examined topics like image classification~\cite{opitz2023gzip}, molecular property classification~\cite{weinreich2023parameter}, and text classification~\cite{nishida2011tweet}, the ability of NCD to classify datasets that contain strings, numeric values, and categorical data (heterogenous datasets) has remained unexplored.
 
 Additionally, the original NCD work~\cite{ncd} included an error term that is usually ignored in recent research~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}.
-To the best of our knowledge, no research has addressed the problem of negative values for NCD.
+To the best of our knowledge, no research has addressed the problem of negative values for NCD\@.
 The original authors~\cite{ncd} asserted that NCD is always positive when using perfect compressors.
-However, this is clearly demonstrated to be false in Lemma~\ref{pseudometric} when using imperfect compressors (which is what we will have in practice) .
+However, this is clearly demonstrated to be false in Lemma~\ref{pseudometric} when using imperfect compressors (which is what we will have in practice).
 
 Prior works about NCD have primarily focused on distance-based ML methods (\textit{e.g.}, KNN), which limits both the class of methods that can be considered and the types of data that can be effectively analysed.
 A key motivation for this work was to extend the use of NCD beyond distance-based methods by developing a novel kernel-based formulation. This significantly broadens the applicability of NCD, making it suitable for a wider range of machine learning techniques where traditional distance-based approaches cannot be used.
@@ -110,10 +110,10 @@ While the effect of various compressors has been explored, in part, before~\cite
 The NCD-KNN method has shown very strong performance across several benchmarks, but prior implementations~\cite{jiang2022less} are not appropriate for real-time settings due to unnecessary repeated computations.
 We therefore propose several run-time improvements and modifications, outlined in Section~\ref{improvements}.
 
-Further, we show that NCD is not a metric~\cite{opitz2023gzip, weinreich2023parameter, nishida2011tweet, jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.}, by incorrectly ordering the nearest neighbours).
+Further, we show that NCD is not a metric~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.}, by incorrectly ordering the nearest neighbours).
 In this work we demonstrate this non-metric behaviour in Lemma~\ref{pseudometric} and propose techniques to mitigate the effects of this behaviour in Section~\ref{improvements}, effectively making the modified NCD ``more like a metric''.
 
-Additionally, we expand the notion of NCD~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less,jiang2022less} to kernels (Section~\ref{kernels}) thus allowing for this method to be used with other models besides KNN.
+Additionally, we expand the notion of NCD~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less,jiang2022less} to kernels (Section~\ref{kernels}) thus allowing for this method to be used with other models besides KNN\@.
 We thus extend NCD to reproducing kernel Hilbert spaces and hence more elaborate ML methods---allowing its use in a broader set of ML methods and to model more complex decision boundaries.
 
 Hence, in this paper, we:
@@ -122,7 +122,7 @@ Hence, in this paper, we:
     \item Demonstrate that the normalized compression distance is not a metric (Lemma~\ref{pseudometric}) and propose techniques to make it behave ``more like a metric'' (Section~\ref{symmetrisation}).
     \item Propose the use of NCD as a kernel and evaluate its efficacy.
     % \item Discuss how private model deployment is safer by design (Section~\ref{threat}) and the efficacy of this design-constraint on several datasets (see Figure~\ref{fig:sample_size}).
-    \item Develop classifiers (evaluations with KNN, logistic regression, and support vector machines (SVC)) that offers large run-time improvements over a reference implementation~\cite{jiang2022less}(Section~\ref{improvements}).
+    \item Develop classifiers (evaluations with KNN, logistic regression, and support vector machines (SVC)) that offers large run-time improvements over a reference implementation~\cite{jiang2022less} (Section~\ref{improvements}).
     % \item Provide efficient implementations of the proposed classifiers in \texttt{Java\-script} as well as a \texttt{Scikit-learn} compatible implementation in \texttt{Python}.
     \item Evaluate and empirically show the efficacy of the proposed NCD-based classifiers across multiple binary classification tasks (Section~\ref{results}).
 \end{itemize}
@@ -341,7 +341,7 @@ $$
 
 The radial basis function (RBF) kernel~\cite{shalev2014understanding}, also known as the Gaussian kernel (when the distance is the Euclidean distance) is defined as
 \begin{equation}
-    k(x, x') = \exp\left(-\frac{d(x, x')^2}{\lambda}\right),
+    k(x, x') = \exp\left(-\frac{d{(x, x')}^2}{\lambda}\right),
     \label{eq:rbf_kernel}
 \end{equation}
 where $\lambda$ is a tunable parameter (denoted a \textit{length scale}) that controls how quickly the kernel function decreases as a function of the distance between points, \textit{i.e.}, determines the influence of individual points on neighbouring points.

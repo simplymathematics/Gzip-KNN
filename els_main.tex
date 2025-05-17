@@ -201,7 +201,7 @@ We limit ourselves to strings here because some of the datasets are string data 
 To use NCD, the model builder must choose a compression algorithm.
 While the effect of various compressors has been explored, in part, before~\cite{ncd_pitfalls}, but we expand the analysis in \cite{ncd_pitfalls} to newer compression algorithms and offer additional run-time improvements over Jiang \textit{et. al's} method.
 The NCD-KNN method has shown very strong performance across several benchmarks, but their implementation was not appropriate for real-time settings.
-However, NCD is a pseudo-metric~\cite{opitz2023gzip, weinreich2023parameter, nishida2011tweet, jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.} by incorrectly ordering the nearest neighbours).
+However, NCD is a pseudo-metric~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,jiang2022less}, which means that applying ML methods blindly can lead to erroneous results (\textit{e.g.} by incorrectly ordering the nearest neighbours).
 In this work we compile some examples of this pseudo-metric behaviour Section~\ref{pseudometric} and propose techniques to mitigate the effects of this behaviour in Section~\ref{improvements}.
 We also propose run-time improvements over Jiang~\textit{et. al.'s} method (Section~\ref{improvements}).
 Additionally, we expand the notion of NCD-as-a-distance~\cite{opitz2023gzip,weinreich2023parameter,nishida2011tweet,ncd,jiang2022less} to kernelised models (Section~\ref{kernels}) in an attempt to model more complex decision boundaries than those allowed by KNN.
