@@ -475,7 +475,7 @@ Therefore, it is clear that the proposed kernelised classification model is as a
     \label{fig:acc}
 \end{figure}
 
-Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices across all models (top row) and all symmetrisation methods (bottom row). 
+Figure~\ref{fig:acc} shows the classifier performance across each dataset and string metric (including NCD, using various compressors) for both the kernel and distance matrices across all models (top row) and all symmetrisation methods (bottom row).
 The top sub-figure groups the results by model and the bottom figure groups the results by symmetrisation method.
 From these results it is clear that KNN is the most consistently accurate (top of Figure~\ref{fig:acc}) and that symmetrisation method can be treated as a hyper-parameter, with optimal choice varying between dataset and model.
 
@@ -490,10 +490,10 @@ From these results it is clear that KNN is the most consistently accurate (top o
     \label{fig:sample_size}
 \end{figure}
 
-Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis). 
-The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups. 
-For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics. 
-However, results are more mixed for other datasets. 
+Figure~\ref{fig:sample_size} depicts the accuracy of the best-fit models as the number of training samples is varied (first-axis).
+The top of Figure~\ref{fig:sample_size} groups the results by metric and the bottom groups the results by symmetrisation method, using colour to differentiate the groups.
+For the DDoS dataset, it is clear from the top subplot of Figure~\ref{fig:sample_size} that NCD improves the accuracy when a small number of samples are used to train the model compared to other string metrics.
+However, results are more mixed for other datasets.
 Additionally, we can see that non-Vanilla symmetrisation methods tend to outperform the Vanilla variety on DDoS, SMS-Spam, and Truthseeker, although this is not significant.
 
 
@@ -539,8 +539,8 @@ During prediction, the differences between symmetrisation methods are much less 
 
 Figures~\ref{fig:synthetic_check}--\ref{fig:real_world_check} display how the symmetrisation methods influence to what degree a given metric adheres to the axioms outlined in Equations~\ref{eq:axiom_zero}--\ref{eq:axiom_triangle} and show that they enforce adherence to the symmetric and zero-axiom as expected.
 It is clear from these figures that the averaging, enforcing, or assuming symmetry works quite well, thus fulfilling Equation~\ref{eq:axiom_symmetry}.
-Likewise, Equation~\ref{eq:axiom_zero} acts as expected (compare ``Vanilla'' and ``Averaged'' with the other two methods). 
-This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}). 
+Likewise, Equation~\ref{eq:axiom_zero} acts as expected (compare ``Vanilla'' and ``Averaged'' with the other two methods).
+This is true on randomly constructed strings (Figure~\ref{fig:synthetic_check}) as well as strings collected from the aforementioned datasets (Figure~\ref{fig:real_world_check}).
 It is clear that this does not correspond to a decrease in accuracy (see Figure~\ref{fig:acc}) and that these modifications can significantly improve run-time (see Figure~\ref{fig:times} in Figures~\ref{fig:synthetic_check}--\ref{fig:real_world_check}).
 
 
@@ -558,7 +558,7 @@ While the selected configurations were sufficient to demonstrate key insights, a
 This work focused on a specific set of compression algorithms.
 Although other compressors exist--including those optimised for specific data types~\cite{gpu_compression,mp3,hevc}—-they were considered out of scope for this study.
 Future work could explore the impact of alternative compressors on both accuracy and run-time.
-Likewise, the data preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string. 
+Likewise, the data preprocessing step used for heterogeneous tabular data was intentionally kept simple---each row was cast to a Python list then cast again as a string.
 While effective for our purposes (see Figure~\ref{fig:baseline}), this approach is crude and may obscure structural or semantic relationships within the data by including extraneous characters like commas and brackets (used to delineate and denote a list in Python, respectively).
 As always, the best implementation will be determined by the data and its schema.
 More sophisticated encoding methods—such as schema-aware parsing or embedding techniques—could improve performance, particularly on more complex or high-dimensional datasets.
