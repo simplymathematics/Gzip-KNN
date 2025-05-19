@@ -4,18 +4,18 @@ stages:
     cmd: pdflatex  main.tex
     deps:
     - path: main.tex
-      md5: 4d1d76d3034051ca1914a5191121cd73
-      size: 50087
+      md5: f01a3b05827e2e9731ee7a2c5ae4d4ae
+      size: 49127
     - path: pre_commit.flag
       md5: d41d8cd98f00b204e9800998ecf8427e
       size: 0
     outs:
     - path: main.aux
-      md5: b30303264b159149d64dee6e42428856
-      size: 19613
+      md5: ad24eb84f1903fd01b2f96fb51f32ec4
+      size: 18992
     - path: main.log
-      md5: 4e60ccacb0e8da11b72164b86552862b
-      size: 49842
+      md5: d60367a28c8c0a61c3307d443c9aa166
+      size: 49633
     - path: main.out
       md5: 2aa9d748aa3bfed06bce97dfa592a080
       size: 2655
@@ -23,46 +23,46 @@ stages:
     cmd: pdflatex main.tex && bibtex main && pdflatex  main.tex && pdflatex  main.tex
     deps:
     - path: bibliography.bib
-      md5: 1df0171389aa9222949f78c98ed6f52f
-      size: 116668
+      md5: 665129621b38718906dbf88511e7cef3
+      size: 169974
     - path: images/
-      md5: 04f94273868e22adea69567570a1fc96.dir
-      size: 456377
-      nfiles: 14
+      md5: 389f9719bf86af63f6d57117fd875b26.dir
+      size: 411407
+      nfiles: 13
     - path: main.aux
-      md5: b30303264b159149d64dee6e42428856
-      size: 19613
+      md5: ad24eb84f1903fd01b2f96fb51f32ec4
+      size: 18992
       isexec: true
     - path: main.log
-      md5: 6e2aa57ac7b59da9ae7898df9f5c433e
-      size: 29494
+      md5: 1c4e5e53ad6b1241734f7416f6656999
+      size: 29726
       isexec: true
     - path: main.out
       md5: 2aa9d748aa3bfed06bce97dfa592a080
       size: 2655
       isexec: true
     - path: main.tex
-      md5: 4d1d76d3034051ca1914a5191121cd73
-      size: 50087
+      md5: f01a3b05827e2e9731ee7a2c5ae4d4ae
+      size: 49127
     outs:
     - path: main.pdf
-      md5: 487ba50fb5d9a72837d0332a9379ee5c
-      size: 555386
+      md5: de13d49edae53c92482c058afaa7ea2b
+      size: 557341
       isexec: true
   pre-commmit:
     cmd: pre-commit run --all-files  && chktex -q -V main.tex -n 24 -n 8 -n 1 -n 45
       -n 36 && touch pre_commit.flag
     deps:
     - path: bibliography.bib
-      md5: 1df0171389aa9222949f78c98ed6f52f
-      size: 116668
+      md5: 665129621b38718906dbf88511e7cef3
+      size: 169974
     - path: images/
-      md5: 04f94273868e22adea69567570a1fc96.dir
-      size: 456377
-      nfiles: 14
+      md5: 389f9719bf86af63f6d57117fd875b26.dir
+      size: 411407
+      nfiles: 13
     - path: main.tex
-      md5: 4d1d76d3034051ca1914a5191121cd73
-      size: 50087
+      md5: f01a3b05827e2e9731ee7a2c5ae4d4ae
+      size: 49127
     outs:
     - path: pre_commit.flag
       md5: d41d8cd98f00b204e9800998ecf8427e
@@ -78,22 +78,22 @@ stages:
       md5: 4874fb721f3cdf46fe5e41f561a079bc
       size: 7979
     - path: images/
-      md5: 04f94273868e22adea69567570a1fc96.dir
-      size: 456377
-      nfiles: 14
+      md5: 389f9719bf86af63f6d57117fd875b26.dir
+      size: 411407
+      nfiles: 13
     - path: main.pdf
-      md5: 487ba50fb5d9a72837d0332a9379ee5c
-      size: 555386
+      md5: de13d49edae53c92482c058afaa7ea2b
+      size: 557341
     outs:
     - path: A Tiny, Client-Side Classifier.zip
-      md5: 835111f6fc6d5e50e054a10cb1981406
-      size: 65465814
+      md5: 248a96a7093849ab8b76228ce5226934
+      size: 66446402
       isexec: true
     - path: arxiv.log
-      md5: 2881ff2d04bdd6b2f4847546bccfb07d
+      md5: cfa678a23955294d126972977388efe4
       size: 2581
       isexec: true
     - path: tmp/
-      md5: 58cbdc7a06d8b3f5a80b56bd46692dba.dir
-      size: 3252965
-      nfiles: 85
+      md5: 994a7a1adeb7beb1ee8eed80f5b12872.dir
+      size: 3271060
+      nfiles: 83
